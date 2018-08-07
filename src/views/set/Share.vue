@@ -32,107 +32,106 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { Loading } from 'vue-ydui/dist/lib.rem/dialog';
+import { Loading } from 'vue-ydui/dist/lib.rem/dialog'
 import QRCode from 'qrcodejs2'
-import myUrl  from 'common/js/api'
-import { put,get,remove,clear }  from 'utils/cache'
-import { wxShare }  from 'utils/wx'
-import { returnUrl }  from 'utils'
+import myUrl from 'common/js/api'
+import { put, get, remove, clear } from 'utils/cache'
+import { wxShare } from 'utils/wx'
+import { returnUrl } from 'utils'
 
 export default {
   data () {
     return {
-     value:'',
-     time:null,
-     shudeDialog:false,
+      value: '',
+      time: null,
+      shudeDialog: false
     }
   },
-  created(){
-    Loading.open('很快加载好了');
+  created () {
+    Loading.open('很快加载好了')
     setTimeout(() => {
-      Loading.close();
-    }, 300);
+      Loading.close()
+    }, 300)
   },
   computed: {
-    
+
   },
   watch: {
   },
-  mounted(){
+  mounted () {
     this.$nextTick(function () {
-     
-      if(!get('time')){
-        this.getToken();
-      }else{
-        this.qrcode();
+      if (!get('time')) {
+        this.getToken()
+      } else {
+        this.qrcode()
       }
-      this.time = get('time');
+      this.time = get('time')
     })
   },
-  methods:{
-    returnMethod(){
-      this.$router.back(-1);
+  methods: {
+    returnMethod () {
+      this.$router.back(-1)
     },
-    getNowFormatDate() {
-      var date = new Date();
-      var seperator1 = "-";
-      var seperator2 = ":";
-      //前十分钟时间
-      var minutes=parseInt("10");  
-      var   interTimes=minutes*60*1000;
-      var interTimes=parseInt(interTimes);  
-      date= new Date(Date.parse(date) + interTimes);
-            
-      var month = date.getMonth() + 1;
-      var strDate = date.getDate();
-      var hour = date.getHours();
-      var minutes = date.getMinutes();
+    getNowFormatDate () {
+      var date = new Date()
+      var seperator1 = '-'
+      var seperator2 = ':'
+      // 前十分钟时间
+      var minutes = parseInt('10')
+      var interTimes = minutes * 60 * 1000
+      var interTimes = parseInt(interTimes)
+      date = new Date(Date.parse(date) + interTimes)
+
+      var month = date.getMonth() + 1
+      var strDate = date.getDate()
+      var hour = date.getHours()
+      var minutes = date.getMinutes()
       if (month >= 1 && month <= 9) {
-        month = "0" + month;
+        month = '0' + month
       }
       if (strDate >= 0 && strDate <= 9) {
-        strDate = "0" + strDate;
+        strDate = '0' + strDate
       }
       if (hour >= 0 && hour <= 9) {
-        hour = "0" + hour;
+        hour = '0' + hour
       }
       if (minutes >= 0 && minutes <= 9) {
-        minutes = "0" + minutes;
+        minutes = '0' + minutes
       }
-      var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
-      + " " + hour + seperator2 + minutes
-       //+ date.getSeconds();
-      return currentdate;
+      var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate +
+      ' ' + hour + seperator2 + minutes
+       // + date.getSeconds();
+      return currentdate
     },
-    getToken(){
-      Loading.open('很快加载好了');
-      this.$http.get(myUrl.token + '?deviceId='+this.$route.query.deviceId).then(res => {
-        if(res.code === 200){
-          put('time',this.getNowFormatDate(),10 * 60);
-          put('token',res.data);
-          this.time = get('time');
-          this.qrcode();
-          Loading.close();
+    getToken () {
+      Loading.open('很快加载好了')
+      this.$http.get(myUrl.token + '?deviceId=' + this.$route.query.deviceId).then(res => {
+        if (res.code === 200) {
+          put('time', this.getNowFormatDate(), 10 * 60)
+          put('token', res.data)
+          this.time = get('time')
+          this.qrcode()
+          Loading.close()
         }
       })
-      .catch(error =>{
-        Loading.close();
+      .catch(error => {
+        Loading.close()
       })
     },
-    qrcode(){
-      let code = this.$refs.ewm;
-      //let url = 'http://huanke.bcard.vip?masterOpenId='+sessionStorage.getItem('Ticket') + '&deviceId='+this.$route.query.deviceId + '&token='+get('token');
-      let url = ''+this.GLOBAL.shareUrl+'?masterOpenId='+sessionStorage.getItem('Ticket') + '&deviceId='+this.$route.query.deviceId + '&token='+get('token');
-      //let url = 'http://huanke.bcard.vip?masterOpenId=okOTjwpDwxJR666hVWnj_L_jp87w' + '&deviceId='+this.$route.query.deviceId + '&token='+get('token');
-      wxShare('我分享了一个设备给你，赶紧看看吧',sessionStorage.getItem('name'),sessionStorage.getItem('icon'),url);
+    qrcode () {
+      let code = this.$refs.ewm
+      // let url = 'http://huanke.bcard.vip?masterOpenId='+sessionStorage.getItem('Ticket') + '&deviceId='+this.$route.query.deviceId + '&token='+get('token');
+      let url = '' + this.GLOBAL.shareUrl + '?masterOpenId=' + sessionStorage.getItem('Ticket') + '&deviceId=' + this.$route.query.deviceId + '&token=' + get('token')
+      // let url = 'http://huanke.bcard.vip?masterOpenId=okOTjwpDwxJR666hVWnj_L_jp87w' + '&deviceId='+this.$route.query.deviceId + '&token='+get('token');
+      wxShare('我分享了一个设备给你，赶紧看看吧', sessionStorage.getItem('name'), sessionStorage.getItem('icon'), url)
       var qrcode = new QRCode(code, {
         text: url,
         width: 200,
         height: 200,
-        colorDark : "#000000",
-        colorLight : "#ffffff",
-        correctLevel : QRCode.CorrectLevel.H
-      });
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      })
     }
   }
 }

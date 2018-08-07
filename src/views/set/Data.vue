@@ -23,114 +23,114 @@
 </template>
 
 <script type="text/ecmascript-6">
-import MyEcharts from '../../components/echart';
-import {Radio, RadioGroup} from 'vue-ydui/dist/lib.rem/radio';
-import myUrl  from 'common/js/api'
-import { Loading,Toast } from 'vue-ydui/dist/lib.rem/dialog';
+import MyEcharts from '../../components/echart'
+import {Radio, RadioGroup} from 'vue-ydui/dist/lib.rem/radio'
+import myUrl from 'common/js/api'
+import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
 
 export default {
   data () {
     return {
-     dataList:[],
-     value:'',
-     radio1:'日',
-     radio2:'时',
-     radio3:'时',
-     chart:null,
-     id: {
-      type: String,
-      default: 'chart'
-     },
+      dataList: [],
+      value: '',
+      radio1: '日',
+      radio2: '时',
+      radio3: '时',
+      chart: null,
+      id: {
+        type: String,
+        default: 'chart'
+      }
     }
   },
-  created(){
-    this.getData();
+  created () {
+    this.getData()
   },
   components: {
-    'yd-radio-group':RadioGroup,
-    'yd-radio':Radio,
-    'my-echarts':MyEcharts
+    'yd-radio-group': RadioGroup,
+    'yd-radio': Radio,
+    'my-echarts': MyEcharts
   },
   computed: {
   },
   watch: {
-    dataList:{
-      handler:function(val,oldval){
+    dataList: {
+      handler: function (val, oldval) {
       },
-      deep:true
+      deep: true
     }
   },
-  mounted(){
-    
+  mounted () {
+
   },
-  methods:{
-    returnMethod(){
-      this.$router.back(-1);
+  methods: {
+    returnMethod () {
+      this.$router.back(-1)
     },
-    getData(){
-      Loading.open('很快加载好了');
-      this.$http.get(myUrl.getHistoryData + '?deviceId='+this.$route.query.deviceId).then(res => {
-        if(res.code === 200){
-          Loading.close();
-          this.dataList = res.data;
+    getData () {
+      Loading.open('很快加载好了')
+      this.$http.get(myUrl.getHistoryData + '?deviceId=' + this.$route.query.deviceId).then(res => {
+        if (res.code === 200) {
+          Loading.close()
+          this.dataList = res.data
         }
       })
-      .catch(function(error){
-        Loading.close();
+      .catch(function (error) {
+        Loading.close()
       })
     },
-    initChart(){
-      this.chart = echarts.init(document.getElementById(this.id));
+    initChart () {
+      this.chart = echarts.init(document.getElementById(this.id))
       this.chart.setOption({
-        tooltip : {
-        trigger: 'axis'
+        tooltip: {
+          trigger: 'axis'
         },
         legend: {
-            data:[]
+          data: []
         },
         toolbox: {
-            show : false,
-            feature : {
-                mark : {show: true},
-                dataView : {show: true, readOnly: false},
-                magicType : {show: true, type: ['line', 'bar', 'stack', 'tiled']},
-                restore : {show: true},
-                saveAsImage : {show: true}
-            }
+          show: false,
+          feature: {
+            mark: {show: true},
+            dataView: {show: true, readOnly: false},
+            magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+            restore: {show: true},
+            saveAsImage: {show: true}
+          }
         },
-        calculable : true,
-        xAxis : [
-            {
-                type : 'category',
-                boundaryGap : false,
-                data : ['2','4','5','8','10','12','16','18','20','22','24'],
-            }
+        calculable: true,
+        xAxis: [
+          {
+            type: 'category',
+            boundaryGap: false,
+            data: ['2', '4', '5', '8', '10', '12', '16', '18', '20', '22', '24']
+          }
         ],
-        yAxis : [
-            {
-              type : 'value'
-            }
+        yAxis: [
+          {
+            type: 'value'
+          }
         ],
-        series : [
-            {
-              name:'',
-              type:'line',
-              stack: '总量',
-              data:[120, 132, 101, 134, 90, 230, 210,210,22,33,88],
-              itemStyle: {
-                normal:{
-                  color: "#999999",
-                  lineStyle: {
-                    color: "#3fa9f5"
-                  }
+        series: [
+          {
+            name: '',
+            type: 'line',
+            stack: '总量',
+            data: [120, 132, 101, 134, 90, 230, 210, 210, 22, 33, 88],
+            itemStyle: {
+              normal: {
+                color: '#999999',
+                lineStyle: {
+                  color: '#3fa9f5'
                 }
               }
-            },
+            }
+          }
         ],
-        grid:{
+        grid: {
           x: 5,
-          y:20,
-          y2:20
+          y: 20,
+          y2: 20
         }
       })
     }

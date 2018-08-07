@@ -15,14 +15,14 @@
 
 <script>
 export default {
-  props:{
-    title:{
-      type:String,
-      default:'提示'
+  props: {
+    title: {
+      type: String,
+      default: '提示'
     },
-    text:{
-      type:String,
-      default:'内容'
+    text: {
+      type: String,
+      default: '内容'
     }
   },
   data () {
@@ -30,20 +30,20 @@ export default {
       showFlag: false
     }
   },
-  mounted(){
+  mounted () {
   },
-  methods:{
-    hide(){
-      this.showFlag = false;
+  methods: {
+    hide () {
+      this.showFlag = false
     },
-    show(){
-      this.showFlag = true;
+    show () {
+      this.showFlag = true
     },
-    cancel(){
+    cancel () {
       this.hide()
       this.$emit('cancel')
     },
-    confirm(){
+    confirm () {
       this.hide()
       this.$emit('confirm')
     }

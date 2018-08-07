@@ -20,26 +20,26 @@ export default {
     return {
       classes: '',
       timer: null,
-      showFlag:false,
+      showFlag: false
     }
   },
-  mounted(){
+  mounted () {
   },
-  methods:{
-    show(){
-      this.showFlag = true;
+  methods: {
+    show () {
+      this.showFlag = true
       this.timer = setTimeout(() => {
-        this.hide();
-      },this.timeout)
+        this.hide()
+      }, this.timeout)
     },
-    hide(){
-      let _this = this;
-      this.classes = 'out';
+    hide () {
+      let _this = this
+      this.classes = 'out'
       setTimeout(() => {
-        _this.classes = '';
-        _this.showFlag = false;
-      },150)
-    },
+        _this.classes = ''
+        _this.showFlag = false
+      }, 150)
+    }
   }
 }
 </script>

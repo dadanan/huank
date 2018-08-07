@@ -7,9 +7,9 @@ import getters from './getters'
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
-    state,
-    mutations,
-    getters
+  state,
+  mutations,
+  getters
 })
 
-export default store;
+export default store

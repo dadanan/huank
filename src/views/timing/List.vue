@@ -33,139 +33,138 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { Switch } from 'vue-ydui/dist/lib.rem/switch';
-import { addClass,removeClass } from 'utils/dom';
-import { Loading,Toast } from 'vue-ydui/dist/lib.rem/dialog';
-import myUrl  from 'common/js/api'
+import { Switch } from 'vue-ydui/dist/lib.rem/switch'
+import { addClass, removeClass } from 'utils/dom'
+import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
+import myUrl from 'common/js/api'
 import Vue from 'vue'
 
 export default {
   data () {
     return {
-     isEdit:false,
-     timeList:[],
-     value:'',
+      isEdit: false,
+      timeList: [],
+      value: ''
     }
   },
   components: {
-    'yd-switch':Switch,
+    'yd-switch': Switch
   },
-  created(){
+  created () {
   },
   computed: {
   },
   watch: {
-    timeList:{
-      handler: function(val){
-        //console.log(val);
+    timeList: {
+      handler: function (val) {
+        // console.log(val);
       },
-      deep:true
+      deep: true
     }
   },
-  mounted(){
-    this.getTimeList();
+  mounted () {
+    this.getTimeList()
   },
-  methods:{
-    delTimer(id){
-      Loading.open('很快加载好了');
-      this.$http.get(myUrl.deleteTimer + '?timerId='+id).then(res => {
-        if(res.code === 200){
-          Loading.close(); 
+  methods: {
+    delTimer (id) {
+      Loading.open('很快加载好了')
+      this.$http.get(myUrl.deleteTimer + '?timerId=' + id).then(res => {
+        if (res.code === 200) {
+          Loading.close()
           Toast({
-              mes: '删除成功',
-              timeout: 1500,
-              icon: 'success'
-          });
-          this.getTimeList();
-          this.save();
+            mes: '删除成功',
+            timeout: 1500,
+            icon: 'success'
+          })
+          this.getTimeList()
+          this.save()
         }
       })
-      .catch(error =>{
-        Loading.close();  
+      .catch(error => {
+        Loading.close()
       })
     },
-    returnMethod(){
-      this.$router.back(-1);
+    returnMethod () {
+      this.$router.back(-1)
     },
-    edit(){
-      this.isEdit = !this.isEdit;
-      this.value = 'active';
-      console.log(this.$refs.boxref1);
+    edit () {
+      this.isEdit = !this.isEdit
+      this.value = 'active'
+      console.log(this.$refs.boxref1)
       $('.box-left').addClass('active')
-      //addClass(this.$refs.boxref1,'active');
+      // addClass(this.$refs.boxref1,'active');
     },
-    save(){
-      this.isEdit = !this.isEdit;
-      this.value = '';
-      $('.box-left').removeClass('active');
+    save () {
+      this.isEdit = !this.isEdit
+      this.value = ''
+      $('.box-left').removeClass('active')
     },
-    getTimeList(){
-      Loading.open('很快加载好了');
-      this.$http.get(myUrl.queryTimerList + '?deviceIdStr='+this.$route.query.deviceId).then(res => {
-        if(res.code === 200){
-          Loading.close(); 
-          this.timeList = res.data;
+    getTimeList () {
+      Loading.open('很快加载好了')
+      this.$http.get(myUrl.queryTimerList + '?deviceIdStr=' + this.$route.query.deviceId).then(res => {
+        if (res.code === 200) {
+          Loading.close()
+          this.timeList = res.data
           this.timeList.forEach(v => {
-            if(v.status === 1){
-              Vue.set(v,'switch1',true)
-            }else{
-              Vue.set(v,'switch1',false)
+            if (v.status === 1) {
+              Vue.set(v, 'switch1', true)
+            } else {
+              Vue.set(v, 'switch1', false)
             }
           })
         }
       })
-      .catch(error =>{
-        Loading.close();  
+      .catch(error => {
+        Loading.close()
       })
     },
-     MillisecondToDate(msd) {  
-        var time = parseFloat(msd) /1000;  
-        if (null!= time &&""!= time) {  
-            if (time >60&& time <60*60) {  
-                time = parseInt(time /60.0) +"分钟";
-            }else if (time >=60*60&& time <60*60*24) {  
-                time = parseInt(time /3600.0) +"小时"+ parseInt((parseFloat(time /3600.0) -  
-                parseInt(time /3600.0)) *60) +"分钟"
-            }else {  
-                time = parseInt(time) +"秒";  
-            }  
-        }else{  
-            time = "0 时 0 分0 秒";  
-        }  
-        return time;  
-      
-    },  
-    switchMethod(id,status){
-      if(status === 1){
-        status = 2;
-      }else{
-        status = 1;
+    MillisecondToDate (msd) {
+      var time = parseFloat(msd) / 1000
+      if (time != null && time != '') {
+        if (time > 60 && time < 60 * 60) {
+          time = parseInt(time / 60.0) + '分钟'
+        } else if (time >= 60 * 60 && time < 60 * 60 * 24) {
+          time = parseInt(time / 3600.0) + '小时' + parseInt((parseFloat(time / 3600.0) -
+                parseInt(time / 3600.0)) * 60) + '分钟'
+        } else {
+          time = parseInt(time) + '秒'
+        }
+      } else {
+        time = '0 时 0 分0 秒'
       }
-      Loading.open('很快加载好了');
-      this.$http.get(myUrl.cancelTimer + '?timerId='+id+'&status='+status).then(res => {
-        if(res.code === 200){
-          this.getTimeList();
-          Loading.close(); 
+      return time
+    },
+    switchMethod (id, status) {
+      if (status === 1) {
+        status = 2
+      } else {
+        status = 1
+      }
+      Loading.open('很快加载好了')
+      this.$http.get(myUrl.cancelTimer + '?timerId=' + id + '&status=' + status).then(res => {
+        if (res.code === 200) {
+          this.getTimeList()
+          Loading.close()
         }
       })
-      .catch(error =>{
-        Loading.close();  
+      .catch(error => {
+        Loading.close()
       })
     },
-    intoTimeInfo(id){
+    intoTimeInfo (id) {
       this.$router.push({
-        path:'/timingedet',
-        query:{
-          id:id,
-          deviceId:this.$route.query.deviceId
+        path: '/timingedet',
+        query: {
+          id: id,
+          deviceId: this.$route.query.deviceId
         }
       })
     },
-    intoTimeDet(){
+    intoTimeDet () {
       this.$router.push({
-        path:'/timingedet',
-        query:{
-          deviceId:this.$route.query.deviceId
+        path: '/timingedet',
+        query: {
+          deviceId: this.$route.query.deviceId
         }
       })
     }

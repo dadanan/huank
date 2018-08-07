@@ -135,378 +135,377 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { Loading,Toast } from 'vue-ydui/dist/lib.rem/dialog';
-import { Popup } from 'vue-ydui/dist/lib.rem/popup';
-import myUrl  from 'common/js/api'
+import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
+import { Popup } from 'vue-ydui/dist/lib.rem/popup'
+import myUrl from 'common/js/api'
 import { setWechatTitle } from 'utils'
-import img1  from '../../assets/bak3.jpg' //白天阴
-import img2  from '../../assets/bak2.jpg' //夜晚阴
-import img3  from '../../assets/bak1.jpg' //夜晚晴
-import img4  from '../../assets/bak4.jpg' //白天晴
-import { Picker } from 'mint-ui';
+import img1 from '../../assets/bak3.jpg' // 白天阴
+import img2 from '../../assets/bak2.jpg' // 夜晚阴
+import img3 from '../../assets/bak1.jpg' // 夜晚晴
+import img4 from '../../assets/bak4.jpg' // 白天晴
+import { Picker } from 'mint-ui'
 export default {
   data () {
     return {
-      specIndex:0, 
-      specTypeIndex:0,//默认内风扇
-      isFlag2:false,
-      address:'',
-      slotsType: [ //风扇类型
+      specIndex: 0,
+      specTypeIndex: 0, // 默认内风扇
+      isFlag2: false,
+      address: '',
+      slotsType: [ // 风扇类型
         {
-          defaultIndex:null,
+          defaultIndex: null,
           flex: 1,
-          values: ['内风扇','外风扇'],
+          values: ['内风扇', '外风扇'],
           className: 'slot1',
           textAlign: 'left'
-        },
+        }
       ],
-      slotsDw: [ //风扇挡位
+      slotsDw: [ // 风扇挡位
         {
-          defaultIndex:null,
+          defaultIndex: null,
           flex: 1,
           values: [],
           className: 'slot2',
           textAlign: 'right'
-        },
+        }
       ],
-      isFlag:false,
-      img:'',
-      currentBak:'',
-      currentTime:2,
-      childItem:'0',
-      timeSet:null,
-      deviceName:'',
-      cHeight:200,
-      isOpen:false,
-      modeFlag:false,//模式设置
-      deviceObj:{},
-      modeCurrent:null,
-      modeData:[],
-      speedFlag:false,
-      speedCurrent:null,
-      speedData:[],
-      functionFlag:false,
-      functionCurrent:null,
-      functionData:[],
-      weather:null,
-      currentSpeed:[]
+      isFlag: false,
+      img: '',
+      currentBak: '',
+      currentTime: 2,
+      childItem: '0',
+      timeSet: null,
+      deviceName: '',
+      cHeight: 200,
+      isOpen: false,
+      modeFlag: false, // 模式设置
+      deviceObj: {},
+      modeCurrent: null,
+      modeData: [],
+      speedFlag: false,
+      speedCurrent: null,
+      speedData: [],
+      functionFlag: false,
+      functionCurrent: null,
+      functionData: [],
+      weather: null,
+      currentSpeed: []
     }
   },
   components: {
-    'yd-popup':Popup,
-    'mt-picker':Picker
+    'yd-popup': Popup,
+    'mt-picker': Picker
 
   },
-  created(){
+  created () {
     this.timeSet = setInterval(() => {
-      if(this.currentTime === 0){
-        this.currentTime = 3;
-        this.getInfoData(true);
+      if (this.currentTime === 0) {
+        this.currentTime = 3
+        this.getInfoData(true)
       }
-      this.currentTime--;
-    },1000);
-    this.cHeight = window.innerWidth * 0.45;
-    if(window.innerWidth <= 340){
-      this.cHeight = window.innerWidth * 0.45;
+      this.currentTime--
+    }, 1000)
+    this.cHeight = window.innerWidth * 0.45
+    if (window.innerWidth <= 340) {
+      this.cHeight = window.innerWidth * 0.45
     }
-    this.getInfoData();
-    this.deviceName = sessionStorage.getItem('name');
-    setWechatTitle(this.deviceName,'');
+    this.getInfoData()
+    this.deviceName = sessionStorage.getItem('name')
+    setWechatTitle(this.deviceName, '')
   },
   computed: {
   },
   watch: {
-    isOpen:function(val){
-      if(val){
-        this.img = this.currentBak;
-      }else{
-        this.img = '';
+    isOpen: function (val) {
+      if (val) {
+        this.img = this.currentBak
+      } else {
+        this.img = ''
       }
     }
   },
-  mounted(){
+  mounted () {
   },
-  methods:{
-    saveSpeeed(){
-      let currentValue = null;
-      this.speedData[this.specTypeIndex].choice.forEach((v,index) => {
-        if(v === this.currentSpeed[0]){
-          currentValue = index;
-          this.speedData[this.specTypeIndex].value = index;
+  methods: {
+    saveSpeeed () {
+      let currentValue = null
+      this.speedData[this.specTypeIndex].choice.forEach((v, index) => {
+        if (v === this.currentSpeed[0]) {
+          currentValue = index
+          this.speedData[this.specTypeIndex].value = index
         }
       })
-      let data = {};
-      data.deviceId = this.$route.query.deviceId;
-      data.funcId = this.speedData[this.specTypeIndex].type;
-      data.value = currentValue + 1;
-      //发送指令
-      this.$http.post(myUrl.sendFunc,data).then(res => {
-        if(res.code === 200){
-          Loading.close(); 
+      let data = {}
+      data.deviceId = this.$route.query.deviceId
+      data.funcId = this.speedData[this.specTypeIndex].type
+      data.value = currentValue + 1
+      // 发送指令
+      this.$http.post(myUrl.sendFunc, data).then(res => {
+        if (res.code === 200) {
+          Loading.close()
           Toast({
-              mes: '发送成功',
-              timeout: 1500,
-              icon: 'success'
-          });
+            mes: '发送成功',
+            timeout: 1500,
+            icon: 'success'
+          })
         }
       })
-      .catch(error =>{
-        Loading.close();  
+      .catch(error => {
+        Loading.close()
       })
     },
-    changeSpeed(item,index){
-      this.specIndex = index;
-      this.slots[0].values = item.choice;
-      this.slots[0].defaultIndex = parseInt(item.value) - 1;
+    changeSpeed (item, index) {
+      this.specIndex = index
+      this.slots[0].values = item.choice
+      this.slots[0].defaultIndex = parseInt(item.value) - 1
     },
-    onValuesChange(picker, values) {
+    onValuesChange (picker, values) {
       if (values[0] > values[1]) {
-        picker.setSlotValue(1, values[0]);
+        picker.setSlotValue(1, values[0])
       }
-      this.currentSpeed = values;
+      this.currentSpeed = values
     },
-    onValuesChange1(picker, values) {
+    onValuesChange1 (picker, values) {
       if (values[0] > values[1]) {
-        picker.setSlotValue(1, values[0]);
+        picker.setSlotValue(1, values[0])
       }
-      if(values[0] == '内风扇'){
-        this.specTypeIndex = 0;
-      }else{
-        this.specTypeIndex = 1;
+      if (values[0] == '内风扇') {
+        this.specTypeIndex = 0
+      } else {
+        this.specTypeIndex = 1
       }
-      this.slotsDw[0].values = this.speedData[this.specTypeIndex].choice;
-      this.slotsDw[0].defaultIndex = parseInt(this.speedData[this.specTypeIndex].value) - 1;
+      this.slotsDw[0].values = this.speedData[this.specTypeIndex].choice
+      this.slotsDw[0].defaultIndex = parseInt(this.speedData[this.specTypeIndex].value) - 1
     },
-    intiTime(){
-      if(!this.isOpen){
-        this.$toast('当前关机状态，不可操作','bottom');
-        return false;
+    intiTime () {
+      if (!this.isOpen) {
+        this.$toast('当前关机状态，不可操作', 'bottom')
+        return false
       }
       this.$router.push({
-        path:'/timinglist',
-        query:{
-          deviceId:this.$route.query.deviceId
+        path: '/timinglist',
+        query: {
+          deviceId: this.$route.query.deviceId
         }
       })
     },
-    switchModel(){
-      if(!this.isOpen){
-        this.$toast('当前关机状态，不可操作','bottom');
-        return false;
+    switchModel () {
+      if (!this.isOpen) {
+        this.$toast('当前关机状态，不可操作', 'bottom')
+        return false
       }
       this.modeFlag = true
     },
-    switchSpeed(){
-      if(!this.isOpen){
-        this.$toast('当前关机状态，不可操作','bottom');
-        return false;
+    switchSpeed () {
+      if (!this.isOpen) {
+        this.$toast('当前关机状态，不可操作', 'bottom')
+        return false
       }
       this.speedFlag = true
     },
-    switchFunction(){
-      if(!this.isOpen){
-        this.$toast('当前关机状态，不可操作','bottom');
-        return false;
+    switchFunction () {
+      if (!this.isOpen) {
+        this.$toast('当前关机状态，不可操作', 'bottom')
+        return false
       }
       this.functionFlag = true
     },
-    intoSet(){
+    intoSet () {
       this.$router.push({
-        path:'/set',
-        query:{
-          deviceId:this.$route.query.deviceId
+        path: '/set',
+        query: {
+          deviceId: this.$route.query.deviceId
         }
       })
     },
-    childMethod(type){
-      if(!this.isOpen && type){
-        this.$toast('当前关机状态，不可操作','bottom');
-        return false;
+    childMethod (type) {
+      if (!this.isOpen && type) {
+        this.$toast('当前关机状态，不可操作', 'bottom')
+        return false
       }
-      let data = {};
-      data.funcId = 270;
-      data.deviceId = this.$route.query.deviceId;
-      data.value = this.childItem === '1' ? 0:1;
-      this.$http.post(myUrl.sendFunc,data).then(res => {
-        if(res.code === 200){
-          Loading.close(); 
-          this.childItem = this.childItem === '1' ? '0':'1'; 
-          let tit = this.childItem === '1' ? '开启成功':'关闭成功';
+      let data = {}
+      data.funcId = 270
+      data.deviceId = this.$route.query.deviceId
+      data.value = this.childItem === '1' ? 0 : 1
+      this.$http.post(myUrl.sendFunc, data).then(res => {
+        if (res.code === 200) {
+          Loading.close()
+          this.childItem = this.childItem === '1' ? '0' : '1'
+          let tit = this.childItem === '1' ? '开启成功' : '关闭成功'
           Toast({
-              mes: tit,
-              timeout: 1500,
-              icon: 'success'
-          });
+            mes: tit,
+            timeout: 1500,
+            icon: 'success'
+          })
         }
       })
-      .catch(error =>{
-        Loading.close();  
+      .catch(error => {
+        Loading.close()
       })
     },
-    onOffMethod(){
-      let data = {};
-      data.funcId = 210;
-      data.deviceId = this.$route.query.deviceId;
-      data.value = this.isOpen ? 0:1;
-      this.$http.post(myUrl.sendFunc,data).then(res => {
-        if(res.code === 200){
-          Loading.close();  
-          this.isOpen = !this.isOpen;
-          let tit = this.isOpen ? '开启成功':'关闭成功';
+    onOffMethod () {
+      let data = {}
+      data.funcId = 210
+      data.deviceId = this.$route.query.deviceId
+      data.value = this.isOpen ? 0 : 1
+      this.$http.post(myUrl.sendFunc, data).then(res => {
+        if (res.code === 200) {
+          Loading.close()
+          this.isOpen = !this.isOpen
+          let tit = this.isOpen ? '开启成功' : '关闭成功'
           Toast({
-              mes: tit,
-              timeout: 1500,
-              icon: 'success'
-          });
+            mes: tit,
+            timeout: 1500,
+            icon: 'success'
+          })
         }
       })
-      .catch(error =>{
-        Loading.close();  
+      .catch(error => {
+        Loading.close()
       })
     },
-    selectMode(index){
-      this.modeCurrent = index;
+    selectMode (index) {
+      this.modeCurrent = index
     },
-    selectSpeed(index){
-      this.speedCurrent = index;
+    selectSpeed (index) {
+      this.speedCurrent = index
     },
-    selectFunction(index,value){
-      let data = {};
-      data.deviceId = this.$route.query.deviceId;
-      data.funcId = this.functionData[index][0].type;
-      data.value = value === '0' ? '1' : '0';
-      let tit = value === '0' ? '开启成功':'关闭成功';
-      this.$http.post(myUrl.sendFunc,data).then(res => {
-        if(res.code === 200){
-          Loading.close();  
+    selectFunction (index, value) {
+      let data = {}
+      data.deviceId = this.$route.query.deviceId
+      data.funcId = this.functionData[index][0].type
+      data.value = value === '0' ? '1' : '0'
+      let tit = value === '0' ? '开启成功' : '关闭成功'
+      this.$http.post(myUrl.sendFunc, data).then(res => {
+        if (res.code === 200) {
+          Loading.close()
           this.functionData[index][0].value = value === '0' ? '1' : '0'
           Toast({
-              mes: tit,
-              timeout: 1500,
-              icon: 'success'
-          });
+            mes: tit,
+            timeout: 1500,
+            icon: 'success'
+          })
         }
       })
-      .catch(error =>{
-        Loading.close();  
+      .catch(error => {
+        Loading.close()
       })
     },
-    getInfoData(type){
-      if(!type){
-         Loading.open('很快加载好了');
+    getInfoData (type) {
+      if (!type) {
+        Loading.open('很快加载好了')
       }
-      this.$http.get(myUrl.queryDetailByDeviceId + '?deviceId='+this.$route.query.deviceId).then(res => {
-        if(res.code === 200){
-          this.deviceObj = res.data;
-          this.weather = res.data.weather;
-          this.setWether();
-          if(res.data.modeItem.value == 0){//开机
-            this.img = '';
-          }else{
-            this.isOpen = true;
+      this.$http.get(myUrl.queryDetailByDeviceId + '?deviceId=' + this.$route.query.deviceId).then(res => {
+        if (res.code === 200) {
+          this.deviceObj = res.data
+          this.weather = res.data.weather
+          this.setWether()
+          if (res.data.modeItem.value == 0) { // 开机
+            this.img = ''
+          } else {
+            this.isOpen = true
           }
-          this.address = res.data.location.split(',')[1];
-          sessionStorage.setItem('location',res.data.location);
-          sessionStorage.setItem('ip',res.data.ip);
-          sessionStorage.setItem('deviceInfoItem',JSON.stringify(res.data.deviceInfoItem));
-          sessionStorage.setItem('screens',JSON.stringify(res.data.screens));//设置滤芯缓存
-          this.childItem = res.data.childItem.value;
-          this.modeData = this.toArray(res.data.modeItem.choice);
-          if(res.data.windItems.length === 1){
-            this.speedData = this.toArray(res.data.windItems[0].choice);
-          }else if(res.data.windItems.length === 2){//内外风扇
-            this.speedData = res.data.windItems;
-            this.speedData.forEach((v,index) => {
-              v.name = index === 0 ? '内风扇':'外风扇';
-              v.choice = this.toArray(v.choice);
+          this.address = res.data.location.split(',')[1]
+          sessionStorage.setItem('location', res.data.location)
+          sessionStorage.setItem('ip', res.data.ip)
+          sessionStorage.setItem('deviceInfoItem', JSON.stringify(res.data.deviceInfoItem))
+          sessionStorage.setItem('screens', JSON.stringify(res.data.screens))// 设置滤芯缓存
+          this.childItem = res.data.childItem.value
+          this.modeData = this.toArray(res.data.modeItem.choice)
+          if (res.data.windItems.length === 1) {
+            this.speedData = this.toArray(res.data.windItems[0].choice)
+          } else if (res.data.windItems.length === 2) { // 内外风扇
+            this.speedData = res.data.windItems
+            this.speedData.forEach((v, index) => {
+              v.name = index === 0 ? '内风扇' : '外风扇'
+              v.choice = this.toArray(v.choice)
             })
-            this.slotsDw[0].defaultIndex = parseInt(this.speedData[this.specTypeIndex].value) - 1;
-            this.slotsDw[0].values = this.speedData[0].choice;
+            this.slotsDw[0].defaultIndex = parseInt(this.speedData[this.specTypeIndex].value) - 1
+            this.slotsDw[0].values = this.speedData[0].choice
           }
-          this.speedCurrent = res.data.windItems[0].value;
-          this.modeCurrent = res.data.modeItem.value;
+          this.speedCurrent = res.data.windItems[0].value
+          this.modeCurrent = res.data.modeItem.value
           this.functionData = res.data.funcs
-          Loading.close();
+          Loading.close()
+        }
+      })
+      .catch(error => {
+        Loading.close()
+      })
+    },
+    // 发送指令
+    sendFunc (index, type) {
+      Loading.open('发送中...')
+      let data = {}
+      data.deviceId = this.$route.query.deviceId
+      if (type === 1) { // 模式
+        data.funcId = 210
+        data.value = index
+      } else if (type === 2) { // 风速
+        data.funcId = 280
+        data.value = index + 1
+      }
 
+      this.$http.post(myUrl.sendFunc, data).then(res => {
+        if (type === 1) { // 模式
+          this.modeCurrent = index
+        } else if (type === 2) { // 风速
+          this.speedCurrent = index + 1
         }
-      })
-      .catch(error =>{
-        Loading.close();
-      })
-    },
-    //发送指令
-    sendFunc(index,type){
-      Loading.open('发送中...');
-      let data = {};
-      data.deviceId = this.$route.query.deviceId;
-      if(type === 1){//模式
-        data.funcId = 210;
-        data.value = index;
-      }else if(type === 2){//风速
-        data.funcId = 280;
-        data.value = index + 1;
-      }
-      
-      this.$http.post(myUrl.sendFunc,data).then(res => {
-        if(type === 1){//模式
-          this.modeCurrent = index;
-        }else if(type === 2){//风速
-          this.speedCurrent = index + 1;
-        }
-        if(res.code === 200){
-          Loading.close();  
+        if (res.code === 200) {
+          Loading.close()
           Toast({
-              mes: '发送成功',
-              timeout: 1500,
-              icon: 'success'
-          });
+            mes: '发送成功',
+            timeout: 1500,
+            icon: 'success'
+          })
         }
       })
-      .catch(error =>{
-        Loading.close();  
+      .catch(error => {
+        Loading.close()
       })
     },
-    setWether(){
-      var myDate = new Date();
-      let h = myDate.getHours();//获取当前小时
-      if(!this.weather){//未返回值
-        if((parseInt(h) < 6 && parseInt(h) >= 0) || (parseInt(h) < 24) && parseInt(h) > 18){//夜晚
-          this.currentBak = img3;
-        }else{//白天
-          this.currentBak = img4;
+    setWether () {
+      var myDate = new Date()
+      let h = myDate.getHours()// 获取当前小时
+      if (!this.weather) { // 未返回值
+        if ((parseInt(h) < 6 && parseInt(h) >= 0) || (parseInt(h) < 24) && parseInt(h) > 18) { // 夜晚
+          this.currentBak = img3
+        } else { // 白天
+          this.currentBak = img4
         }
-      }else{
-        if(this.weather.indexOf("雨") != -1 || this.weather.indexOf("阴") != -1 ){//阴天
-          if((parseInt(h) < 6 && parseInt(h) >= 0) || (parseInt(h) < 24) && parseInt(h) > 18){//夜晚
-            this.currentBak = img2;
-          }else{//白天
-            this.currentBak = img1;
+      } else {
+        if (this.weather.indexOf('雨') != -1 || this.weather.indexOf('阴') != -1) { // 阴天
+          if ((parseInt(h) < 6 && parseInt(h) >= 0) || (parseInt(h) < 24) && parseInt(h) > 18) { // 夜晚
+            this.currentBak = img2
+          } else { // 白天
+            this.currentBak = img1
           }
-        }else{
-          if((parseInt(h) < 6 && parseInt(h) >= 0) || (parseInt(h) < 24) && parseInt(h) > 18){//夜晚
-            this.currentBak = img3;
-          }else{//白天
-            this.currentBak = img4;
+        } else {
+          if ((parseInt(h) < 6 && parseInt(h) >= 0) || (parseInt(h) < 24) && parseInt(h) > 18) { // 夜晚
+            this.currentBak = img3
+          } else { // 白天
+            this.currentBak = img4
           }
         }
       }
-      this.img = this.currentBak;
+      this.img = this.currentBak
     },
-    //字符串转数组
-    toArray(str){
-      let arr = [];
-      let newstr = str.split(',');
-      for(let i = 0;i<newstr.length;i++){
+    // 字符串转数组
+    toArray (str) {
+      let arr = []
+      let newstr = str.split(',')
+      for (let i = 0; i < newstr.length; i++) {
         arr.push(newstr[i].slice(2))
       }
-      return arr;
-    },
-    
+      return arr
+    }
+
   },
-  destroyed (){
-    clearInterval(this.timeSet);
-  },
-  
+  destroyed () {
+    clearInterval(this.timeSet)
+  }
+
 }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>

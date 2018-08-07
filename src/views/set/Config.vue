@@ -202,138 +202,138 @@
 <script type="text/ecmascript-6">
 	import {
 		Loading
-	} from 'vue-ydui/dist/lib.rem/dialog';
-	import myUrl from 'common/js/api';
-	import Vue from 'vue';
-	import {
+	} from 'vue-ydui/dist/lib.rem/dialog'
+import myUrl from 'common/js/api'
+import Vue from 'vue'
+import {
 		Accordion,
 		AccordionItem
-	} from 'vue-ydui/dist/lib.rem/accordion';
-	import {
+	} from 'vue-ydui/dist/lib.rem/accordion'
+import {
 		CheckBox,
 		CheckBoxGroup
-	} from 'vue-ydui/dist/lib.rem/checkbox';
-	import {
+	} from 'vue-ydui/dist/lib.rem/checkbox'
+import {
 		Radio,
 		RadioGroup
-	} from 'vue-ydui/dist/lib.rem/radio';
-	import {
+	} from 'vue-ydui/dist/lib.rem/radio'
+import {
 		TimeLine,
 		TimeLineItem
-	} from 'vue-ydui/dist/lib.rem/timeline';
-	import {
+	} from 'vue-ydui/dist/lib.rem/timeline'
+import {
 		Switch
-	} from 'vue-ydui/dist/lib.rem/switch';
-	export default {
-		data() {
-				return {
-					inItems: [],
-					outItems: [],
-					isEdit: false,
-					open: 0,
-					checkbox2: [],
-					radio1: 1,
-					switch1: true,
-					setPwdFlag: true,
-					delDevFlag: false,
-					addDevFlag: false,
-					pwd: '',
-					pwdList: []
-				}
-			},
-			created() {
-				Loading.open('很快加载好了');
-				setTimeout(() => {
-					Loading.close();
-				}, 300);
-			},
-			computed: {
+	} from 'vue-ydui/dist/lib.rem/switch'
+export default {
+	  data () {
+	return {
+	  inItems: [],
+	  outItems: [],
+	  isEdit: false,
+	  open: 0,
+	  checkbox2: [],
+	  radio1: 1,
+	  switch1: true,
+	  setPwdFlag: true,
+	  delDevFlag: false,
+	  addDevFlag: false,
+	  pwd: '',
+	  pwdList: []
+	}
+	},
+	  created () {
+	    Loading.open('很快加载好了')
+	    setTimeout(() => {
+	      Loading.close()
+	}, 300)
+	  },
+	  computed: {
 
-			},
-			components: {
-				'yd-accordion': Accordion,
-				'yd-accordion-item': AccordionItem,
-				'yd-checkbox-group': CheckBoxGroup,
-				'yd-checkbox': CheckBox,
-				'yd-radio-group': RadioGroup,
-				'yd-radio': Radio,
-				'yd-timeline-item': TimeLineItem,
-				'yd-timeline': TimeLine,
-				'yd-switch': Switch,
-			},
-			watch: {
-				'pwd': function() {
-					if(this.pwd && this.pwd.length > 0) {
-						if(this.pwd.length >= 4) {
-							this.pwd = this.pwd.slice(0, 4);
-						}
-						this.pwdList = this.pwd.split('')
-					} else {
-						this.pwdList = []
-					}
-				}
-			},
-			mounted() {
-				this.getConfigInfo()
-			},
-			methods: {
+	},
+	  components: {
+	    'yd-accordion': Accordion,
+	    'yd-accordion-item': AccordionItem,
+	    'yd-checkbox-group': CheckBoxGroup,
+	    'yd-checkbox': CheckBox,
+	    'yd-radio-group': RadioGroup,
+	    'yd-radio': Radio,
+	    'yd-timeline-item': TimeLineItem,
+	    'yd-timeline': TimeLine,
+	    'yd-switch': Switch
+	},
+	  watch: {
+	    'pwd': function () {
+	      if (this.pwd && this.pwd.length > 0) {
+	        if (this.pwd.length >= 4) {
+	          this.pwd = this.pwd.slice(0, 4)
+	        }
+	        this.pwdList = this.pwd.split('')
+	} else {
+	        this.pwdList = []
+	}
+	}
+	},
+	  mounted () {
+	    this.getConfigInfo()
+	},
+	  methods: {
 
-				returnMethod() {
-					this.$router.back(-1);
-				},
-				getConfigInfo() {
-					Loading.open('很快加载好了');
-					this.$http.post(myUrl.getSpeedConfig + '?deviceId=' + this.$route.query.deviceId).then(res => {
-							if(res.code === 200) {
-								Loading.close();
-								this.inItems = res.data.inItems;
-								this.outItems = res.data.outItems;
-							}
-						})
+	    returnMethod () {
+	      this.$router.back(-1)
+	    },
+	    getConfigInfo () {
+	      Loading.open('很快加载好了')
+	      this.$http.post(myUrl.getSpeedConfig + '?deviceId=' + this.$route.query.deviceId).then(res => {
+	        if (res.code === 200) {
+	          Loading.close()
+	          this.inItems = res.data.inItems
+	          this.outItems = res.data.outItems
+	        }
+	})
 						.catch(error => {
-							Loading.close();
-						})
-				},
-				save() {
-					Loading.open('很快加载好了');
-					let data = {};
-					data.deviceId = this.$route.query.deviceId;
-					data.inSpeed = [];
-					this.inItems.forEach(v => {
-						data.inSpeed.push(v.speed);
-					})
-					data.outSpeed = [];
-					this.outItems.forEach(v => {
-						data.outSpeed.push(v.speed);
-					})
-					this.$http.post(myUrl.setSpeedConfig, data).then(res => {
-							if(res.code === 200) {
-								this.isEdit = false;
-								Loading.close();
-								this.getConfigInfo();
-								Toast({
-									mes: '设置成功',
-									timeout: 1500,
-									icon: 'success'
-								});
-							}
-						})
+	  Loading.close()
+	})
+	},
+	    save () {
+	      Loading.open('很快加载好了')
+	      let data = {}
+	      data.deviceId = this.$route.query.deviceId
+	      data.inSpeed = []
+	      this.inItems.forEach(v => {
+	        data.inSpeed.push(v.speed)
+	})
+	      data.outSpeed = []
+	      this.outItems.forEach(v => {
+	        data.outSpeed.push(v.speed)
+	})
+	      this.$http.post(myUrl.setSpeedConfig, data).then(res => {
+	        if (res.code === 200) {
+	          this.isEdit = false
+	          Loading.close()
+	          this.getConfigInfo()
+	          Toast({
+	            mes: '设置成功',
+	            timeout: 1500,
+	            icon: 'success'
+	})
+	        }
+	})
 						.catch(error => {
-							Loading.close();
-						})
-				},
-				edit() {
-					this.isEdit = true;
-					console.log(this.inItems)
-				},
-				addDev() {
-					this.addDevFlag = true;
-				},
-				delDev() {
-					this.delDevFlag = true;
-				}
+	  Loading.close()
+	})
+	},
+	    edit () {
+	      this.isEdit = true
+	      console.log(this.inItems)
+	},
+	    addDev () {
+	      this.addDevFlag = true
+	    },
+	    delDev () {
+	      this.delDevFlag = true
+	    }
 
-			}
+	}
 	}
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>

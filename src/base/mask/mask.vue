@@ -17,36 +17,36 @@ export default {
       default: 1500
     },
     opacity: {
-      default: .4
+      default: 0.4
     },
     animated: {
       type: Boolean,
       default: true
-  }
+    }
   },
   data () {
     return {
-      show:this.value
+      show: this.value
     }
   },
-  mounted(){
+  mounted () {
   },
-  methods:{
+  methods: {
 
   },
   watch: {
-    value(val){
-      this.show = val;
+    value (val) {
+      this.show = val
     }
   },
   computed: {
-    styles() {
-      const style = {'z-index': this.zindex, 'background-color': this.bgcolor};
-      if(this.show) {
-          style['opacity'] = this.opacity;
-          style['pointer-events'] = 'auto';
+    styles () {
+      const style = {'z-index': this.zindex, 'background-color': this.bgcolor}
+      if (this.show) {
+        style['opacity'] = this.opacity
+        style['pointer-events'] = 'auto'
       }
-      return style;
+      return style
     }
   }
 }

@@ -21,60 +21,60 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { Loading } from 'vue-ydui/dist/lib.rem/dialog';
-import myUrl  from 'common/js/api'
+import { Loading } from 'vue-ydui/dist/lib.rem/dialog'
+import myUrl from 'common/js/api'
 import Vue from 'vue'
 
 export default {
   data () {
     return {
-     inItems:[],
-     outItems:[],
-     isEdit:false,
-     shareList:[],
+      inItems: [],
+      outItems: [],
+      isEdit: false,
+      shareList: []
     }
   },
-  created(){
-    Loading.open('很快加载好了');
+  created () {
+    Loading.open('很快加载好了')
     setTimeout(() => {
-      Loading.close();
-    }, 300);
+      Loading.close()
+    }, 300)
   },
   computed: {
   },
   watch: {
   },
-  mounted(){
-    this.getShareList();
+  mounted () {
+    this.getShareList()
   },
-  methods:{
-    returnMethod(){
-      this.$router.back(-1);
+  methods: {
+    returnMethod () {
+      this.$router.back(-1)
     },
-    deleteMethod(openid){
-      Loading.open('很快加载好了');
-      this.$http.get(myUrl.clearRelation+'?deviceId='+this.$route.query.deviceId+'&joinOpenId='+openid).then(res =>{
-        if(res.code === 200){
-          Loading.close();
-          this.getShareList();
+    deleteMethod (openid) {
+      Loading.open('很快加载好了')
+      this.$http.get(myUrl.clearRelation + '?deviceId=' + this.$route.query.deviceId + '&joinOpenId=' + openid).then(res => {
+        if (res.code === 200) {
+          Loading.close()
+          this.getShareList()
         }
       })
-      .catch(error =>{
-        Loading.close();
-        this.$toast(error.msg,'bottom');
+      .catch(error => {
+        Loading.close()
+        this.$toast(error.msg, 'bottom')
       })
     },
-    getShareList(){
-      Loading.open('很快加载好了');
-      this.$http.get(myUrl.shareList+'?deviceId='+this.$route.query.deviceId).then(res =>{
-        if(res.code === 200){
-          Loading.close();
-          this.shareList = res.data;
+    getShareList () {
+      Loading.open('很快加载好了')
+      this.$http.get(myUrl.shareList + '?deviceId=' + this.$route.query.deviceId).then(res => {
+        if (res.code === 200) {
+          Loading.close()
+          this.shareList = res.data
         }
       })
-      .catch(error =>{
-        Loading.close();
-        this.$toast(error.msg,'bottom');
+      .catch(error => {
+        Loading.close()
+        this.$toast(error.msg, 'bottom')
       })
     }
   }

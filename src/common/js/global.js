@@ -1,9 +1,9 @@
 
 const config = {
   url: 'http://www.hcocloud.com/dash',
-appId: 'wx292d0902bf9841d6',
-shareUrl: 'http://www.hcocloud.com/xf',
-redUrl:'http%3a%2f%2fwww.hcocloud.com%2Fxf%2F%23%2Fauth'
+  appId: 'wx292d0902bf9841d6',
+  shareUrl: 'http://www.hcocloud.com/xf',
+  redUrl: 'http%3a%2f%2fwww.hcocloud.com%2Fxf%2F%23%2Fauth'
 }
 
 /**
@@ -13,7 +13,6 @@ shareUrl: 'http://www.hcocloud.com',
 redUrl:'http%3a%2f%2fwww.hcocloud.com%2F%23%2Fauth'
 */
 
-
 /**
 url: 'http://www.hcocloud.com/dash',
 appId: 'wx292d0902bf9841d6',
@@ -21,4 +20,4 @@ shareUrl: 'http://www.hcocloud.com/xf',
 redUrl:'http%3a%2f%2fwww.hcocloud.com%2Fxf%2F%23%2Fauth'
 */
 
-export default config;
+export default config

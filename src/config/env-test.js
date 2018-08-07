@@ -6,4 +6,4 @@
 let baseUrl = {
 }
 
-export default baseUrl;
+export default baseUrl

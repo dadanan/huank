@@ -36,116 +36,116 @@
 	import {
 		Loading,
 		Toast
-	} from 'vue-ydui/dist/lib.rem/dialog';
-	import {
+	} from 'vue-ydui/dist/lib.rem/dialog'
+import {
 		DateTime
-	} from 'vue-ydui/dist/lib.rem/datetime';
-	import myUrl from 'common/js/api'
+	} from 'vue-ydui/dist/lib.rem/datetime'
+import myUrl from 'common/js/api'
 	export default {
-		data() {
-				return {
-					timFlag: false,
-					datetime: '',
-					timer: {
-						name: '',
-						afterTime: '',
-						deviceId: this.$route.query.deviceId,
-						timerType: 1,
+	  data () {
+	return {
+	  timFlag: false,
+	  datetime: '',
+	  timer: {
+	    name: '',
+	    afterTime: '',
+	    deviceId: this.$route.query.deviceId,
+	    timerType: 1
 
-					},
-					timelist:[{
-						name: '周一',
-						type: false
-					}, {
-						name: '周二',
-						type: false
-					}, {
-						name: '周三',
-						type: false
-					}, {
-						name: '周四',
-						type: false
-					}, {
-						name: '周五',
-						type: false
-					}, {
-						name: '周六',
-						type: false
-					}, {
-						name: '周日',
-						type: false
-					}]
-				}
-			},
-			created() {
-				if(this.$route.query.id) {
-					this.getTimeInfo(this.$route.query.id, this.$route.query.deviceId); //获取定时器详情
-				}
-			},
-			components: {
-				'yd-datetime': DateTime,
-			},
-			computed: {},
-			watch: {},
-			mounted() {},
-			methods: {
-				update() {},
-				getTimeInfo(id, deviceId) {
-					Loading.open('很快加载好了');
-					this.$http.get(myUrl.timerDetail + '?timerId=' + id).then(res => {
-							if(res.code === 200) {
-								this.timer.name = res.data.name;
-								this.timer.timerType = res.data.timerType;
-								Loading.close();
-							}
-						})
+	},
+	  timelist: [{
+	    name: '周一',
+	    type: false
+	}, {
+	  name: '周二',
+	  type: false
+	}, {
+	  name: '周三',
+	  type: false
+	}, {
+	  name: '周四',
+	  type: false
+	}, {
+	  name: '周五',
+	  type: false
+	}, {
+	  name: '周六',
+	  type: false
+	}, {
+	  name: '周日',
+	  type: false
+	}]
+	}
+	},
+	  created () {
+	    if (this.$route.query.id) {
+	      this.getTimeInfo(this.$route.query.id, this.$route.query.deviceId) // 获取定时器详情
+	    }
+	},
+	  components: {
+	    'yd-datetime': DateTime
+	},
+	  computed: {},
+	  watch: {},
+	  mounted () {},
+	  methods: {
+	    update () {},
+	    getTimeInfo (id, deviceId) {
+	      Loading.open('很快加载好了')
+	      this.$http.get(myUrl.timerDetail + '?timerId=' + id).then(res => {
+	        if (res.code === 200) {
+	          this.timer.name = res.data.name
+	          this.timer.timerType = res.data.timerType
+	          Loading.close()
+	        }
+	})
 						.catch(error => {
-							Loading.close();
-						})
-				},
-				saveMethod() {
-					if(this.timer.name === '') {
-						this.$toast('请输入定时器标签', 'bottom');
-						return false;
-					} else if(this.timer.afterTime === '00:00') {
-						this.$toast('请选择定时时间', 'bottom');
-						return false;
-					}
-					Loading.open('很快加载好了');
-					let arr = this.timer.afterTime.split(':');
-					let time = 0;
-					if(arr[0] !== '00') { //取时
-						time += parseInt(arr[0] * 60 * 60 * 1000);
-					}
-					if(arr[1] !== '00') {
-						time += parseInt(arr[1] * 60 * 1000);
-					}
-					let url = myUrl.addTimer;
-					if(this.$route.query.id) { //编辑
-						this.timer.id = this.$route.query.id;
-						url = myUrl.editTimer;
-					}
+	  Loading.close()
+	})
+	},
+	    saveMethod () {
+	      if (this.timer.name === '') {
+	        this.$toast('请输入定时器标签', 'bottom')
+	        return false
+	      } else if (this.timer.afterTime === '00:00') {
+	        this.$toast('请选择定时时间', 'bottom')
+	        return false
+	}
+	      Loading.open('很快加载好了')
+	      let arr = this.timer.afterTime.split(':')
+	      let time = 0
+	      if (arr[0] !== '00') { // 取时
+	        time += parseInt(arr[0] * 60 * 60 * 1000)
+	}
+	      if (arr[1] !== '00') {
+	        time += parseInt(arr[1] * 60 * 1000)
+	      }
+	      let url = myUrl.addTimer
+	      if (this.$route.query.id) { // 编辑
+	        this.timer.id = this.$route.query.id
+	        url = myUrl.editTimer
+	}
 
-					this.timer.afterTime = parseInt(time);
-					this.$http.post(url, this.timer).then(res => {
-							if(res.code === 200) {
-								Loading.close();
-								this.$router.push({
-									path: '/timinglist',
-									query: {
-										deviceId: this.$route.query.deviceId
-									}
-								})
-							}
-						})
+	      this.timer.afterTime = parseInt(time)
+	      this.$http.post(url, this.timer).then(res => {
+	        if (res.code === 200) {
+	          Loading.close()
+	          this.$router.push({
+	            path: '/timinglist',
+	            query: {
+	              deviceId: this.$route.query.deviceId
+	}
+	})
+	}
+	})
 						.catch(error => {
-							Loading.close();
-						})
-				},
-				returnMethod() {
-					this.$router.back(-1);
-				}
-			}
+	  Loading.close()
+	})
+	},
+	    returnMethod () {
+	      this.$router.back(-1)
+	    }
+	}
 	}
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>

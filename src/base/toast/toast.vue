@@ -8,7 +8,7 @@
 
 <script>
 export default {
-  props:{
+  props: {
     mes: String,
     timeout: Number,
     callback: Function
@@ -17,9 +17,9 @@ export default {
     return {
     }
   },
-  mounted(){
+  mounted () {
   },
-  methods:{
+  methods: {
   }
 }
 </script>

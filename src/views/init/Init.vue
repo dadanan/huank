@@ -3,7 +3,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import myUrl  from 'common/js/api'
+import myUrl from 'common/js/api'
 import { getQueryString } from 'utils'
 
 export default {
@@ -13,37 +13,37 @@ export default {
   },
   components: {
   },
-  created(){
-    this.redireact();
+  created () {
+    this.redireact()
   },
   computed: {
   },
   watch: {
   },
-  mounted(){
+  mounted () {
   },
-  methods:{
-    redireact(){
-      let baseUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize';
+  methods: {
+    redireact () {
+      let baseUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize'
       let params = {
-        appid:this.GLOBAL.appId,
-        redirect_uri:this.GLOBAL.redUrl,
-        response_type:'code',
-        scope:'snsapi_userinfo',
-        state:'STATE#wechat_redirect'
+        appid: this.GLOBAL.appId,
+        redirect_uri: this.GLOBAL.redUrl,
+        response_type: 'code',
+        scope: 'snsapi_userinfo',
+        state: 'STATE#wechat_redirect'
       }
-      if(getQueryString('masterOpenId')){//从分享进入,存储分享人信息
+      if (getQueryString('masterOpenId')) { // 从分享进入,存储分享人信息
         let obj = {
-          deviceId:getQueryString('deviceId'),
-          masterOpenId:getQueryString('masterOpenId'),
-          token:getQueryString('token')
+          deviceId: getQueryString('deviceId'),
+          masterOpenId: getQueryString('masterOpenId'),
+          token: getQueryString('token')
         }
-        sessionStorage.setItem('obj',JSON.stringify(obj));
+        sessionStorage.setItem('obj', JSON.stringify(obj))
       }
-      
-      let redirectUrl = baseUrl + '?appid='+params.appid+'&redirect_uri='+params.redirect_uri+'&response_type='+params.response_type+'&scope='+params.scope+'&state='+params.state;
-        //window.location.href = redirectUrl;
-      }
+
+      let redirectUrl = baseUrl + '?appid=' + params.appid + '&redirect_uri=' + params.redirect_uri + '&response_type=' + params.response_type + '&scope=' + params.scope + '&state=' + params.state
+        // window.location.href = redirectUrl;
+    }
   }
 }
 </script>

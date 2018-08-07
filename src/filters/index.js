@@ -6,17 +6,16 @@
  /**
   * 转时间戳未时分秒
   */
-export function filterTime(nS){
+export function filterTime (nS) {
   let getString = function (m) {
-    return m < 10 ? '0' + m:m
+    return m < 10 ? '0' + m : m
   }
   let time = new Date(nS),
-      y = time.getFullYear(),
-      m = time.getMonth()+1,
-      d = time.getDate(),
-      h = time.getHours(),
-      mm = time.getMinutes(),
-      s = time.getSeconds();
-  return y+'-'+getString(m)+'-'+getString(d)+' '+getString(h)+':'+getString(mm)+':'+getString(s);
+    y = time.getFullYear(),
+    m = time.getMonth() + 1,
+    d = time.getDate(),
+    h = time.getHours(),
+    mm = time.getMinutes(),
+    s = time.getSeconds()
+  return y + '-' + getString(m) + '-' + getString(d) + ' ' + getString(h) + ':' + getString(mm) + ':' + getString(s)
 }
-

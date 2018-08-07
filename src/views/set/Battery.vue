@@ -49,85 +49,82 @@
 
 <script type="text/ecmascript-6">
 	import {
-		Loading,
-	} from 'vue-ydui/dist/lib.rem/dialog';
-	import myUrl from 'common/js/api'
+		Loading
+	} from 'vue-ydui/dist/lib.rem/dialog'
+import myUrl from 'common/js/api'
 	import {
 		Switch
-	} from 'vue-ydui/dist/lib.rem/switch';
-	export default {
-		data() {
-				return {
-					value: '',
-					pw: 0,
-					batteryList: [],
-					recoveFlag: false,
-					selectType: '',
-					selectIndex: '',
-					setType: '1'
-				}
-			},
-			components: {
-				'yd-switch': Switch,
-			},
-			created() {
-				Loading.open('很快加载好了');
-				setTimeout(() => {
-					Loading.close();
-				}, 300);
-			},
-			computed: {},
-			watch: {},
-			mounted() {
-				this.pw = 80;
-				if(sessionStorage.getItem('screens')) {
-					this.batteryList = JSON.parse(sessionStorage.getItem('screens'));
+	} from 'vue-ydui/dist/lib.rem/switch'
+export default {
+	  data () {
+	    return {
+	      value: '',
+	      pw: 0,
+	      batteryList: [],
+	      recoveFlag: false,
+	      selectType: '',
+	      selectIndex: '',
+	      setType: '1'
+	}
+	},
+	  components: {
+	    'yd-switch': Switch
+	},
+	  created () {
+	    Loading.open('很快加载好了')
+	    setTimeout(() => {
+	      Loading.close()
+	}, 300)
+	  },
+	  computed: {},
+	  watch: {},
+	  mounted () {
+	    this.pw = 80
+	    if (sessionStorage.getItem('screens')) {
+	      this.batteryList = JSON.parse(sessionStorage.getItem('screens'))
 
-					console.log(this.batteryList)
-				}
-			},
-			methods: {
-				returnMethod() {
-					this.$router.back(-1);
-				},
-				//打开滤网复位弹出框
-				showRecove(type, index) {
-					this.recoveFlag = true;
-					this.selectType = type;
-					this.selectIndex = index
-				},
-				recove() {
-					let data = {};
-					let index = this.selectIndex;
-					data.deviceId = this.$route.query.deviceId;
-					data.funcId = this.selectType;
-					Loading.open('很快加载好了');
-					this.$http.post(myUrl.sendFunc, data).then(res => {
-							if(res.code === 200) {
-								Loading.close();
-								//this.batteryList[index].value = 10800000;
-								this.batteryList[index].value = 3000;
-								sessionStorage.setItem('screens', JSON.stringify(this.batteryList));
-								this.recoveFlag = false;
-								Toast({
-									mes: '恢复成功',
-									timeout: 1500,
-									icon: 'success'
-								});
-
-							}
-						})
+	      console.log(this.batteryList)
+	}
+	},
+	  methods: {
+	    returnMethod () {
+	      this.$router.back(-1)
+	    },
+				// 打开滤网复位弹出框
+	    showRecove (type, index) {
+	      this.recoveFlag = true
+	      this.selectType = type
+	      this.selectIndex = index
+	},
+	    recove () {
+	      let data = {}
+	      let index = this.selectIndex
+	      data.deviceId = this.$route.query.deviceId
+	      data.funcId = this.selectType
+	      Loading.open('很快加载好了')
+	      this.$http.post(myUrl.sendFunc, data).then(res => {
+	        if (res.code === 200) {
+	          Loading.close()
+							// this.batteryList[index].value = 10800000;
+	          this.batteryList[index].value = 3000
+	          sessionStorage.setItem('screens', JSON.stringify(this.batteryList))
+	          this.recoveFlag = false
+	          Toast({
+	            mes: '恢复成功',
+	            timeout: 1500,
+	            icon: 'success'
+	})
+	        }
+	})
 						.catch(error => {
-							Loading.close();
-						})
-				},
-				//显示小时还是100%
-				switchMethod: function() {
-
-					this.setType == '1' ? this.setType = '2' : this.setType = '1';
-
-				}
-			}
+	  Loading.close()
+	})
+	},
+				// 显示小时还是100%
+	    switchMethod: function () {
+	      this.setType == '1' ? this.setType = '2' : this.setType = '1'
+	    }
+	}
 	}
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>

@@ -73,141 +73,140 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { Loading,Toast } from 'vue-ydui/dist/lib.rem/dialog';
-import District from 'ydui-district/dist/jd_province_city_area_id';
-import myUrl  from 'common/js/api'
-import {CitySelect} from 'vue-ydui/dist/lib.rem/cityselect';
+import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
+import District from 'ydui-district/dist/jd_province_city_area_id'
+import myUrl from 'common/js/api'
+import {CitySelect} from 'vue-ydui/dist/lib.rem/cityselect'
 
 export default {
   data () {
     return {
-     province:'',
-     city:'',
-     area:'',
-     switch1:false,
-     switch2:false,
-     editDevFlag:false,
-     deviceName:'',
-     modelName:'',
-     batteryList:[],
-     show2: false,
-     model2: '',
-     district: District
+      province: '',
+      city: '',
+      area: '',
+      switch1: false,
+      switch2: false,
+      editDevFlag: false,
+      deviceName: '',
+      modelName: '',
+      batteryList: [],
+      show2: false,
+      model2: '',
+      district: District
     }
   },
-  created(){
-    Loading.open('很快加载好了');
-    if(sessionStorage.getItem('location')){
-      this.model2 = sessionStorage.getItem('location');
-      let arr = this.model2.split(',');
-      if(arr.length === 3){
-        this.province = arr[0];
-        this.city = arr[1];
-        this.area = arr[2];
+  created () {
+    Loading.open('很快加载好了')
+    if (sessionStorage.getItem('location')) {
+      this.model2 = sessionStorage.getItem('location')
+      let arr = this.model2.split(',')
+      if (arr.length === 3) {
+        this.province = arr[0]
+        this.city = arr[1]
+        this.area = arr[2]
       }
     }
-    if(sessionStorage.getItem('screens')){
-      this.batteryList = JSON.parse(sessionStorage.getItem('screens'));
+    if (sessionStorage.getItem('screens')) {
+      this.batteryList = JSON.parse(sessionStorage.getItem('screens'))
     }
     setTimeout(() => {
-      Loading.close();
-    }, 300);
+      Loading.close()
+    }, 300)
   },
   computed: {
-    
+
   },
-  components:{
-    'yd-cityselect':CitySelect
+  components: {
+    'yd-cityselect': CitySelect
   },
   watch: {
   },
-  mounted(){
-    this.modelName = sessionStorage.getItem('model');
+  mounted () {
+    this.modelName = sessionStorage.getItem('model')
   },
-  methods:{
-    result2(ret) {
-      this.model2 = ret.itemName1 + ',' + ret.itemName2 + ',' + ret.itemName3;
-      //发送服务端
-      Loading.open('很快加载好了');
-      this.$http.get(myUrl.updateDeviceLocation+'?deviceId='+this.$route.query.deviceId+'&location='+this.model2).then(res =>{
-        if(res.code === 200){
-          Loading.close();
-          sessionStorage.setItem('location',this.model2)
+  methods: {
+    result2 (ret) {
+      this.model2 = ret.itemName1 + ',' + ret.itemName2 + ',' + ret.itemName3
+      // 发送服务端
+      Loading.open('很快加载好了')
+      this.$http.get(myUrl.updateDeviceLocation + '?deviceId=' + this.$route.query.deviceId + '&location=' + this.model2).then(res => {
+        if (res.code === 200) {
+          Loading.close()
+          sessionStorage.setItem('location', this.model2)
         }
       })
-      .catch(error =>{
-        Loading.close();
-        this.$toast(error.msg,'bottom');
+      .catch(error => {
+        Loading.close()
+        this.$toast(error.msg, 'bottom')
       })
-      
     },
-    returnMethod(){
-      this.$router.back(-1);
+    returnMethod () {
+      this.$router.back(-1)
     },
-    intoShare(){
+    intoShare () {
       this.$router.push({
-        path:'/share',
-        query:{
-          deviceId:this.$route.query.deviceId
+        path: '/share',
+        query: {
+          deviceId: this.$route.query.deviceId
         }
       })
     },
-    intoPermissions(){
+    intoPermissions () {
       this.$router.push({
-        path:'/permissions',
-        query:{
-          deviceId:this.$route.query.deviceId
+        path: '/permissions',
+        query: {
+          deviceId: this.$route.query.deviceId
         }
       })
     },
-    intoConfig(){
+    intoConfig () {
       this.$router.push({
-        path:'/config',
-        query:{
-          deviceId:this.$route.query.deviceId
+        path: '/config',
+        query: {
+          deviceId: this.$route.query.deviceId
         }
       })
     },
-    intoBattery(){
+    intoBattery () {
       this.$router.push({
-        path:'/battery',
-        query:{
-          deviceId:this.$route.query.deviceId
+        path: '/battery',
+        query: {
+          deviceId: this.$route.query.deviceId
         }
       })
     },
-    intoData(){
+    intoData () {
       this.$router.push({
-        path:'/data',
-        query:{
-          deviceId:this.$route.query.deviceId
+        path: '/data',
+        query: {
+          deviceId: this.$route.query.deviceId
         }
       })
     },
-    editDev(){
-      Loading.open('很快加载好了');
-      this.$http.get(myUrl.editDevice+'?deviceId='+this.$route.query.deviceId+'&deviceName='+this.deviceName).then(res =>{
-        if(res.code === 200){
-          Loading.close();
-          this.editDevFlag = false;
-          sessionStorage.setItem('name',this.deviceName);
-          this.getDevice();
+    editDev () {
+      Loading.open('很快加载好了')
+      this.$http.get(myUrl.editDevice + '?deviceId=' + this.$route.query.deviceId + '&deviceName=' + this.deviceName).then(res => {
+        if (res.code === 200) {
+          Loading.close()
+          this.editDevFlag = false
+          sessionStorage.setItem('name', this.deviceName)
+          this.getDevice()
         }
       })
-      .catch(error =>{
-        Loading.close();
-        this.$toast(error.msg,'bottom');
+      .catch(error => {
+        Loading.close()
+        this.$toast(error.msg, 'bottom')
       })
     },
-    intoInfo(){
+    intoInfo () {
       this.$router.push({
-        path:'/devinfo',
-        query:{
-          deviceId:this.$route.query.deviceId
+        path: '/devinfo',
+        query: {
+          deviceId: this.$route.query.deviceId
         }
       })
     },
-    getDevice(){
+    getDevice () {
       return sessionStorage.getItem('name')
     }
   }

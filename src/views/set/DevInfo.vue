@@ -42,36 +42,36 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { Loading } from 'vue-ydui/dist/lib.rem/dialog';
+import { Loading } from 'vue-ydui/dist/lib.rem/dialog'
 export default {
   data () {
     return {
-      id:'',
-      ip:'',
-      deviceInfoItem:{}
+      id: '',
+      ip: '',
+      deviceInfoItem: {}
     }
   },
   components: {
   },
-  created(){
-    this.id = this.$route.query.deviceId;
-    this.ip = sessionStorage.getItem('ip');
-    this.deviceInfoItem=JSON.parse(sessionStorage.getItem('deviceInfoItem'));
-    Loading.open('很快加载好了');
+  created () {
+    this.id = this.$route.query.deviceId
+    this.ip = sessionStorage.getItem('ip')
+    this.deviceInfoItem = JSON.parse(sessionStorage.getItem('deviceInfoItem'))
+    Loading.open('很快加载好了')
     setTimeout(() => {
-      Loading.close();
-    }, 300);
+      Loading.close()
+    }, 300)
   },
   computed: {
   },
   watch: {
   },
-  mounted(){
+  mounted () {
   },
-  methods:{
-    returnMethod(){
-      this.$router.back(-1);
-    },
+  methods: {
+    returnMethod () {
+      this.$router.back(-1)
+    }
   }
 }
 </script>

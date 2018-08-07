@@ -8,15 +8,15 @@
 
 export default {
   name: 'app',
-  data() {
-    return{
+  data () {
+    return {
 
     }
   },
-  mounted(){
-    
+  mounted () {
+
   },
-  methods:{
+  methods: {
   }
 }
 </script>

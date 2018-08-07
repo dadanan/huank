@@ -22,62 +22,61 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { Loading,Toast} from 'vue-ydui/dist/lib.rem/dialog';
-import myUrl  from 'common/js/api'
+import { Loading, Toast} from 'vue-ydui/dist/lib.rem/dialog'
+import myUrl from 'common/js/api'
 import Vue from 'vue'
 import draggable from 'vuedraggable'
 
-
 export default {
   data () {
-    return{
-      myArray:[],
-      myArray2:[],
-      tags:[
+    return {
+      myArray: [],
+      myArray2: [],
+      tags: [
         {
-          id:0,
-          name:'测试1',
+          id: 0,
+          name: '测试1'
         },
         {
-          id:1,
-          name:'测试2',
+          id: 1,
+          name: '测试2'
         }
       ],
-      tags2:[
+      tags2: [
         {
-          id:3,
-          name:'测试3',
+          id: 3,
+          name: '测试3'
         },
         {
-          id:4,
-          name:'测试4',
+          id: 4,
+          name: '测试4'
         }
       ]
     }
   },
-  created(){
-   
+  created () {
+
   },
-  components:{
+  components: {
     draggable
   },
   computed: {
   },
   watch: {
   },
-  mounted(){
-   
+  mounted () {
+
   },
-  methods:{
-     getdata (evt) {
-        console.log(evt.draggedContext.element.id)
-      },
-      datadragEnd (evt) {
-        console.log('拖动前的索引 :' + evt.oldIndex)
-        console.log('拖动后的索引 :' + evt.newIndex)
-        console.log(this.tags)
-      }
-    
+  methods: {
+    getdata (evt) {
+      console.log(evt.draggedContext.element.id)
+    },
+    datadragEnd (evt) {
+      console.log('拖动前的索引 :' + evt.oldIndex)
+      console.log('拖动后的索引 :' + evt.newIndex)
+      console.log(this.tags)
+    }
+
   }
 }
 </script>

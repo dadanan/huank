@@ -138,12 +138,12 @@
 	import {
 		Loading,
 		Toast
-	} from 'vue-ydui/dist/lib.rem/dialog';
-	import {
+	} from 'vue-ydui/dist/lib.rem/dialog'
+import {
 		Accordion,
 		AccordionItem
-	} from 'vue-ydui/dist/lib.rem/accordion';
-	import myUrl from 'common/js/api'
+	} from 'vue-ydui/dist/lib.rem/accordion'
+import myUrl from 'common/js/api'
 	import {
 		getQueryString
 	} from 'utils'
@@ -153,298 +153,296 @@
 	import {
 		Radio,
 		RadioGroup
-	} from 'vue-ydui/dist/lib.rem/radio';
+	} from 'vue-ydui/dist/lib.rem/radio'
 
-	export default {
-		data() {
-				return {
-					currentGroupName: '',
-					selectId: '', //选择需要的分组id
-					groupDialog: false,
-					groupNameFlag: false,
-					groupFlag: false,
-					value: '',
-					loop: null, //长按
-					loopValue: false,
-					select: 0,
-					wxValue: false,
-					createValue: false,
-					editDevFlag: false,
-					groupName: '',
-					devInfo: {},
-					groupInfo: {},
-					devName: '',
-					devGroupList: [],
-					devIds: [], //选中设备id列表
-					delDevFlag: false,
-					deviceId: '',
-					selname: ''
-				}
-			},
-			components: {
-				'yd-accordion': Accordion,
-				'yd-accordion-item': AccordionItem,
-				'yd-radio-group': RadioGroup,
-				'yd-radio': Radio
-			},
-			created() {
-				if(JSON.parse(sessionStorage.getItem('obj'))) { //分享人进来
-					console.log('从分享进来')
-					this.shareBind(JSON.parse(sessionStorage.getItem('obj')));
-				} else {
-					console.log('未从分享进来')
-					this.getDeviceList();
-				}
-			},
-			computed: {},
-			watch: {},
-			mounted() {
+export default {
+	  data () {
+	return {
+	  currentGroupName: '',
+	  selectId: '', // 选择需要的分组id
+	  groupDialog: false,
+	  groupNameFlag: false,
+	  groupFlag: false,
+	  value: '',
+	  loop: null, // 长按
+	  loopValue: false,
+	  select: 0,
+	  wxValue: false,
+	  createValue: false,
+	  editDevFlag: false,
+	  groupName: '',
+	  devInfo: {},
+	  groupInfo: {},
+	  devName: '',
+	  devGroupList: [],
+	  devIds: [], // 选中设备id列表
+	  delDevFlag: false,
+	  deviceId: '',
+	  selname: ''
+	}
+	},
+	  components: {
+	    'yd-accordion': Accordion,
+	    'yd-accordion-item': AccordionItem,
+	    'yd-radio-group': RadioGroup,
+	    'yd-radio': Radio
+	},
+	  created () {
+	    if (JSON.parse(sessionStorage.getItem('obj'))) { // 分享人进来
+	      console.log('从分享进来')
+	      this.shareBind(JSON.parse(sessionStorage.getItem('obj')))
+	    } else {
+	      console.log('未从分享进来')
+	      this.getDeviceList()
+	    }
+	},
+	  computed: {},
+	  watch: {},
+	  mounted () {
 
-			},
-			methods: {
-				cancelGroup() {
-					this.groupDialog = false;
-					this.selectId = '';
-				},
-				qRcode() {
-					scanQRCode();
-				},
-				swipeleft(s, e) { //左滑动
-					this.loopValue = true;
-				},
-				swiperight(s, e) { //右滑动
-					this.loopValue = false;
-				},
-				press(s, e) {
-					this.groupFlag = true;
-				},
-				returnMethod() {
-					this.$router.back(-1);
-				},
-				editGroupName() {
-					Loading.open('很快加载好了');
-					this.$http.get(myUrl.updateGroupName + '?groupId=' + this.groupInfo.groupId + '&groupName=' + this.groupInfo.groupName).then(res => {
-							if(res.code === 200) {
-								Loading.close();
-								this.groupNameFlag = false;
-								this.getDeviceList();
-							}
-						})
+	},
+	  methods: {
+	    cancelGroup () {
+	      this.groupDialog = false
+	      this.selectId = ''
+	    },
+	    qRcode () {
+	      scanQRCode()
+	    },
+	    swipeleft (s, e) { // 左滑动
+	      this.loopValue = true
+	    },
+	    swiperight (s, e) { // 右滑动
+	      this.loopValue = false
+	    },
+	    press (s, e) {
+	      this.groupFlag = true
+	    },
+	    returnMethod () {
+	      this.$router.back(-1)
+	    },
+	    editGroupName () {
+	      Loading.open('很快加载好了')
+	      this.$http.get(myUrl.updateGroupName + '?groupId=' + this.groupInfo.groupId + '&groupName=' + this.groupInfo.groupName).then(res => {
+	        if (res.code === 200) {
+	          Loading.close()
+	          this.groupNameFlag = false
+	          this.getDeviceList()
+	        }
+	})
 						.catch(error => {
-							Loading.close();
-							this.$toast(error.msg, 'bottom');
-						})
-				},
-				deleteGroup(id) {
-					this.$http.get(myUrl.deleteGroup + '?groupId=' + id).then(res => {
-							if(res.code === 200) {
-								Toast({
-									mes: '删除成功',
-									timeout: 1500,
-									icon: 'success'
-								});
-								Loading.close();
-								this.getDeviceList();
-							}
-						})
+	  Loading.close()
+	  this.$toast(error.msg, 'bottom')
+	})
+	},
+	    deleteGroup (id) {
+	      this.$http.get(myUrl.deleteGroup + '?groupId=' + id).then(res => {
+	        if (res.code === 200) {
+	          Toast({
+	            mes: '删除成功',
+	            timeout: 1500,
+	            icon: 'success'
+	})
+	          Loading.close()
+	          this.getDeviceList()
+	        }
+	})
 						.catch(error => {
-							Loading.close();
-						})
-				},
-				editGroup() {
-					if(this.selectId === '') {
-						this.$toast('请选择组', 'bottom');
-						return;
-					} else {
-						let data = {};
-						data.deviceIds = [];
-						data.deviceIds.push(this.devInfo.deviceId);
-						data.groupId = this.selectId;
-						this.$http.post(myUrl.updateDeviceGroup, data).then(res => {
-								if(res.code === 200) {
-									this.groupDialog = false;
-									this.selectId = '';
-									Toast({
-										mes: '分组成功',
-										timeout: 1500,
-										icon: 'success'
-									});
-									Loading.close();
-									this.getDeviceList();
+	  Loading.close()
+	})
+	},
+	    editGroup () {
+      if (this.selectId === '') {
+        this.$toast('请选择组', 'bottom')
+      } else {
+        let data = {}
+	        data.deviceIds = []
+	        data.deviceIds.push(this.devInfo.deviceId)
+	        data.groupId = this.selectId
+	        this.$http.post(myUrl.updateDeviceGroup, data).then(res => {
+          if (res.code === 200) {
+            this.groupDialog = false
+	            this.selectId = ''
+	            Toast({
+              mes: '分组成功',
+              timeout: 1500,
+              icon: 'success'
+            })
+	            Loading.close()
+	            this.getDeviceList()
+	          }
+        })
+						.catch(error => {
+  Loading.close()
+	})
+      }
+    },
+	    deleteDev (obj) {
+	      this.delDevFlag = true
+	      this.deviceId = obj.deviceId
+	    },
+	    confirmdeleteDev () {
+	      Loading.open('很快加载好了')
+	      this.$http.get(myUrl.deleteDevice + '?deviceId=' + this.deviceId).then(res => {
+	        if (res.code === 200) {
+	          Toast({
+	            mes: '删除成功',
+	            timeout: 1500,
+	            icon: 'success'
+	})
+	          Loading.close()
+	          this.getDeviceList()
+	        }
+	})
+						.catch(error => {
+	  Loading.close()
+	})
+	},
+	    gtouchstart () {
+	      let that = this
+	      that.loop = setTimeout(function () {
+	        that.loopValue = true
+	}, 3000)
+	      return false
+	    },
+	    gtouchmove () {
+	      clearTimeout(this.loop) // 清除定时器
+	      this.loopValue = false
+	    },
+	    gtouchend () {
+	      clearTimeout(this.loop) // 清除定时器
+	      if (this.loopValue) {
 
-								}
-							})
-							.catch(error => {
-								Loading.close();
-							})
-					}
-				},
-				deleteDev(obj) {
-					this.delDevFlag = true;
-					this.deviceId = obj.deviceId;
-				},
-				confirmdeleteDev() {
-					Loading.open('很快加载好了');
-					this.$http.get(myUrl.deleteDevice + '?deviceId=' + this.deviceId).then(res => {
-							if(res.code === 200) {
-								Toast({
-									mes: '删除成功',
-									timeout: 1500,
-									icon: 'success'
-								});
-								Loading.close();
-								this.getDeviceList();
-							}
-						})
+	}
+	      return false
+	    },
+	    selctButtonMethod (nums, type) {
+	      this.select = nums
+	      if (type === 'cancel') {
+	        this.loopValue = false
+	        this.groupFlag = false
+	        this.select = 0
+	} else if (type === 'wx') {
+	  this.wxValue = true
+	} else if (type === 'create') {
+	  this.createValue = true
+	}
+	},
+	    getDeviceList () {
+	      Loading.open('很快加载好了')
+	      this.$http.get(myUrl.obtainMyDevice).then(res => {
+	        if (res.code === 200) {
+	          Loading.close()
+	          this.loopValue = false
+	          this.groupFlag = false
+	          if (res.data.groupDataList && res.data.groupDataList.length) {
+	            this.devGroupList = res.data.groupDataList
+	}
+	}
+	})
 						.catch(error => {
-							Loading.close();
-						})
-				},
-				gtouchstart() {
-					let that = this;
-					that.loop = setTimeout(function() {
-						that.loopValue = true;
-					}, 3000)
-					return false;
-				},
-				gtouchmove() {
-					clearTimeout(this.loop); //清除定时器
-					this.loopValue = false;
-				},
-				gtouchend() {
-					clearTimeout(this.loop); //清除定时器
-					if(this.loopValue) {
+	  Loading.close()
+	})
+	},
+	    addGroup () {
+	      if (this.groupName === null || this.groupName === '') {
+	        this.$toast('请输入设备组名称', 'bottom')
+	        return
+      }
 
-					}
-					return false;
-				},
-				selctButtonMethod(nums, type) {
-					this.select = nums;
-					if(type === 'cancel') {
-						this.loopValue = false;
-						this.groupFlag = false;
-						this.select = 0;
-					} else if(type === 'wx') {
-						this.wxValue = true;
-					} else if(type === 'create') {
-						this.createValue = true;
-					}
-				},
-				getDeviceList() {
-					Loading.open('很快加载好了');
-					this.$http.get(myUrl.obtainMyDevice).then(res => {
-							if(res.code === 200) {
-								Loading.close();
-								this.loopValue = false;
-								this.groupFlag = false;
-								if(res.data.groupDataList && res.data.groupDataList.length) {
-									this.devGroupList = res.data.groupDataList;
-								}
-							}
-						})
+	      Loading.open('很快加载好了')
+	      let data = {
+	        groupName: this.groupName
+	}
+	      if (this.devIds.length) { // 选中了设备
+	        data.deviceIds = this.devIds
+	      }
+	      this.$http.post(myUrl.createGroup, data).then(res => {
+	        if (res.code === 200) {
+	          Loading.close()
+	          this.getDeviceList()
+	          this.createValue = false
+	        }
+	})
 						.catch(error => {
-							Loading.close();
-						})
-				},
-				addGroup() {
-					if(this.groupName === null || this.groupName === '') {
-						this.$toast('请输入设备组名称', 'bottom');
-						return;
-					}
-
-					Loading.open('很快加载好了');
-					let data = {
-						groupName: this.groupName
-					}
-					if(this.devIds.length) { //选中了设备
-						data.deviceIds = this.devIds;
-					}
-					this.$http.post(myUrl.createGroup, data).then(res => {
-							if(res.code === 200) {
-								Loading.close();
-								this.getDeviceList();
-								this.createValue = false;
-							}
-						})
+	  Loading.close()
+	})
+	},
+	    OpenGroup (obj) {
+	      this.groupNameFlag = true
+	      this.groupInfo = Object.assign({}, obj)
+	    },
+	    OpenDev (obj, name, type) {
+	      if (name) {
+	        this.currentGroupName = name
+	      }
+	      this.selname = obj.deviceName
+	      if (type === 1) {
+	        this.groupDialog = true
+	} else {
+	        this.editDevFlag = true
+	}
+	      this.devInfo = Object.assign({}, obj)
+	    },
+	    editDev () {
+	      Loading.open('很快加载好了')
+	      this.$http.get(myUrl.editDevice + '?deviceId=' + this.devInfo.deviceId + '&deviceName=' + this.devInfo.deviceName).then(res => {
+	        if (res.code === 200) {
+	          Loading.close()
+	          this.editDevFlag = false
+	          this.getDeviceList()
+	        }
+	})
 						.catch(error => {
-							Loading.close();
-						})
-				},
-				OpenGroup(obj) {
-					this.groupNameFlag = true;
-					this.groupInfo = Object.assign({}, obj);
-				},
-				OpenDev(obj, name, type) {
-					if(name) {
-						this.currentGroupName = name;
-					}
-					this.selname = obj.deviceName;
-					if(type === 1) {
-						this.groupDialog = true;
-					} else {
-						this.editDevFlag = true;
-					}
-					this.devInfo = Object.assign({}, obj);
-				},
-				editDev() {
-					Loading.open('很快加载好了');
-					this.$http.get(myUrl.editDevice + '?deviceId=' + this.devInfo.deviceId + '&deviceName=' + this.devInfo.deviceName).then(res => {
-							if(res.code === 200) {
-								Loading.close();
-								this.editDevFlag = false;
-								this.getDeviceList();
-							}
-						})
+	  Loading.close()
+	  this.$toast(error.msg, 'bottom')
+	})
+	},
+	    intoIndex (id, name, icon, model) {
+	      sessionStorage.setItem('name', name)
+	      sessionStorage.setItem('icon', icon)
+	      sessionStorage.setItem('model', model)
+	      this.$router.push({
+	        path: '/index',
+	        query: {
+	          deviceId: id
+	}
+	})
+	},
+	    selectDev (id) {
+	      let index = this.devIds.indexOf(id)
+	      if (index > -1) { // 找到了
+	        this.devIds.splice(index, 1)
+	} else {
+	        this.devIds.push(id)
+	}
+	},
+	    containIds (id) {
+	      return this.devIds.includes(id)
+	    },
+	    shareBind (obj) { // 分享绑定
+	      this.$http.get(myUrl.share + '?masterOpenId=' + obj.masterOpenId + '&deviceId=' + obj.deviceId + '&token=' + obj.token).then(res => {
+	        if (res.code === 200) {
+	          if (res.data) { // 成功
+	            Toast({
+	              mes: '绑定成功',
+	              timeout: 1500,
+	              icon: 'success'
+	})
+	          } else {
+	            Toast({
+	              mes: '链接已过期',
+	              timeout: 1500
+	})
+	          }
+	          this.getDeviceList() // 获取设备列表
+	        }
+	})
 						.catch(error => {
-							Loading.close();
-							this.$toast(error.msg, 'bottom');
-						})
-				},
-				intoIndex(id, name, icon, model) {
-					sessionStorage.setItem('name', name);
-					sessionStorage.setItem('icon', icon);
-					sessionStorage.setItem('model', model);
-					this.$router.push({
-						path: '/index',
-						query: {
-							deviceId: id
-						}
-					})
-				},
-				selectDev(id) {
-					let index = this.devIds.indexOf(id);
-					if(index > -1) { //找到了
-						this.devIds.splice(index, 1);
-					} else {
-						this.devIds.push(id);
-					}
-				},
-				containIds(id) {
-					return this.devIds.includes(id);
-				},
-				shareBind(obj) { //分享绑定
-					this.$http.get(myUrl.share + '?masterOpenId=' + obj.masterOpenId + '&deviceId=' + obj.deviceId + '&token=' + obj.token).then(res => {
-							if(res.code === 200) {
-								if(res.data) { //成功
-									Toast({
-										mes: '绑定成功',
-										timeout: 1500,
-										icon: 'success'
-									});
-								} else {
-									Toast({
-										mes: '链接已过期',
-										timeout: 1500,
-									});
-								}
-								this.getDeviceList(); //获取设备列表
-							}
-						})
-						.catch(error => {
-							this.$toast(error.msg, 'bottom');
-						})
-				},
-			}
+	  this.$toast(error.msg, 'bottom')
+	})
+	}
+	}
 	}
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
