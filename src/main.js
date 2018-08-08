@@ -17,6 +17,8 @@ import $ from 'jquery'
 import global_ from 'common/js/global'
 import VueDraggable from 'vue-draggable'
 
+import 'common/iconfont/iconfont.css'
+
 FastClick.attach(document.body)
 Vue.config.productionTip = false
 Vue.use(VueRouter)

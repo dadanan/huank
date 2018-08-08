@@ -18,6 +18,8 @@ const List = resolve => require(['@/views/list/Index'], resolve)
 const Demo = resolve => require(['@/views/demo'], resolve)
 const Permissions = resolve => require(['@/views/set/Permissions'], resolve)
 
+const AirPurifier = resolve => require(['@/views/air-purifier'], resolve)
+
 let routes = [
   {
     path: '*',
@@ -54,6 +56,13 @@ let routes = [
   {
     path: '/index',
     component: Index,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/air-purifier',
+    component: AirPurifier,
     meta: {
       title: ''
     }

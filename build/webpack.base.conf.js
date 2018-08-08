@@ -33,6 +33,7 @@ module.exports = {
       'common': path.resolve(__dirname, '../src/common'),
       'config': path.resolve(__dirname, '../src/config'),
       'router': path.resolve(__dirname, '../src/router'),
+      'assets': path.resolve(__dirname, '../src/assets')
     }
   },
   module: {
