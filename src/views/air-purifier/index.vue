@@ -12,7 +12,7 @@
         <span>PM2.5 32μg/m³</span>
       </div>
       <div class="control-btn-group">
-        <div class="btn">
+        <div class="btn" @click="show1 = true">
           <i class="iconfont icon-sheding"></i>
           <span>设定</span>
         </div>
@@ -62,6 +62,10 @@
           </div>
         </div>
       </div>
+      <div class="data-alert">
+        <i class="iconfont icon-baojing"></i>
+        净化效率低，请更换滤网
+      </div>
     </div>
     <div class="we-footer">
       <div class="func-sw">
@@ -77,27 +81,135 @@
         <yd-switch v-model="switch3"></yd-switch>
       </div>
     </div>
+    <yd-popup v-model="show1" position="center" width="80%">
+      <div class="we-popup">
+        <div class="we-popup-body">
+          <div class="we-form">
+            <div class="we-input-group">
+            <span class="we-label">
+              <span>PM2.5 预值设定</span>
+              <span>μg/m³</span>
+            </span>
+              <yd-spinner v-model="spinner1"></yd-spinner>
+            </div>
+            <div class="we-input-group">
+            <span class="we-label">
+              <span>净化效率预值设定</span>
+              <span>%</span>
+            </span>
+              <yd-spinner v-model="spinner2"></yd-spinner>
+            </div>
+            <div class="we-input-group">
+            <span class="we-label">
+              <span>湿度最低预值设定</span>
+              <span>%</span>
+            </span>
+              <yd-spinner v-model="spinner3"></yd-spinner>
+            </div>
+            <div class="we-input-group">
+            <span class="we-label">
+              <span>温度最低预值设定</span>
+              <span>℃</span>
+            </span>
+              <yd-spinner v-model="spinner4"></yd-spinner>
+            </div>
+          </div>
+        </div>
+        <div class="we-popup-footer">
+          <div class="we-btn-solid" @click="show1 = false">取消</div>
+          <div class="we-btn" @click="show1 = false">确认</div>
+        </div>
+      </div>
+    </yd-popup>
   </div>
 </template>
 
 <script>
   import {Switch} from 'vue-ydui/dist/lib.rem/switch'
+  import {Popup} from 'vue-ydui/dist/lib.rem/popup'
+  import {Spinner} from 'vue-ydui/dist/lib.rem/spinner';
 
   export default {
     components: {
-      'yd-switch': Switch
+      'yd-switch': Switch,
+      'yd-popup': Popup,
+      'yd-spinner': Spinner
     },
     data () {
       return {
         switch1: true,
         switch2: true,
-        switch3: true
+        switch3: true,
+        show1: true,
+        spinner1: 0,
+        spinner2: 0,
+        spinner3: 0,
+        spinner4: 0
       }
     }
   }
 </script>
 
 <style lang="scss" scoped>
+  .we-form {
+    padding: 0 .5rem;
+  }
+  .we-input-group {
+    display: flex;
+    margin-bottom: .4rem;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .we-label {
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    flex: 1;
+    justify-content: center;
+    margin-right: .5rem;
+    span:nth-child(1) {
+      font-size: .2rem;
+    }
+    span:nth-child(2) {
+      font-size: .18rem;
+    }
+  }
+
+  .we-btn, .we-btn-solid {
+    padding: .15rem .3rem;
+    font-size: .36rem;
+    border: 1px solid #2689ee;
+    border-radius: 5px;
+    color: #2689ee;
+    font-weight: bold;
+    text-align: center;
+    display: inline-block;
+    width: 2.2rem;
+  }
+
+  .we-btn {
+    background-color: #2689ee;
+    color: #fff;
+  }
+
+  .we-popup {
+    border-radius: 5px;
+    overflow: hidden;
+    .we-popup-body {
+      background-color: #2689ee;
+      padding: .3rem;
+    }
+    .we-popup-footer {
+      padding: .3rem;
+      background-color: #fff;
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+
   .we-page {
     height: 100vh;
     background-color: #2493f1;
@@ -162,7 +274,7 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: .5rem;
     /*padding: 0 .3rem;*/
     .btn {
       color: #fff;
@@ -189,6 +301,7 @@
   .data-show-container {
     padding: .5rem 0;
     position: relative;
+    margin-bottom: .5rem;
     .data-template1 {
       display: flex;
       flex-direction: column;
@@ -303,6 +416,15 @@
       font-size: .6rem;
       color: #fff;
       margin-bottom: .2rem;
+    }
+  }
+
+  .data-alert {
+    text-align: center;
+    color: #fff;
+    font-size: .29rem;
+    i {
+      color: #ff0000;
     }
   }
 </style>
