@@ -1,5 +1,6 @@
 <template>
-  <div class="we-page">
+  <div class="we-page"
+       :style="{ 'background-image': 'url(' + bg + ')','background-repeat':'no-repeat','background-size':'cover' }">
     <div class="we-header">
       <a class="we-back" href="/"><i class="iconfont icon-xiangzuojiantou"></i></a>
       电子净化
@@ -17,7 +18,7 @@
           <span>设定</span>
         </div>
         <div class="btn">
-          <i class="iconfont icon-kaiguan"></i>
+          <i class="iconfont icon-kaiguan" @click="handleOpen"></i>
           <span>开关</span>
         </div>
       </div>
@@ -41,7 +42,7 @@
           <div class="data-template2">室外</div>
         </div>
         <div class="data4">
-          <div class="data-template3">
+          <div class="data-template3" :class="{ 'off': !isOpen }">
             <span>62<span>%</span></span>
             <span>净化效率</span>
           </div>
@@ -70,15 +71,15 @@
     <div class="we-footer">
       <div class="func-sw">
         <i class="iconfont icon-jiare"></i>
-        <yd-switch v-model="switch1"></yd-switch>
+        <yd-switch v-model="switch1" :disabled="!isOpen"></yd-switch>
       </div>
       <div class="func-sw">
         <i class="iconfont icon-jiashi"></i>
-        <yd-switch v-model="switch2"></yd-switch>
+        <yd-switch v-model="switch2" :disabled="!isOpen"></yd-switch>
       </div>
       <div class="func-sw">
         <i class="iconfont icon-dianzijinghua"></i>
-        <yd-switch v-model="switch3"></yd-switch>
+        <yd-switch v-model="switch3" :disabled="!isOpen"></yd-switch>
       </div>
     </div>
     <yd-popup v-model="show1" position="center" width="80%">
@@ -125,9 +126,11 @@
 </template>
 
 <script>
+  import {Toast} from 'vue-ydui/dist/lib.rem/dialog'
   import {Switch} from 'vue-ydui/dist/lib.rem/switch'
   import {Popup} from 'vue-ydui/dist/lib.rem/popup'
-  import {Spinner} from 'vue-ydui/dist/lib.rem/spinner';
+  import {Spinner} from 'vue-ydui/dist/lib.rem/spinner'
+  import img from '../../assets/bak4.jpg'
 
   export default {
     components: {
@@ -140,11 +143,34 @@
         switch1: true,
         switch2: true,
         switch3: true,
-        show1: true,
+        show1: false,
         spinner1: 0,
         spinner2: 0,
         spinner3: 0,
-        spinner4: 0
+        spinner4: 0,
+        bg: img,
+        isOpen: true
+      }
+    },
+    methods: {
+      handleOpen () {
+        this.isOpen = !this.isOpen
+
+        if (this.isOpen) {
+          Toast({
+            mes: '开启成功',
+            timeout: 1500,
+            icon: 'success'
+          })
+          this.bg = img
+        } else {
+          Toast({
+            mes: '关闭成功',
+            timeout: 1500,
+            icon: 'success'
+          })
+          this.bg = null
+        }
       }
     }
   }
@@ -154,6 +180,7 @@
   .we-form {
     padding: 0 .5rem;
   }
+
   .we-input-group {
     display: flex;
     margin-bottom: .4rem;
@@ -211,8 +238,12 @@
   }
 
   .we-page {
-    height: 100vh;
-    background-color: #2493f1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #999999;
     display: flex;
     flex-direction: column;
   }
@@ -220,7 +251,7 @@
   .we-header {
     position: relative;
     height: .85rem;
-    background-color: #2493f1;
+    /*background-color: #2493f1;*/
     /*background-color: #ccc;*/
     font-size: .3rem;
     color: #fff;
@@ -250,7 +281,7 @@
 
   .we-footer {
     height: 2rem;
-    background-color: #2493f1;
+    /*background-color: #2493f1;*/
     /*background-color: #ccc;*/
     padding: .4rem 0;
     display: flex;
@@ -272,10 +303,10 @@
 
   .control-btn-group {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: .5rem;
-    /*padding: 0 .3rem;*/
+    padding: 0 .3rem;
     .btn {
       color: #fff;
       display: flex;
@@ -284,7 +315,7 @@
       font-size: .2rem;
 
       i {
-        font-size: .65rem;
+        font-size: .8rem;
       }
     }
   }
@@ -335,6 +366,13 @@
           color: #e6e6e6;
         }
       }
+
+      &.off {
+        span:nth-child(1) {
+          color: #d86e5d;
+        }
+      }
+
       span:nth-child(2) {
         font-size: .15rem;
         color: #e6e6e6;
