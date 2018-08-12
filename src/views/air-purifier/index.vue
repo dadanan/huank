@@ -4,6 +4,7 @@
     <div class="we-header">
       <a class="we-back" href="/"><i class="iconfont icon-xiangzuojiantou"></i></a>
       电子净化
+      <span class="we-setting" @click="handleSetting"><i></i></span>
     </div>
     <div class="we-content">
       <div class="base-info-text">
@@ -171,6 +172,14 @@
           })
           this.bg = null
         }
+      },
+      handleSetting () {
+        this.$router.push({
+          path: '/set',
+          query: {
+            deviceId: this.$route.query.deviceId
+          }
+        })
       }
     }
   }
@@ -273,6 +282,25 @@
     width: .85rem;
   }
 
+  .we-setting {
+    position: absolute;
+    color: #fff;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: .85rem;
+    i {
+      height: 20px;
+      width: 20px;
+      background: url('../../assets/set.png') no-repeat center center;
+      background-size:20px 20px;
+    }
+  }
+
   .we-content {
     padding: .3rem .5rem;
     flex: 1;
@@ -295,10 +323,12 @@
   .base-info-text {
     font-size: .2rem;
     color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    /*display: flex;*/
+    /*align-items: center;*/
     margin-bottom: .5rem;
+    span {
+      margin-right: .25rem;
+    }
   }
 
   .control-btn-group {
