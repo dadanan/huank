@@ -417,12 +417,21 @@
         sessionStorage.setItem('name', name)
         sessionStorage.setItem('icon', icon)
         sessionStorage.setItem('model', model)
-        this.$router.push({
-          path: '/index',
-          query: {
-            deviceId: id
-          }
-        })
+        if (model === '电子净化') {
+          this.$router.push({
+            path: '/air-purifier',
+            query: {
+              deviceId: id
+            }
+          })
+        } else {
+          this.$router.push({
+            path: '/index',
+            query: {
+              deviceId: id
+            }
+          })
+        }
       },
       selectDev (id) {
         let index = this.devIds.indexOf(id)
