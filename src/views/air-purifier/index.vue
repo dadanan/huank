@@ -8,10 +8,10 @@
     </div>
     <div class="we-content">
       <div class="base-info-text">
-        <span><i class="iconfont icon-weizhi vam"></i> 上海 嘉定</span>
-        <span>晴 32℃</span>
-        <span>湿度 62%</span>
-        <span>PM2.5 32μg/m³</span>
+        <span><i class="iconfont icon-weizhi vam"></i> {{ city }}</span>
+        <span>{{ weather }} {{ outerTem }}</span>
+        <span>湿度 {{ outerHum }}</span>
+        <span>PM2.5 {{ outerPm }}μg/m³</span>
       </div>
       <div class="control-btn-group">
         <div class="btn" @click="show1 = true">
@@ -28,14 +28,14 @@
         <div class="data1">
           <div class="data-template1">
             <span>PM2.5</span>
-            <span>60</span>
+            <span>{{ outerPm }}</span>
             <span>μg/m³</span>
           </div>
         </div>
         <div class="data2">
           <div class="data-template1">
             <span>PM2.5</span>
-            <span>23</span>
+            <span>{{ pm }}</span>
             <span>μg/m³</span>
           </div>
         </div>
@@ -44,7 +44,7 @@
         </div>
         <div class="data4">
           <div class="data-template3" :class="{ 'off': !isOpen }">
-            <span>62<span>%</span></span>
+            <span>{{ puriEffic }}<span>%</span></span>
             <span>净化效率</span>
           </div>
         </div>
@@ -53,18 +53,18 @@
         </div>
         <div class="data6">
           <div class="data-template5">
-            <span><i class="iconfont icon-wendu"></i> 28<span>℃</span></span>
-            <span><i class="iconfont icon-shidu"></i> 68<span>%</span></span>
+            <span><i class="iconfont icon-wendu"></i> {{ outerTem.replace('℃', '') }}<span>℃</span></span>
+            <span><i class="iconfont icon-shidu"></i> {{ outerHum.replace('%', '') }}<span>%</span></span>
           </div>
         </div>
         <div class="data7">
           <div class="data-template5">
-            <span><i class="iconfont icon-wendu"></i> 30<span>℃</span></span>
-            <span><i class="iconfont icon-shidu"></i> 65<span>%</span></span>
+            <span><i class="iconfont icon-wendu"></i> {{ tem }}<span>℃</span></span>
+            <span><i class="iconfont icon-shidu"></i> {{ hum }}<span>%</span></span>
           </div>
         </div>
       </div>
-      <div class="data-alert">
+      <div class="data-alert" v-if="puriEffic < preJhSpinner">
         <i class="iconfont icon-baojing"></i>
         净化效率低，请更换滤网
       </div>
@@ -72,15 +72,21 @@
     <div class="we-footer">
       <div class="func-sw">
         <i class="iconfont icon-jiare"></i>
-        <yd-switch v-model="switch1" :disabled="!isOpen"></yd-switch>
+        <div @click="handleSwitch('2B0', jrSwitch)">
+          <yd-switch v-model="jrSwitch" :disabled="!isOpen" true-value="1" false-value="0"></yd-switch>
+        </div>
       </div>
       <div class="func-sw">
         <i class="iconfont icon-jiashi"></i>
-        <yd-switch v-model="switch2" :disabled="!isOpen"></yd-switch>
+        <div @click="handleSwitch('250', jsSwitch)">
+          <yd-switch v-model="jsSwitch" :disabled="!isOpen" true-value="1" false-value="0"></yd-switch>
+        </div>
       </div>
       <div class="func-sw">
         <i class="iconfont icon-dianzijinghua"></i>
-        <yd-switch v-model="switch3" :disabled="!isOpen"></yd-switch>
+        <div @click="handleSwitch('2A0', jhSwitch)">
+          <yd-switch v-model="jhSwitch" :disabled="!isOpen" true-value="1" false-value="0"></yd-switch>
+        </div>
       </div>
     </div>
     <yd-popup v-model="show1" position="center" width="80%">
@@ -92,34 +98,34 @@
               <span>PM2.5 预值设定</span>
               <span>μg/m³</span>
             </span>
-              <yd-spinner v-model="spinner1"></yd-spinner>
+              <yd-spinner v-model="prePmSpinner" :min="0"></yd-spinner>
             </div>
             <div class="we-input-group">
             <span class="we-label">
               <span>净化效率预值设定</span>
               <span>%</span>
             </span>
-              <yd-spinner v-model="spinner2"></yd-spinner>
+              <yd-spinner v-model="preJhSpinner" :min="0"></yd-spinner>
             </div>
             <div class="we-input-group">
             <span class="we-label">
               <span>湿度最低预值设定</span>
               <span>%</span>
             </span>
-              <yd-spinner v-model="spinner3"></yd-spinner>
+              <yd-spinner v-model="preHumSpinner" :min="0"></yd-spinner>
             </div>
             <div class="we-input-group">
             <span class="we-label">
               <span>温度最低预值设定</span>
               <span>℃</span>
             </span>
-              <yd-spinner v-model="spinner4"></yd-spinner>
+              <yd-spinner v-model="preTemSpinner" :min="0"></yd-spinner>
             </div>
           </div>
         </div>
         <div class="we-popup-footer">
           <div class="we-btn-solid" @click="show1 = false">取消</div>
-          <div class="we-btn" @click="show1 = false">确认</div>
+          <div class="we-btn" @click="handleSetFuncs">确认</div>
         </div>
       </div>
     </yd-popup>
@@ -127,12 +133,12 @@
 </template>
 
 <script>
-  import {Toast} from 'vue-ydui/dist/lib.rem/dialog'
+  import {Loading, Toast} from 'vue-ydui/dist/lib.rem/dialog'
   import {Switch} from 'vue-ydui/dist/lib.rem/switch'
   import {Popup} from 'vue-ydui/dist/lib.rem/popup'
   import {Spinner} from 'vue-ydui/dist/lib.rem/spinner'
   import img from '../../assets/bak4.jpg'
-  import { setWechatTitle } from 'utils'
+  import {setWechatTitle} from 'utils'
   import apiURI from 'common/js/api'
 
   export default {
@@ -143,43 +149,65 @@
     },
     data () {
       return {
-        switch1: true,
-        switch2: true,
-        switch3: true,
+        jrSwitch: true,
+        jsSwitch: true,
+        jhSwitch: true,
         show1: false,
-        spinner1: 0,
-        spinner2: 0,
-        spinner3: 0,
-        spinner4: 0,
+        prePmSpinner: 0,
+        preJhSpinner: 0,
+        preTemSpinner: 0,
+        preHumSpinner: 0,
         bg: img,
         isOpen: true,
-        deviceName: ''
+        // 以下来自设备详情接口
+        deviceName: '',
+        city: '',
+        weather: '',
+        outerTem: '0',
+        outerHum: '0',
+        outerPm: '0',
+        puriEffic: '0',
+        pm: '0',
+        tem: '0',
+        hum: '0',
+        loopLoadTimeSet: null
       }
     },
     created () {
       this.deviceName = sessionStorage.getItem('name')
       setWechatTitle(this.deviceName)
       this.getDeviceDetail()
+      this.loopLoadTimeSet = setInterval(() => {
+        this.getDeviceDetail()
+      }, 3000)
     },
     methods: {
       handleOpen () {
-        this.isOpen = !this.isOpen
-
-        if (this.isOpen) {
-          Toast({
-            mes: '开启成功',
-            timeout: 1500,
-            icon: 'success'
-          })
-          this.bg = img
-        } else {
-          Toast({
-            mes: '关闭成功',
-            timeout: 1500,
-            icon: 'success'
-          })
-          this.bg = null
+        let data = {
+          deviceId: this.$route.query.deviceId,
+          funcId: '210',
+          value: this.isOpen ? '0' : '1'
         }
+        this.$http.post(apiURI.sendFunc, data).then(res => {
+          if (res.code === 200) {
+            this.isOpen = !this.isOpen
+            if (this.isOpen) {
+              Toast({
+                mes: '开启成功',
+                timeout: 1500,
+                icon: 'success'
+              })
+              this.bg = img
+            } else {
+              Toast({
+                mes: '关闭成功',
+                timeout: 1500,
+                icon: 'success'
+              })
+              this.bg = null
+            }
+          }
+        })
       },
       handleSetting () {
         this.$router.push({
@@ -192,9 +220,93 @@
       getDeviceDetail () {
         this.$http.get(apiURI.queryDetailByDeviceId + '?deviceId=' + this.$route.query.deviceId).then(res => {
           if (res.code === 200) {
-            console.log(res.data)
+            const data = res.data
+            console.log(data)
+            if (res.data.modeItem.value === '0') {
+              this.isOpen = false
+              this.bg = null
+            }
+            this.city = data.city
+            this.weather = data.weather
+            this.outerTem = data.outerTem
+            this.outerHum = data.outerHum
+            this.outerPm = data.outerPm
+            this.puriEffic = data.puriEffic.data
+            this.pm = data.pm.data
+            this.tem = data.tem.data
+            this.hum = data.hum.data
+
+            const funcList = [].concat.apply([], data.funcs)
+
+            this.jrSwitch = funcList.find((element) => element.type === '2B0').value
+            this.jsSwitch = funcList.find((element) => element.type === '250').value
+            this.jhSwitch = funcList.find((element) => element.type === '2A0').value
+            this.prePmSpinner = data.prePM25.data
+            this.preJhSpinner = data.prePuriEffic.data
+            this.preHumSpinner = data.preHum.data
+            this.preTemSpinner = data.preTem.data
           }
         }).catch(() => {
+        })
+      },
+      handleSwitch (code, value) {
+        this.sendFunc(code, value === '0' ? '1' : '0')
+      },
+      sendFunc (code, value) {
+        Loading.open('发送中...')
+        let data = {
+          deviceId: this.$route.query.deviceId,
+          funcId: code,
+          value: value
+        }
+        this.$http.post(apiURI.sendFunc, data).then(res => {
+          if (res.code === 200) {
+            Loading.close()
+            Toast({
+              mes: '发送成功',
+              timeout: 1500,
+              icon: 'success'
+            })
+          }
+        }).catch(() => {
+          Loading.close()
+        })
+      },
+      asyncSendFunc (code, value) {
+        return new Promise((resolve, reject) => {
+          let data = {
+            deviceId: this.$route.query.deviceId,
+            funcId: code,
+            value: value
+          }
+          this.$http.post(apiURI.sendFunc, data).then(res => {
+            if (res.code === 200) {
+              resolve()
+            }
+          }).catch(e => {
+            reject(e)
+          })
+        })
+      },
+      handleSetFuncs () {
+        Promise.all([
+          this.asyncSendFunc('2DD.0', this.preTemSpinner),
+          this.asyncSendFunc('2DE.0', this.preHumSpinner),
+          this.asyncSendFunc('2DF.0', this.prePmSpinner),
+          this.asyncSendFunc('2DG.0', this.preJhSpinner)
+        ]).then(() => {
+          Toast({
+            mes: '设置成功',
+            timeout: 1500,
+            icon: 'success'
+          })
+          this.show1 = false
+        }).catch(() => {
+          Toast({
+            mes: '设置失败',
+            timeout: 1500,
+            icon: 'fail'
+          })
         })
       }
     }
@@ -313,7 +425,7 @@
       height: 20px;
       width: 20px;
       background: url('../../assets/set.png') no-repeat center center;
-      background-size:20px 20px;
+      background-size: 20px 20px;
     }
   }
 
@@ -403,7 +515,9 @@
     .data-template3 {
       display: flex;
       flex-direction: column;
-      align-items: center;
+      /*align-items: center;*/
+      text-align: center;
+      width: 100%;
       span:nth-child(1) {
         font-size: .92rem;
         color: #ffff00;
@@ -467,7 +581,9 @@
     .data4 {
       position: absolute;
       top: 1.3rem;
-      right: 2.7rem;
+      right: 0;
+      left: 0;
+      /*margin: auto;*/
     }
 
     .data5 {

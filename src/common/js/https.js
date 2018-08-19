@@ -38,7 +38,7 @@ Axios.interceptors.request.use(
     // config.headers.common['Ticket'] = 'o-_q70xWPVYPUdg7OJcOtysNy3ok' //线上  o-_q70zK12d3QeOgiyhQt9-lavCM
     // config.headers.common['Ticket'] = 'o-_q70zK12d3QeOgiyhQt9-lavCM' //双风机
     // config.headers.common['Ticket'] = 'oEBIM1ACyf9fncvGisukou3QApUY' // 双风机
-    config.headers.common['Ticket'] = 'oEBIM1NnHRIithMgLW5Fkr194XfQ' // 电子净化
+    config.headers.common['Ticket'] = 'oEBIM1Dk4A0Vfhco-78xmsygI16Q' // 电子净化
     return config
   },
   error => {
