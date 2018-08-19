@@ -2,8 +2,8 @@
   <div class="we-page"
        :style="{ 'background-image': 'url(' + bg + ')','background-repeat':'no-repeat','background-size':'cover' }">
     <div class="we-header">
-      <a class="we-back" href="/"><i class="iconfont icon-xiangzuojiantou"></i></a>
-      电子净化
+      <router-link class="we-back" to="/list"><i class="iconfont icon-xiangzuojiantou"></i></router-link>
+      {{ deviceName }}
       <span class="we-setting" @click="handleSetting"><i></i></span>
     </div>
     <div class="we-content">
@@ -132,6 +132,8 @@
   import {Popup} from 'vue-ydui/dist/lib.rem/popup'
   import {Spinner} from 'vue-ydui/dist/lib.rem/spinner'
   import img from '../../assets/bak4.jpg'
+  import { setWechatTitle } from 'utils'
+  import apiURI from 'common/js/api'
 
   export default {
     components: {
@@ -150,8 +152,14 @@
         spinner3: 0,
         spinner4: 0,
         bg: img,
-        isOpen: true
+        isOpen: true,
+        deviceName: ''
       }
+    },
+    created () {
+      this.deviceName = sessionStorage.getItem('name')
+      setWechatTitle(this.deviceName)
+      this.getDeviceDetail()
     },
     methods: {
       handleOpen () {
@@ -179,6 +187,14 @@
           query: {
             deviceId: this.$route.query.deviceId
           }
+        })
+      },
+      getDeviceDetail () {
+        this.$http.get(apiURI.queryDetailByDeviceId + '?deviceId=' + this.$route.query.deviceId).then(res => {
+          if (res.code === 200) {
+            console.log(res.data)
+          }
+        }).catch(() => {
         })
       }
     }
