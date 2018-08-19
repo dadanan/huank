@@ -19,6 +19,7 @@ const List = resolve => require(['@/views/list/Index'], resolve)
 const Demo = resolve => require(['@/views/demo'], resolve)
 const Permissions = resolve => require(['@/views/set/Permissions'], resolve)
 const WenKongIndex = resolve => require(['@/views/wenkong/Index'], resolve)
+const AirPurifier = resolve => require(['@/views/air-purifier'], resolve)
 
 let routes = [
   {
@@ -128,6 +129,13 @@ let routes = [
     component: List,
     meta: {
       title: '设备列表'
+    }
+  },
+  {
+    path: '/air-purifier',
+    component: AirPurifier,
+    meta: {
+      title: ''
     }
   },
   {

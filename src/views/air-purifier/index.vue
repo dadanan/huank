@@ -309,6 +309,9 @@
           })
         })
       }
+    },
+    beforeDestroy () {
+      clearInterval(this.loopLoadTimeSet)
     }
   }
 </script>
