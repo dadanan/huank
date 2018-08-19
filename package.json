@@ -9,7 +9,7 @@
     "start": "npm run dev",
     "build": "node build/build.js",
     "lint": "eslint --ext .js,.vue src",
-    "commit": "git-cz",
+    "commit": "npx git-cz",
     "fixlint": "eslint --ext .js,.vue src --fix"
   },
   "dependencies": {

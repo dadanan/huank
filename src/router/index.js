@@ -9,6 +9,7 @@ const Init = resolve => require(['@/views/init/Init'], resolve)
 const TimingList = resolve => require(['@/views/timing/List'], resolve)
 const TimingEdet = resolve => require(['@/views/timing/Edit'], resolve)
 const Set = resolve => require(['@/views/set/Index'], resolve)
+const WenkongSet = resolve => require(['@/views/wenongSet/Index'], resolve)
 const DevInfo = resolve => require(['@/views/set/DevInfo'], resolve)
 const Share = resolve => require(['@/views/set/Share'], resolve)
 const Data = resolve => require(['@/views/set/Data'], resolve)
@@ -17,8 +18,7 @@ const Config = resolve => require(['@/views/set/Config'], resolve)
 const List = resolve => require(['@/views/list/Index'], resolve)
 const Demo = resolve => require(['@/views/demo'], resolve)
 const Permissions = resolve => require(['@/views/set/Permissions'], resolve)
-
-const AirPurifier = resolve => require(['@/views/air-purifier'], resolve)
+const WenKongIndex = resolve => require(['@/views/wenkong/Index'], resolve)
 
 let routes = [
   {
@@ -61,13 +61,6 @@ let routes = [
     }
   },
   {
-    path: '/air-purifier',
-    component: AirPurifier,
-    meta: {
-      title: ''
-    }
-  },
-  {
     path: '/timinglist',
     component: TimingList,
     meta: {
@@ -84,6 +77,13 @@ let routes = [
   {
     path: '/set',
     component: Set,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/wenkongset',
+    component: WenkongSet,
     meta: {
       title: ''
     }
@@ -128,6 +128,13 @@ let routes = [
     component: List,
     meta: {
       title: '设备列表'
+    }
+  },
+  {
+    path: '/wenkongindex',
+    component: WenKongIndex,
+    meta: {
+      title: ''
     }
   }
 ]
