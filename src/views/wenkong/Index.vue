@@ -17,7 +17,7 @@
     <div class='switch'>
       <div>
         <div class='left'>
-          <yd-switch v-model="switch1"></yd-switch>
+          <yd-switch v-model="switch1" ref='switch'></yd-switch>
         </div>
         <p>主机状态</p>
       </div>
@@ -157,6 +157,14 @@ export default {
         }
       })
     }
+  },
+  mounted() {
+    const containerWidth = document.querySelector('.left').offsetWidth
+    const switchElement = this.$refs.switch.$el
+    const switchWidth = switchElement.offsetWidth
+
+    // 动态改变开关的left属性，以保持一直水平居中
+    switchElement.style.left = (containerWidth - switchWidth) / 2 + 'px'
   },
   components: {
     'yd-popup': Popup,
