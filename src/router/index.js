@@ -20,6 +20,7 @@ const Demo = resolve => require(['@/views/demo'], resolve)
 const Permissions = resolve => require(['@/views/set/Permissions'], resolve)
 const WenKongIndex = resolve => require(['@/views/wenkong/Index'], resolve)
 const AirPurifier = resolve => require(['@/views/air-purifier'], resolve)
+const KaiChe = resolve => require(['@/views/kaiche'], resolve)
 
 let routes = [
   {
@@ -144,6 +145,10 @@ let routes = [
     meta: {
       title: ''
     }
+  },
+  {
+    path: '/kaiche',
+    component: KaiChe
   }
 ]
 
