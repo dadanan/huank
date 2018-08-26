@@ -1,7 +1,7 @@
 <template>
   <div class="kaiche">
     <yd-layout>
-      <yd-navbar slot="navbar" title="智能线上泊车" bgcolor="transparent" color="#fff" border-color="transparent">
+      <yd-navbar slot="navbar" title="智能线上泊车">
         <router-link to="#" slot="left">
           <yd-navbar-back-icon></yd-navbar-back-icon>
         </router-link>
@@ -41,12 +41,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%;
+    height: 80%;
     padding: .5rem;
   }
 
   .car {
-    width: 100%;
+    width: 50%;
   }
 </style>
 
