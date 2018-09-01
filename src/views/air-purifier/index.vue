@@ -170,7 +170,8 @@
         pm: '0',
         tem: '0',
         hum: '0',
-        loopLoadTimeSet: null
+        loopLoadTimeSet: null,
+        once: true
       }
     },
     created () {
@@ -241,10 +242,13 @@
             this.jrSwitch = funcList.find((element) => element.type === '2B0').value
             this.jsSwitch = funcList.find((element) => element.type === '250').value
             this.jhSwitch = funcList.find((element) => element.type === '2A0').value
-            this.prePmSpinner = data.prePM25.data
-            this.preJhSpinner = data.prePuriEffic.data
-            this.preHumSpinner = data.preHum.data
-            this.preTemSpinner = data.preTem.data
+            if (this.once) {
+              this.prePmSpinner = data.prePM25.data
+              this.preJhSpinner = data.prePuriEffic.data
+              this.preHumSpinner = data.preHum.data
+              this.preTemSpinner = data.preTem.data
+              this.once = false
+            }
           }
         }).catch(() => {
         })

@@ -405,7 +405,9 @@ export default {
           } else {
             this.isOpen = true
           }
-          this.address = res.data.location.split(',')[1]
+          if (res.data.location) {
+            this.address = res.data.location.split(',')[1]
+          }
           sessionStorage.setItem('location', res.data.location)
           sessionStorage.setItem('ip', res.data.ip)
           sessionStorage.setItem('deviceInfoItem', JSON.stringify(res.data.deviceInfoItem))
@@ -548,7 +550,7 @@ export default {
       }
     }
     &.active{
-      //background-color:-webkit-gradient(linear, 0 0, 0 top, from(#2689ed), to(rgba(30, 79, 251, 0.8))); 
+      //background-color:-webkit-gradient(linear, 0 0, 0 top, from(#2689ed), to(rgba(30, 79, 251, 0.8)));
       //background-color: #21a6f7;
     }
     .info{
@@ -686,7 +688,7 @@ export default {
         @media only screen and (min-device-width : 320px)  and (max-device-width : 340px) {
           width: 45%;
         }
-        
+
         margin: 0 auto;
         .circle-inner{
           width: 95%;
@@ -776,9 +778,9 @@ export default {
       }
     }
   }
-  
 
 
-  
+
+
 </style>
 
