@@ -188,6 +188,8 @@ export default {
   background-image: url('~@/assets/background.png');
   background-size: cover;
   background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
   .header {
     box-sizing: border-box;
     margin: tvw(110) tvw(162) auto tvw(162);
@@ -268,7 +270,6 @@ export default {
     border-radius: 50%;
     margin: auto;
     margin-top: tvw(350);
-    margin-bottom: tvw(700);
     > div {
       width: 95%;
       height: 100%;
@@ -303,6 +304,8 @@ export default {
   .current-info {
     width: tvw(2485);
     margin: auto;
+    margin-top: tvw(500);
+    margin-bottom: tvw(100);
     font-size: tvw(130);
     color: #fff;
     display: flex;
@@ -318,12 +321,13 @@ export default {
   .menu {
     width: tvw(2485);
     margin: auto;
+    margin-bottom: tvw(100);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    position: absolute;
-    bottom: tvw(131);
-    left: tvw(295);
+    // position: absolute;
+    // bottom: tvw(131);
+    // left: tvw(295);
     > div {
       display: flex;
       align-items: center;
