@@ -1,31 +1,29 @@
 <template>
-  <div class='index-container'>
+  <div class='index-container' :class="{ cold: currentOption == 0,hot: currentOption == 1,wind: currentOption == 2 }">
     <div class='header'>
       <img src='@/assets/arrow_left.png'>
-      <span>温控器</span>
+      <span>{{pageName}}</span>
       <img class='setting' @click='intoSet' src='@/assets/set.png'>
     </div>
     <div class='info'>
-      <img src="../../assets/map.png" style="width:12px;height:auto" />
-      <span>上海</span>&nbsp;&nbsp;
-      <span>嘉定</span>&nbsp;&nbsp;
-      <span>晴</span>&nbsp;&nbsp;
-      <span>32℃</span>&nbsp;&nbsp;
-      <span>湿度62%</span>&nbsp;&nbsp;
-      <span>PM2.5：32ug/m³</span>
+      <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;&nbsp;
+      <span v-if='formatItemsList[9].showStatus'>{{formatItemsList[9].showName}}&nbsp;&nbsp;</span>
+      <span v-if='formatItemsList[10].showStatus'>{{formatItemsList[10].showName}}&nbsp;&nbsp;</span>
+      <span v-if='formatItemsList[11].showStatus'>{{formatItemsList[11].showName}}&nbsp;&nbsp;</span>
+      <span v-if='formatItemsList[12].showStatus'>{{formatItemsList[12].showName}}</span>
     </div>
     <div class='switch'>
-      <div>
+      <div v-if='formatItemsList[7].showStatus'>
         <div class='left'>
           <yd-switch v-model="switch1" ref='switch'></yd-switch>
         </div>
-        <p>主机状态</p>
+        <p>{{formatItemsList[7].showName}}</p>
       </div>
-      <div>
+      <div v-if='formatItemsList[8].showStatus'>
         <div>
           <img src='@/assets/wenkong_close.png'>
         </div>
-        <p>开关</p>
+        <p>{{formatItemsList[8].showName}}</p>
       </div>
     </div>
     <div class='main'>
@@ -36,50 +34,74 @@
       </div>
     </div>
     <div class='current-info'>
-      <p>
-        当前温度
+      <p v-if='formatItemsList[4].showStatus'>
+        {{formatItemsList[4].showName}}
         <span class='strong'>{{temperature}}</span>
         ℃
       </p>
-      <p>
-        当前湿度
+      <p v-if='formatItemsList[5].showStatus'>
+        {{formatItemsList[4].showName}}
         <span class='strong'>80</span>
         %
       </p>
     </div>
+    <div class='function' v-if='formatItemsList[3].showStatus'>
+      <div v-for='item in functionList' @click='functionClicked(item)' :class="{able: item.able}" :key='item.id'>
+        <span>{{item.definedName}}</span>
+      </div>
+    </div>
     <div class='menu'>
-      <div @click='modelClickedHandler(0)'>
+      <div @click='modelClickedHandler(formatItemsList[0].ablityId,0)' v-if='formatItemsList[0].showStatus'>
         <div>
           <img class='first' src='@/assets/temperature.png'>
         </div>
-        <span>温度</span>
+        <span>{{formatItemsList[0].showName}}</span>
       </div>
-      <div @click='modelClickedHandler(1)'>
+      <div @click='modelClickedHandler(formatItemsList[1].ablityId,1)' v-if='formatItemsList[1].showStatus'>
         <div>
           <img src='@/assets/model.png'>
         </div>
-        <span>模式</span>
+        <span>{{formatItemsList[1].showName}}</span>
       </div>
-      <div @click='modelClickedHandler(2)'>
+      <div @click='modelClickedHandler(formatItemsList[2].ablityId,2)' v-if='formatItemsList[2].showStatus'>
         <div>
           <img class='third' src='@/assets/wind.png'>
         </div>
-        <span>风速</span>
-      </div>
-      <div @click='modelClickedHandler(3)'>
-        <div>
-          <img src='@/assets/function.png'>
-        </div>
-        <span>功能</span>
+        <span>{{formatItemsList[2].showName}}</span>
       </div>
     </div>
+    <div class='left-side' v-if='formatItemsList[6].showStatus'>
+      <div>
+        <img class='first' src='@/assets/wind.png'>
+        <span>{{windData.deviceModelAblityOptions && windData.deviceModelAblityOptions[currentOptionForWind].definedName}}</span>
+      </div>
+      <div>
+        <img class='second' src='@/assets/model.png'>
+        <span>{{modelData.deviceModelAblityOptions && modelData.deviceModelAblityOptions[currentOption].definedName}}</span>
+      </div>
+    </div>
+    <!-- 模式 -->
     <yd-popup v-model="modelVisible" position="bottom" width="90%">
       <div class="content">
-        <div class="title">{{modelData[whichModel].title}}</div>
+        <div class="title">{{modelData.definedName}}</div>
         <div class="list">
           <ul>
-            <li v-for="(item,index) in modelData[whichModel].option" :key="index" :class="{ active: currentOption == index }" @click='currentOption = index'>
-              <span>{{ item }}</span>
+            <li v-for="(item,index) in modelData.deviceModelAblityOptions" :key="index" :class="{ active: currentOption == index }" @click='modelClicked(index,item)'>
+              <span>{{ item.definedName }}</span>
+              <div class="icon"></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </yd-popup>
+    <!-- 风速 -->
+    <yd-popup v-model="windVisible" position="bottom" width="90%">
+      <div class="content">
+        <div class="title">{{windData.definedName}}</div>
+        <div class="list">
+          <ul>
+            <li v-for="(item,index) in windData.deviceModelAblityOptions" :key="index" :class="{ active: currentOptionForWind == index }" @click='modelClicked(index,item,3)'>
+              <span>{{ item.definedName }}</span>
               <div class="icon"></div>
             </li>
           </ul>
@@ -101,6 +123,8 @@
         </div>
       </div>
     </yd-popup>
+    <div class='gif'>
+    </div>
   </div>
 </template>
 
@@ -109,39 +133,43 @@ import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
 import { Popup } from 'vue-ydui/dist/lib.rem/popup'
 import { Picker } from 'mint-ui'
 import { Switch } from 'vue-ydui/dist/lib.rem/switch'
+let json = require('./test')
+json = json.data
+const formatItemsList = json.formatItemsList
+const abilitysList = json.abilitysList
+
 export default {
   data() {
     return {
       switch1: true,
-      modelVisible: false, // 显示弹窗（除温度设定）
+      modelVisible: false, //
+      windVisible: false, //
       temperatureVisible: false, // 显示温度设定弹框
       temperature: 26, // 设定温度
-      currentOption: 0, // select 当前选择项
-      whichModel: 1, // 用户点击了哪个模块
-      modelData: {
-        1: {
-          title: '模式设定',
-          option: ['睡眠模式', '手动模式', '智能模式']
-        },
-        2: {
-          title: '风俗设定',
-          option: ['低速', '中速', '高速', '自动']
-        },
-        3: {
-          title: '功能设定',
-          option: ['制冷', '制热', '除湿']
-        }
-      }
+      currentOption: 0, // 模式的当前选择项
+      currentOptionForWind: 0, // 风速的当前选择项
+      windModel: true, // 用户点击了风速模块?
+      modelData: {},
+      windData: {},
+      functionList: [],
+      pageName: json.pageName,
+      formatItemsList: formatItemsList
     }
   },
   methods: {
-    modelClickedHandler(which) {
-      if (which) {
-        this.modelVisible = true
-        this.whichModel = which
+    setModelData(id, index) {
+      const data = abilitysList.filter(item => item.ablityId === id)[0]
+      index === 1 ? (this.modelData = data) : (this.windData = data)
+    },
+    modelClickedHandler(id, index) {
+      if (index === 0) {
+        // 如果用户唤起温度框
+        this.temperatureVisible = true
         return
       }
-      this.temperatureVisible = true
+      this.setModelData(id, index)
+
+      index === 1 ? (this.modelVisible = true) : (this.windVisible = true)
     },
     increase() {
       this.temperature += 1
@@ -156,7 +184,31 @@ export default {
           deviceId: this.$route.query.deviceId
         }
       })
+    },
+    modelClicked(index, data, which) {
+      if (which === 3) {
+        this.currentOptionForWind = index
+      } else {
+        this.currentOption = index
+      }
+      // 发送指令，指令应该在data里
+    },
+    functionClicked(item) {
+      this.functionList.forEach(list => {
+        list['able'] = false
+      })
+      item['able'] = true
     }
+  },
+  created() {
+    // 功能项数据赋值
+    const tempArray = abilitysList.filter(
+      item => item.ablityId === this.formatItemsList[3].ablityId
+    )[0].deviceModelAblityOptions
+    tempArray.forEach(item => {
+      item['able'] = false
+    })
+    this.functionList = tempArray
   },
   mounted() {
     const containerWidth = document.querySelector('.left').offsetWidth
@@ -185,14 +237,14 @@ export default {
   top: 0;
   left: 0;
   box-sizing: border-box;
-  background-image: url('~@/assets/background.png');
   background-size: cover;
   background-repeat: no-repeat;
+  background-image: url('~@/assets/background.png');
   display: flex;
   flex-direction: column;
   .header {
     box-sizing: border-box;
-    margin: tvw(110) tvw(162) auto tvw(162);
+    margin: tvw(0) tvw(162) auto tvw(162);
     font-size: 16px;
     line-height: 40px;
     position: relative;
@@ -218,7 +270,7 @@ export default {
     }
   }
   .info {
-    margin: tvw(229) auto tvw(234) auto;
+    margin: 0 auto tvw(34) auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -269,7 +321,7 @@ export default {
     border: 1px solid #ffffff;
     border-radius: 50%;
     margin: auto;
-    margin-top: tvw(350);
+    margin-top: tvw(150);
     > div {
       width: 95%;
       height: 100%;
@@ -304,7 +356,7 @@ export default {
   .current-info {
     width: tvw(2485);
     margin: auto;
-    margin-top: tvw(500);
+    margin-top: tvw(100);
     margin-bottom: tvw(100);
     font-size: tvw(130);
     color: #fff;
@@ -318,6 +370,32 @@ export default {
       }
     }
   }
+  .function {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    div.able {
+      background-image: url('~@/assets/able.png');
+    }
+    div {
+      background-image: url('~@/assets/disable.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      height: tvw(350);
+      width: tvw(450);
+      display: flex;
+      line-height: 1;
+      justify-content: center;
+      align-items: center;
+      span {
+        top: -tvw(10);
+        position: relative;
+        color: white;
+      }
+    }
+  }
   .menu {
     width: tvw(2485);
     margin: auto;
@@ -325,9 +403,6 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    // position: absolute;
-    // bottom: tvw(131);
-    // left: tvw(295);
     > div {
       display: flex;
       align-items: center;
@@ -414,6 +489,104 @@ export default {
         }
       }
     }
+  }
+  .left-side {
+    position: fixed;
+    width: tvw(700);
+    height: tvw(600);
+    left: 0;
+    top: 32%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    background: #217dea;
+    opacity: 0.9;
+    border-radius: 0 3vw 3vw 0;
+    > div {
+      display: flex;
+      align-items: center;
+      span {
+        color: white;
+        font-size: 15px;
+      }
+    }
+    img {
+      opacity: 0.5;
+      height: tvw(160);
+      margin-right: tvw(90);
+    }
+    img.first {
+      transform: scale(0.9);
+    }
+    img.second {
+      transform: scale(0.7);
+    }
+  }
+  .gif {
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    height: 40vh;
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: -1;
+    opacity: 0.5;
+  }
+}
+
+@-webkit-keyframes flow {
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 40%;
+  }
+}
+
+@-webkit-keyframes blow {
+  0% {
+    right: -100%;
+  }
+  100% {
+    right: 100%;
+  }
+}
+
+@-webkit-keyframes shine {
+  0% {
+    right: -100%;
+  }
+  100% {
+    right: 100%;
+  }
+}
+
+.index-container.wind {
+  background-image: url('~@/assets/background.png');
+  .gif {
+    background-image: url('~@/assets/blow-wind.png');
+    -webkit-animation: blow 15s infinite linear;
+    top: 20%;
+    height: 20vh;
+  }
+}
+.index-container.hot {
+  background: #ea9705;
+  .gif {
+    background-image: url('~@/assets/sunshine.png');
+    -webkit-animation: shine 12s infinite linear;
+    width: 150vw;
+    height: 80vh;
+    top: -42vh;
+  }
+}
+
+.index-container.cold {
+  background: #004696;
+  .gif {
+    background-image: url('~@/assets/flow-snow.png');
+    -webkit-animation: flow 8s infinite linear;
   }
 }
 </style>
