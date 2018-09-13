@@ -110,3 +110,51 @@ export function modelList(id) {
     }
   })
 }
+
+export function obtainMyDevice() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/obtainMyDevice`,
+    method: 'post',
+    headers
+  })
+}
+
+export function sendFunc() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/sendFunc`,
+    method: 'post',
+    headers
+  })
+}
+
+export function updateTeamName() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/team/updateTeamName`,
+    method: 'post',
+    headers
+  })
+}
+
+export function updateDeviceTeam() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/team/updateDeviceTeam`,
+    method: 'post',
+    headers
+  })
+}
+
+export function deleteTeam() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/team/deleteTeam`,
+    method: 'post',
+    headers
+  })
+}
+
+export function createTeam() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/team/createTeam`,
+    method: 'post',
+    headers
+  })
+}

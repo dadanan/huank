@@ -56,7 +56,6 @@ Axios.interceptors.request.use(
 Axios.interceptors.response.use(
   res => {
     if (res.data && res.data.code != 200) {
-      console.log('asd', res.data)
       return Promise.reject(res.data)
     }
     return res.data

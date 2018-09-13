@@ -1,7 +1,7 @@
 <template>
   <div class='index-container' :class="{ cold: currentOption == 0,hot: currentOption == 1,wind: currentOption == 2 }">
     <div class='header'>
-      <img src='@/assets/arrow_left.png'>
+      <img src='@/assets/arrow_left.png' @click='goBack()'>
       <span>{{pageName}}</span>
       <img class='setting' @click='intoSet' src='@/assets/set.png'>
     </div>
@@ -167,10 +167,14 @@ export default {
       weather: '',
       outerTem: '',
       outerHum: '', // 湿度
-      outerPm: '' // PM2.5
+      outerPm: '', // PM2.5
+      deviceId: this.$route.query.deviceId
     }
   },
   methods: {
+    goBack() {
+      history.back()
+    },
     setModelData(id, index) {
       const data = abilitysList.filter(item => item.ablityId === id)[0]
       index === 1 ? (this.modelData = data) : (this.windData = data)
@@ -195,7 +199,7 @@ export default {
       this.$router.push({
         path: '/wenkongset',
         query: {
-          deviceId: this.$route.query.deviceId
+          deviceId: this.deviceId
         }
       })
     },
@@ -215,7 +219,7 @@ export default {
     },
     getIndexAblityData() {
       // 获取H5控制页面功能项数据，带isSelect参数
-      getModelVo({ deviceId: 435, pageNo: 1 }).then(res => {
+      getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
         if (res.code === 200 && res.data) {
           this.getIndexFormatData(res.data)
         }
@@ -224,7 +228,7 @@ export default {
     getIndexFormatData(list) {
       // 获取H5控制页面功能项数据，带isSelect参数
       newQueryDetailByDeviceId({
-        deviceId: 435,
+        deviceId: this.deviceId,
         abilityIds: list.formatItemsList.map(item => item.abilityId)
       }).then(res => {
         const data = res.data
@@ -250,12 +254,12 @@ export default {
       })
     },
     getLocation() {
-      getLocation(435).then(res => {
+      getLocation(this.deviceId).then(res => {
         this.location = res.data.location
       })
     },
     getWeather() {
-      getWeather(435).then(res => {
+      getWeather(this.deviceId).then(res => {
         const data = res.data
 
         this.weather = data.weather

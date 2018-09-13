@@ -290,7 +290,7 @@ export default {
             timeout: 1500,
             icon: 'success'
           })
-          this.childDeviceList = this.childDeviceList.filter(
+          this.childDeviceArray = this.childDeviceArray.filter(
             item => item.id !== this.deleteTheDevice
           )
           this.delDevFlag = false
