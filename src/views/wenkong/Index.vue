@@ -7,10 +7,10 @@
     </div>
     <div class='info'>
       <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;&nbsp;
-      <span v-if='formatItemsList[9].showStatus'>{{formatItemsList[9].showName}}&nbsp;&nbsp;</span>
-      <span v-if='formatItemsList[10].showStatus'>{{formatItemsList[10].showName}}&nbsp;&nbsp;</span>
-      <span v-if='formatItemsList[11].showStatus'>{{formatItemsList[11].showName}}&nbsp;&nbsp;</span>
-      <span v-if='formatItemsList[12].showStatus'>{{formatItemsList[12].showName}}</span>
+      <span v-if='formatItemsList[9].showStatus'>{{location}}&nbsp;&nbsp;</span>
+      <span v-if='formatItemsList[10].showStatus'>{{weather}} {{outerTem}}&nbsp;&nbsp;</span>
+      <span v-if='formatItemsList[11].showStatus'>湿度: {{outerHum}}&nbsp;&nbsp;</span>
+      <span v-if='formatItemsList[12].showStatus'>PM2.5: {{outerPm}}ug/m3</span>
     </div>
     <div class='switch'>
       <div v-if='formatItemsList[7].showStatus'>
@@ -133,6 +133,15 @@ import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
 import { Popup } from 'vue-ydui/dist/lib.rem/popup'
 import { Picker } from 'mint-ui'
 import { Switch } from 'vue-ydui/dist/lib.rem/switch'
+import {
+  getModelVo,
+  newQueryDetailByDeviceId,
+  getToken,
+  getLocation,
+  getWeather
+} from './api'
+import Store from './store'
+
 let json = require('./test')
 json = json.data
 const formatItemsList = json.formatItemsList
@@ -153,7 +162,12 @@ export default {
       windData: {},
       functionList: [],
       pageName: json.pageName,
-      formatItemsList: formatItemsList
+      formatItemsList: formatItemsList,
+      location: '',
+      weather: '',
+      outerTem: '',
+      outerHum: '', // 湿度
+      outerPm: '' // PM2.5
     }
   },
   methods: {
@@ -198,9 +212,62 @@ export default {
         list['able'] = false
       })
       item['able'] = true
+    },
+    getIndexAblityData() {
+      // 获取H5控制页面功能项数据，带isSelect参数
+      getModelVo({ deviceId: 435, pageNo: 1 }).then(res => {
+        if (res.code === 200 && res.data) {
+          this.getIndexFormatData(res.data)
+        }
+      })
+    },
+    getIndexFormatData(list) {
+      // 获取H5控制页面功能项数据，带isSelect参数
+      newQueryDetailByDeviceId({
+        deviceId: 435,
+        abilityIds: list.formatItemsList.map(item => item.abilityId)
+      }).then(res => {
+        const data = res.data
+        // 将res.data中的isSelect和dirValue赋值过去
+        list.abilitysList.forEach((item, index) => {
+          if (!item.abilityOptionList || item.abilityOptionList.length === 0) {
+            return
+          }
+          item.ablityType !== 1 &&
+            item.abilityOptionList.forEach((option, oIndex) => {
+              const temp = Object.assign(
+                option,
+                data[index].abilityOptionList[oIndex]
+              )
+            })
+        })
+      })
+    },
+    getToken() {
+      // 高级设置Token
+      getToken({ customerId: 12, password: 123456 }).then(res => {
+        Store.save('Token', res.data)
+      })
+    },
+    getLocation() {
+      getLocation(435).then(res => {
+        this.location = res.data.location
+      })
+    },
+    getWeather() {
+      getWeather(435).then(res => {
+        const data = res.data
+
+        this.weather = data.weather
+        this.outerTem = data.outerTem
+        this.outerPm = data.outerPm
+        this.outerHum = data.outerHum
+      })
     }
   },
   created() {
+    this.getToken()
+
     // 功能项数据赋值
     const tempArray = abilitysList.filter(
       item => item.ablityId === this.formatItemsList[3].ablityId
@@ -209,6 +276,10 @@ export default {
       item['able'] = false
     })
     this.functionList = tempArray
+
+    this.getIndexAblityData()
+    this.getLocation()
+    this.getWeather()
   },
   mounted() {
     const containerWidth = document.querySelector('.left').offsetWidth

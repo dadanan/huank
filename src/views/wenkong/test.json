@@ -425,7 +425,7 @@
         "modelFormatId": 36,
         "itemId": 102,
         "ablityId": 75,
-        "showStatus": 0,
+        "showStatus": 1,
         "showName": "温度11",
         "status": 1
       },
@@ -434,7 +434,7 @@
         "modelFormatId": 36,
         "itemId": 103,
         "ablityId": 76,
-        "showStatus": 0,
+        "showStatus": 1,
         "showName": "湿度1",
         "status": 1
       },

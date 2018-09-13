@@ -3,12 +3,12 @@ import App from './App'
 import routes from 'router'
 import VueRouter from 'vue-router'
 import Toast from 'base/toast'
-import axiosPlugin from 'common/js/https'
+import 'common/js/https'
 import 'common/scss/index.scss'
 import store from 'store'
 import { setWechatTitle } from 'utils'
 import FastClick from 'fastclick'
-import {tap, swipeleft, swiperight, press} from './lib/touchvue.js'
+import { tap, swipeleft, swiperight, press } from './lib/touchvue.js'
 import 'vue-ydui/dist/ydui.rem.css'
 import 'vue-ydui/dist/ydui.base.css'
 import { wxShare } from 'utils/wx'
@@ -23,7 +23,6 @@ FastClick.attach(document.body)
 Vue.config.productionTip = false
 Vue.use(VueRouter)
 Vue.use(Toast)
-Vue.use(axiosPlugin)
 Vue.use(VueDraggable)
 Vue.prototype.GLOBAL = global_
 
@@ -36,7 +35,12 @@ router.beforeEach((to, from, next) => {
   if (to.meta && to.meta.title) {
     setWechatTitle(to.meta.title, '')
     let url = global_.shareUrl
-    wxShare('我分享了一个设备给你，赶紧看看吧', sessionStorage.getItem('name'), sessionStorage.getItem('icon'), url)
+    wxShare(
+      '我分享了一个设备给你，赶紧看看吧',
+      sessionStorage.getItem('name'),
+      sessionStorage.getItem('icon'),
+      url
+    )
   }
   next()
 })

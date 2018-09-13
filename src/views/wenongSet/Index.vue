@@ -161,7 +161,7 @@ export default {
     },
     intoConfig () {
       this.$router.push({
-        path: '/config',
+        path: '/wkconfig',
         query: {
           deviceId: this.$route.query.deviceId
         }

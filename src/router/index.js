@@ -16,6 +16,7 @@ const Share = resolve => require(['@/views/set/Share'], resolve)
 const Data = resolve => require(['@/views/set/Data'], resolve)
 const Battery = resolve => require(['@/views/set/Battery'], resolve)
 const Config = resolve => require(['@/views/set/Config'], resolve)
+const WKConfig = resolve => require(['@/views/wenongSet/Config'], resolve)
 const List = resolve => require(['@/views/list/Index'], resolve)
 const Demo = resolve => require(['@/views/demo'], resolve)
 const Permissions = resolve => require(['@/views/set/Permissions'], resolve)
@@ -129,6 +130,13 @@ let routes = [
   {
     path: '/config',
     component: Config,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/wkconfig',
+    component: WKConfig,
     meta: {
       title: ''
     }
