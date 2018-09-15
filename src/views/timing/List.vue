@@ -4,7 +4,7 @@
       <div class="return" @click="returnMethod"></div>
       <span>定时预约</span>
       <span class="edit" @click="save" v-if="isEdit">取消</span>
-      <span class="edit" @click="edit" v-else>编辑</span>
+      <span class="edit" @click="edit" v-else>操作</span>
     </div>
     <div class="timing-list" v-if="timeList.length">
       <div class="list-box" v-for="(item,index) in timeList" :key="index">
@@ -19,11 +19,11 @@
         <div class="box-right" v-if="!isEdit">
           <div class="switch-box">
             <span>定时{{ item.timerType === 1 ? '开': '关' }}</span>
-            <yd-switch v-model="item.switch1" @click.native="switchMethod(item.id,item.status)"></yd-switch>
+            <yd-switch v-model="item.switch" @click.native="switchMethod(item)"></yd-switch>
           </div>
         </div>
         <div class="box-right" v-else>
-          <span @click="intoTimeInfo(item.id)">详情</span>
+          <span @click="intoTimeInfo(item.id)">编辑</span>
         </div>
       </div>
     </div>
@@ -35,8 +35,9 @@
 <script type="text/ecmascript-6">
 import { Switch } from 'vue-ydui/dist/lib.rem/switch'
 import { addClass, removeClass } from 'utils/dom'
-import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
+import { Loading, Toast, Confirm } from 'vue-ydui/dist/lib.rem/dialog'
 import myUrl from 'common/js/api'
+import { queryTimerList, cancelTimer, deleteTimer } from '../wenkong/api'
 
 export default {
   data() {
@@ -48,24 +49,28 @@ export default {
   },
   methods: {
     delTimer(id) {
-      Loading.open('很快加载好了')
-      this.$http
-        .get(myUrl.deleteTimer + '?timerId=' + id)
-        .then(res => {
-          if (res.code === 200) {
-            Loading.close()
-            Toast({
-              mes: '删除成功',
-              timeout: 1500,
-              icon: 'success'
+      Confirm({
+        title: '删除组',
+        mes: '删除后无法恢复，确认删除？',
+        opts: () => {
+          deleteTimer(id)
+            .then(res => {
+              if (res.code === 200) {
+                Toast({
+                  mes: '删除成功',
+                  timeout: 1500,
+                  icon: 'success'
+                })
+                this.timeList = this.timeList.filter(item => item.id !== id)
+                this.save()
+                Loading.close()
+              }
             })
-            this.getTimeList()
-            this.save()
-          }
-        })
-        .catch(error => {
-          Loading.close()
-        })
+            .catch(error => {
+              Loading.close()
+            })
+        }
+      })
     },
     returnMethod() {
       this.$router.back(-1)
@@ -73,7 +78,6 @@ export default {
     edit() {
       this.isEdit = !this.isEdit
       this.value = 'active'
-      console.log(this.$refs.boxref1)
       $('.box-left').addClass('active')
       // addClass(this.$refs.boxref1,'active');
     },
@@ -84,19 +88,18 @@ export default {
     },
     getTimeList() {
       Loading.open('很快加载好了')
-      this.$http
-        .get(
-          myUrl.queryTimerList + '?deviceIdStr=' + this.$route.query.deviceId
-        )
+      queryTimerList({
+        wxDeviceId: 'gh_88f99c7775df_9e63dcd34ca2d6ff'
+      })
         .then(res => {
           if (res.code === 200) {
             Loading.close()
             this.timeList = res.data
             this.timeList.forEach(v => {
               if (v.status === 1) {
-                this.$set(v, 'switch1', true)
+                this.$set(v, 'switch', true)
               } else {
-                this.$set(v, 'switch1', false)
+                this.$set(v, 'switch', false)
               }
             })
           }
@@ -126,22 +129,23 @@ export default {
       }
       return time
     },
-    switchMethod(id, status) {
-      if (status === 1) {
-        status = 2
+    switchMethod(item) {
+      if (item.status === 1) {
+        // 取消定时
+        item.status = 2
       } else {
-        status = 1
+        // 重启定时
+        item.status = 1
       }
       Loading.open('很快加载好了')
-      this.$http
-        .get(myUrl.cancelTimer + '?timerId=' + id + '&status=' + status)
+      cancelTimer({
+        timerId: item.id,
+        status: item.status
+      })
         .then(res => {
-          if (res.code === 200) {
-            this.getTimeList()
-            Loading.close()
-          }
+          Loading.close()
         })
-        .catch(error => {
+        .catch(() => {
           Loading.close()
         })
     },

@@ -8,7 +8,7 @@
         </div>
         <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 90px;" v-show="groupFlag && item.teamName !== '默认组'" @click="OpenGroup(item)">编辑
         </div>
-        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 60px;" v-show="groupFlag && item.teamName !== '默认组'" @click="deleteGroup(item.groupId)">删除
+        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 60px;" v-show="groupFlag && item.teamName !== '默认组'" @click="deleteTeam(item.teamId)">删除
         </div>
         <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 30px;" v-show="groupFlag && item.teamName !== '默认组'" @click="groupFlag = false">取消
         </div>
@@ -38,10 +38,10 @@
               </div>
             </div>
             <div class="item-right">
-              <span class="group" v-if="loopValue === true" @click.stop="OpenDev(child,item.teamName,1)">分组</span>
+              <span class="group" v-if="loopValue === true" @click.stop="OpenDev(child,item.teamId,1)">分组</span>
               <span class="edit" v-if="loopValue === true" @click.stop="OpenDev(child,2)">编辑</span>
               <span class="delete" v-if="loopValue === true" @click.stop="deleteDev(child)" style="color: #a0a0a0;">删除</span>
-              <p>PM2.5 </p>
+              <p>PM2.5</p>
               <p>{{child.pm}}ug/m³</p>
             </div>
           </div>
@@ -108,7 +108,7 @@
         </div>
         <div class="confim-bottom">
           <div class="but" @click="teamNameFlag = false">取消</div>
-          <div class="but create" @click="editGroupName">确定</div>
+          <div class="but create" @click="updateTeamName">确定</div>
         </div>
       </div>
     </div>
@@ -119,7 +119,7 @@
           <p style="padding-top:10px ;">请选择组：</p>
           <div>
             <yd-radio-group v-model="selectId" color="#00ff00">
-              <yd-radio :val="item.groupId" v-if="currentGroupName != item.teamName" style="margin-top:10px;width:100%;color: #fff " v-for="(item,index) in devGroupList" :key="index">{{ item.teamName }}
+              <yd-radio :val="item.teamId" v-if="currentTeamId != item.teamId" style="margin-top:10px;width:100%;color: #fff " v-for="(item,index) in teamList" :key="index">{{ item.teamName }}
               </yd-radio>
             </yd-radio-group>
           </div>
@@ -146,18 +146,25 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
+import { Loading, Toast, Confirm } from 'vue-ydui/dist/lib.rem/dialog'
 import { Accordion, AccordionItem } from 'vue-ydui/dist/lib.rem/accordion'
 import myUrl from 'common/js/api'
 import { getQueryString } from 'utils'
 import { scanQRCode } from 'utils/wx'
 import { Radio, RadioGroup } from 'vue-ydui/dist/lib.rem/radio'
-import { obtainMyDevice } from '../wenkong/api'
+import {
+  obtainMyDevice,
+  createTeam,
+  deleteTeam,
+  updateTeamName,
+  editDevice,
+  updateDeviceTeam
+} from '../wenkong/api'
 
 export default {
   data() {
     return {
-      currentGroupName: '',
+      currentTeamId: '',
       selectId: '', // 选择需要的分组id
       groupDialog: false,
       teamNameFlag: false,
@@ -178,7 +185,8 @@ export default {
       delDevFlag: false,
       deviceId: '',
       selname: '',
-      teamList: []
+      teamList: [],
+      editingDeviceData: []
     }
   },
   components: {
@@ -225,21 +233,23 @@ export default {
     returnMethod() {
       this.$router.back(-1)
     },
-    editGroupName() {
+    updateTeamName() {
       Loading.open('很快加载好了')
-      this.$http
-        .get(
-          myUrl.updateGroupName +
-            '?groupId=' +
-            this.groupInfo.groupId +
-            '&teamName=' +
-            this.groupInfo.teamName
-        )
+      const teamId = this.groupInfo.teamId
+      const teamName = this.groupInfo.teamName
+      updateTeamName({
+        teamId,
+        teamName
+      })
         .then(res => {
           if (res.code === 200) {
             Loading.close()
             this.teamNameFlag = false
-            this.getDeviceList()
+            this.teamList.forEach(item => {
+              if (item.teamId === teamId) {
+                item.teamName = teamName
+              }
+            })
           }
         })
         .catch(error => {
@@ -247,45 +257,65 @@ export default {
           this.$toast(error.msg, 'bottom')
         })
     },
-    deleteGroup(id) {
-      this.$http
-        .get(myUrl.deleteGroup + '?groupId=' + id)
-        .then(res => {
-          if (res.code === 200) {
-            Toast({
-              mes: '删除成功',
-              timeout: 1500,
-              icon: 'success'
+    deleteTeam(id) {
+      Confirm({
+        title: '删除组',
+        mes: '删除后无法恢复，确认删除？',
+        opts: () => {
+          deleteTeam({
+            value: id
+          })
+            .then(res => {
+              if (res.code === 200) {
+                Toast({
+                  mes: '删除成功',
+                  timeout: 1500,
+                  icon: 'success'
+                })
+                this.teamList = this.teamList.filter(item => item.teamId !== id)
+                Loading.close()
+              }
             })
-            Loading.close()
-            this.getDeviceList()
-          }
-        })
-        .catch(error => {
-          Loading.close()
-        })
+            .catch(error => {
+              Loading.close()
+            })
+        }
+      })
     },
     editGroup() {
       if (this.selectId === '') {
         this.$toast('请选择组', 'bottom')
       } else {
-        let data = {}
-        data.deviceIds = []
-        data.deviceIds.push(this.devInfo.deviceId)
-        data.groupId = this.selectId
-        this.$http
-          .post(myUrl.updateDeviceGroup, data)
+        const deviceId = this.devInfo.wxDevicdId
+        updateDeviceTeam({
+          teamId: this.selectId,
+          deviceIds: [deviceId]
+        })
           .then(res => {
             if (res.code === 200) {
-              this.groupDialog = false
-              this.selectId = ''
               Toast({
                 mes: '分组成功',
                 timeout: 1500,
                 icon: 'success'
               })
+
+              // 首先从当前组中移除，然后添加到目标组中
+              this.teamList.forEach(team => {
+                if (team.teamId === this.currentTeamId) {
+                  team.deviceItemPos = team.deviceItemPos.filter(
+                    item => item.wxDevicdId !== deviceId
+                  )
+                  return
+                }
+
+                if (team.teamId === this.selectId) {
+                  team.deviceItemPos.push(this.editingDeviceData)
+                }
+              })
+
+              this.groupDialog = false
+              this.selectId = ''
               Loading.close()
-              this.getDeviceList()
             }
           })
           .catch(error => {
@@ -370,19 +400,25 @@ export default {
       }
 
       Loading.open('很快加载好了')
-      let data = {
+      // let data = {
+      //   teamName: this.teamName
+      // }
+      // if (this.devIds.length) {
+      //   // 选中了设备
+      //   data.deviceIds = this.devIds
+      // }
+      createTeam({
         teamName: this.teamName
-      }
-      if (this.devIds.length) {
-        // 选中了设备
-        data.deviceIds = this.devIds
-      }
-      this.$http
-        .post(myUrl.createGroup, data)
+      })
         .then(res => {
           if (res.code === 200) {
             Loading.close()
-            this.getDeviceList()
+            // this.getDeviceList()
+            this.teamList.push({
+              teamName: this.teamName,
+              teamId: res.data,
+              deviceItemPos: []
+            })
             this.createValue = false
           }
         })
@@ -394,9 +430,9 @@ export default {
       this.teamNameFlag = true
       this.groupInfo = Object.assign({}, obj)
     },
-    OpenDev(obj, name, type) {
-      if (name) {
-        this.currentGroupName = name
+    OpenDev(obj, id, type) {
+      if (id + '') {
+        this.currentTeamId = id
       }
       this.selname = obj.deviceName
       if (type === 1) {
@@ -405,22 +441,20 @@ export default {
         this.editDevFlag = true
       }
       this.devInfo = Object.assign({}, obj)
+      this.editingDeviceData = obj
     },
     editDev() {
       Loading.open('很快加载好了')
-      this.$http
-        .get(
-          myUrl.editDevice +
-            '?deviceId=' +
-            this.devInfo.deviceId +
-            '&deviceName=' +
-            this.devInfo.deviceName
-        )
+      const deviceName = this.devInfo.deviceName
+      editDevice({
+        deviceId: this.devInfo.deviceId,
+        deviceName
+      })
         .then(res => {
           if (res.code === 200) {
             Loading.close()
             this.editDevFlag = false
-            this.getDeviceList()
+            this.editingDeviceData.deviceName = deviceName
           }
         })
         .catch(error => {
@@ -705,7 +739,7 @@ export default {
           left: 75px;
           top: 50%;
           transform: translateY(-50%);
-          width: 180px;
+          width: 220px;
           color: #666666;
           line-height: 16px;
           overflow: hidden;
@@ -715,11 +749,18 @@ export default {
             font-size: 14px;
             margin-bottom: 5px;
             color: #111111;
+            display: flex;
+            align-items: center;
+            span:first-child {
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
           }
           & p:nth-child(2) {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            margin-bottom: 3px;
           }
           .addr {
             /*background: url('../../assets/addr2.png') no-repeat center center;*/

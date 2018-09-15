@@ -145,7 +145,7 @@ export default {
     },
     intoShare () {
       this.$router.push({
-        path: '/share',
+        path: '/wkshare',
         query: {
           deviceId: this.$route.query.deviceId
         }

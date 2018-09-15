@@ -21,6 +21,15 @@ export function getModelVo(data) {
   })
 }
 
+export function editDevice(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/editDevice`,
+    method: 'post',
+    data,
+    headers
+  })
+}
+
 export function token(data) {
   return http({
     url: `${BASE_URL}/api/h5/api/token`,
@@ -127,34 +136,98 @@ export function sendFunc() {
   })
 }
 
-export function updateTeamName() {
+export function updateTeamName(data) {
   return http({
     url: `${BASE_URL}/api/h5/api/team/updateTeamName`,
     method: 'post',
+    data,
     headers
   })
 }
 
-export function updateDeviceTeam() {
+export function updateDeviceTeam(data) {
   return http({
     url: `${BASE_URL}/api/h5/api/team/updateDeviceTeam`,
     method: 'post',
+    data,
     headers
   })
 }
 
-export function deleteTeam() {
+export function deleteTeam(data) {
   return http({
     url: `${BASE_URL}/api/h5/api/team/deleteTeam`,
     method: 'post',
+    data,
     headers
   })
 }
 
-export function createTeam() {
+export function createTeam(data) {
   return http({
     url: `${BASE_URL}/api/h5/api/team/createTeam`,
     method: 'post',
+    data,
+    headers
+  })
+}
+
+export function addTimer(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/addTimer`,
+    method: 'post',
+    data,
+    headers
+  })
+}
+
+export function editTimer(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/editTimer`,
+    method: 'post',
+    data,
+    headers
+  })
+}
+
+export function queryTimerList(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/queryTimerList`,
+    method: 'post',
+    data,
+    headers
+  })
+}
+
+export function cancelTimer(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/cancelTimer`,
+    method: 'post',
+    data,
+    headers
+  })
+}
+
+export function timerDetail(timerId) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/timerDetail/${timerId}`,
+    method: 'get',
+    headers
+  })
+}
+
+export function timerType() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/timerType`,
+    method: 'get',
+    headers
+  })
+}
+
+export function deleteTimer(timerId) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/deleteTimer/${timerId}`,
+    method: 'get',
     headers
   })
 }
