@@ -30,7 +30,7 @@
                   <p>
                     <span>{{ child.deviceName }}</span>
                     <i class="addr"></i>
-                    <span>{{child.location.split(',')[1]}}</span>
+                    <span>{{child.location && child.location.split(',')[1]}}</span>
                   </p>
                   <p>ID:{{ child.deviceId }}</p>
                   <p>型号：{{ child.deviceTypeName }}</p>

@@ -4,49 +4,39 @@
 
 <script type="text/ecmascript-6">
 import myUrl from 'common/js/api'
+import { auth } from '../wenkong/api'
 import { getQueryString } from 'utils'
 
 export default {
-  data() {
-    return {}
-  },
-  components: {},
   created() {
     this.authMethod()
   },
-  computed: {},
-  watch: {},
-  mounted() {},
   methods: {
     authMethod() {
-      let that = this
-      this.$http
-        .get(myUrl.auth + '?code=' + getQueryString('code') + '')
-        .then(function(res) {
-          if (res.code === 200) {
-            sessionStorage.setItem('Ticket', res.data)
-            that.$router.push({
-              path: '/list'
-            })
-          } else {
-            if (res.code === 604) {
-              // token失效
-              this.redireact()
-            }
-          }
+      auth(sessionStorage.getItem('customerId'), getQueryString('code'))
+        .then(res => {
+          // 拿到微信openid
+          sessionStorage.setItem('Ticket', res.data)
+          this.$router.push({
+            path: '/list'
+          })
         })
-        .catch(function(error) {
-          if (error.code === 604) {
-            // token失效
-            this.redireact()
-          }
-          that.$toast(error.msg, 'bottom')
+        .catch(err => {
+          console.error('auth-error-->', err)
         })
     },
-    redireact() {
+    getAppId(id) {
+      appid({
+        value: id
+      }).then(res => {
+        // 用拿到appid，换微信code
+        this.redireact(res.data)
+      })
+    },
+    redireact(id) {
       let baseUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize'
       let params = {
-        appid: this.GLOBAL.appId,
+        appid: id,
         redirect_uri: this.GLOBAL.redUrl,
         response_type: 'code',
         scope: 'snsapi_userinfo',
@@ -74,7 +64,7 @@ export default {
         params.scope +
         '&state=' +
         params.state
-      // window.location.href = redirectUrl;
+      window.location.href = redirectUrl
     }
   }
 }

@@ -1,4 +1,3 @@
-
 // const config = {
 //   url: 'http://www.hcocloud.com/dash',
 //   appId: 'wx292d0902bf9841d6',
@@ -17,7 +16,7 @@ const config = {
   url: 'http://www.hcocloud.com/dash',
   appId: 'wx292d0902bf9841d6',
   shareUrl: 'http://www.hcocloud.com/xf',
-  redUrl: 'http%3a%2f%2fwww.hcocloud.com%2Fxf%2F%23%2Fauth'
+  redUrl: 'http://dev.hcocloud.com/xf/auth/'
 }
 
 export default config

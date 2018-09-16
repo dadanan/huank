@@ -27,7 +27,9 @@ Vue.use(VueDraggable)
 Vue.prototype.GLOBAL = global_
 
 const router = new VueRouter({
-  routes
+  routes,
+  mode: 'history',
+  base: 'xf'
 })
 
 router.beforeEach((to, from, next) => {
