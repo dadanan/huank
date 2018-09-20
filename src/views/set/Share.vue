@@ -38,6 +38,7 @@ import myUrl from 'common/js/api'
 import { put, get, remove, clear } from 'utils/cache'
 import { wxShare } from 'utils/wx'
 import { returnUrl } from 'utils'
+import Store from '../wenkong/store'
 
 export default {
   data () {
@@ -120,10 +121,10 @@ export default {
     },
     qrcode () {
       let code = this.$refs.ewm
-      // let url = 'http://huanke.bcard.vip?masterOpenId='+sessionStorage.getItem('Ticket') + '&deviceId='+this.$route.query.deviceId + '&token='+get('token');
-      let url = '' + this.GLOBAL.shareUrl + '?masterOpenId=' + sessionStorage.getItem('Ticket') + '&deviceId=' + this.$route.query.deviceId + '&token=' + get('token')
+      // let url = 'http://huanke.bcard.vip?masterOpenId='+Store.fetch('Ticket') + '&deviceId='+this.$route.query.deviceId + '&token='+get('token');
+      let url = '' + this.GLOBAL.shareUrl + '?masterOpenId=' + Store.fetch('Ticket') + '&deviceId=' + this.$route.query.deviceId + '&token=' + get('token')
       // let url = 'http://huanke.bcard.vip?masterOpenId=okOTjwpDwxJR666hVWnj_L_jp87w' + '&deviceId='+this.$route.query.deviceId + '&token='+get('token');
-      wxShare('我分享了一个设备给你，赶紧看看吧', sessionStorage.getItem('name'), sessionStorage.getItem('icon'), url)
+      wxShare('我分享了一个设备给你，赶紧看看吧', Store.fetch('name'), Store.fetch('icon'), url)
       var qrcode = new QRCode(code, {
         text: url,
         width: 200,

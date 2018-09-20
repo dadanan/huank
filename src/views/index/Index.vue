@@ -285,7 +285,8 @@ export default {
       this.$router.push({
         path: '/timinglist',
         query: {
-          deviceId: this.$route.query.deviceId
+          deviceId: this.$route.query.deviceId,
+          wxDeviceId: this.$route.query.wxDeviceId
         }
       })
     },

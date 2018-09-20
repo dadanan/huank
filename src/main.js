@@ -16,7 +16,7 @@ import 'mint-ui/lib/style.css'
 import $ from 'jquery'
 import global_ from 'common/js/global'
 import VueDraggable from 'vue-draggable'
-
+import Store from '@/views/wenkong/store'
 import 'common/iconfont/iconfont.css'
 
 FastClick.attach(document.body)
@@ -39,8 +39,8 @@ router.beforeEach((to, from, next) => {
     let url = global_.shareUrl
     wxShare(
       '我分享了一个设备给你，赶紧看看吧',
-      sessionStorage.getItem('name'),
-      sessionStorage.getItem('icon'),
+      Store.fetch('name'),
+      Store.fetch('icon'),
       url
     )
   }

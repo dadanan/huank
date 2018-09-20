@@ -7,23 +7,23 @@
     </div>
     <div class='info'>
       <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;&nbsp;
-      <span v-if='formatItemsList[9].showStatus'>{{location}}&nbsp;&nbsp;</span>
-      <span v-if='formatItemsList[10].showStatus'>{{weather}} {{outerTem}}&nbsp;&nbsp;</span>
-      <span v-if='formatItemsList[11].showStatus'>湿度: {{outerHum}}&nbsp;&nbsp;</span>
-      <span v-if='formatItemsList[12].showStatus'>PM2.5: {{outerPm}}ug/m3</span>
+      <span v-show='formatItemsList[9] && formatItemsList[9].showStatus'>{{location}}&nbsp;&nbsp;</span>
+      <span v-show='formatItemsList[10] && formatItemsList[10].showStatus'>{{weather}} {{outerTem}}&nbsp;&nbsp;</span>
+      <span v-show='formatItemsList[11] && formatItemsList[11].showStatus'>湿度: {{outerHum}}&nbsp;&nbsp;</span>
+      <span v-show='formatItemsList[12] && formatItemsList[12].showStatus'>PM2.5: {{outerPm}}ug/m3</span>
     </div>
     <div class='switch'>
-      <div v-if='formatItemsList[7].showStatus'>
+      <div v-show='formatItemsList[7] && formatItemsList[7].showStatus'>
         <div class='left'>
           <yd-switch v-model="switch1" ref='switch'></yd-switch>
         </div>
-        <p>{{formatItemsList[7].showName}}</p>
+        <p>{{formatItemsList[7] && formatItemsList[7].showName}}</p>
       </div>
-      <div v-if='formatItemsList[8].showStatus'>
+      <div v-show='formatItemsList[8] && formatItemsList[8].showStatus'>
         <div>
           <img src='@/assets/wenkong_close.png'>
         </div>
-        <p>{{formatItemsList[8].showName}}</p>
+        <p>{{formatItemsList[8] && formatItemsList[8].showName}}</p>
       </div>
     </div>
     <div class='main'>
@@ -34,50 +34,50 @@
       </div>
     </div>
     <div class='current-info'>
-      <p v-if='formatItemsList[4].showStatus'>
-        {{formatItemsList[4].showName}}
+      <p v-show='formatItemsList[4] && formatItemsList[4].showStatus'>
+        {{formatItemsList[4] && formatItemsList[4].showName}}
         <span class='strong'>{{temperature}}</span>
         ℃
       </p>
-      <p v-if='formatItemsList[5].showStatus'>
-        {{formatItemsList[4].showName}}
+      <p v-show='formatItemsList[5] && formatItemsList[5].showStatus'>
+        {{formatItemsList[4] && formatItemsList[4].showName}}
         <span class='strong'>80</span>
         %
       </p>
     </div>
-    <div class='function' v-if='formatItemsList[3].showStatus'>
+    <div class='function' v-show='formatItemsList[3] && formatItemsList[3].showStatus'>
       <div v-for='item in functionList' @click='functionClicked(item)' :class="{able: item.able}" :key='item.id'>
         <span>{{item.definedName}}</span>
       </div>
     </div>
     <div class='menu'>
-      <div @click='modelClickedHandler(formatItemsList[0].ablityId,0)' v-if='formatItemsList[0].showStatus'>
+      <div @click='modelClickedHandler(formatItemsList[0] && formatItemsList[0].abilityId,0)' v-show='formatItemsList[0] && formatItemsList[0].showStatus'>
         <div>
           <img class='first' src='@/assets/temperature.png'>
         </div>
-        <span>{{formatItemsList[0].showName}}</span>
+        <span>{{formatItemsList[0] && formatItemsList[0].showName}}</span>
       </div>
-      <div @click='modelClickedHandler(formatItemsList[1].ablityId,1)' v-if='formatItemsList[1].showStatus'>
+      <div @click='modelClickedHandler(formatItemsList[1].abilityId,1)' v-show='formatItemsList[1] && formatItemsList[1].showStatus'>
         <div>
           <img src='@/assets/model.png'>
         </div>
-        <span>{{formatItemsList[1].showName}}</span>
+        <span>{{formatItemsList[1] && formatItemsList[1].showName}}</span>
       </div>
-      <div @click='modelClickedHandler(formatItemsList[2].ablityId,2)' v-if='formatItemsList[2].showStatus'>
+      <div @click='modelClickedHandler(formatItemsList[2] && formatItemsList[2].abilityId,2)' v-show='formatItemsList[2] && formatItemsList[2].showStatus'>
         <div>
           <img class='third' src='@/assets/wind.png'>
         </div>
-        <span>{{formatItemsList[2].showName}}</span>
+        <span>{{formatItemsList[2] && formatItemsList[2].showName}}</span>
       </div>
     </div>
-    <div class='left-side' v-if='formatItemsList[6].showStatus'>
+    <div class='left-side' v-show='formatItemsList[6] && formatItemsList[6].showStatus'>
       <div>
         <img class='first' src='@/assets/wind.png'>
-        <span>{{windData.deviceModelAblityOptions && windData.deviceModelAblityOptions[currentOptionForWind].definedName}}</span>
+        <span>{{windData.abilityOptionList && windData.abilityOptionList[currentOptionForWind].optionDefinedName}}</span>
       </div>
       <div>
         <img class='second' src='@/assets/model.png'>
-        <span>{{modelData.deviceModelAblityOptions && modelData.deviceModelAblityOptions[currentOption].definedName}}</span>
+        <span>{{modelData.abilityOptionList && modelData.abilityOptionList[currentOption].optionDefinedName}}</span>
       </div>
     </div>
     <!-- 模式 -->
@@ -86,8 +86,8 @@
         <div class="title">{{modelData.definedName}}</div>
         <div class="list">
           <ul>
-            <li v-for="(item,index) in modelData.deviceModelAblityOptions" :key="index" :class="{ active: currentOption == index }" @click='modelClicked(index,item)'>
-              <span>{{ item.definedName }}</span>
+            <li v-for="(item,index) in modelData.abilityOptionList" :key="index" :class="{ active: currentOption == index }" @click='modelClicked(index,modelData)'>
+              <span>{{ item.optionDefinedName }}</span>
               <div class="icon"></div>
             </li>
           </ul>
@@ -100,8 +100,8 @@
         <div class="title">{{windData.definedName}}</div>
         <div class="list">
           <ul>
-            <li v-for="(item,index) in windData.deviceModelAblityOptions" :key="index" :class="{ active: currentOptionForWind == index }" @click='modelClicked(index,item,3)'>
-              <span>{{ item.definedName }}</span>
+            <li v-for="(item,index) in windData.abilityOptionList" :key="index" :class="{ active: currentOptionForWind == index }" @click='modelClicked(index,windData,3)'>
+              <span>{{ item.optionDefinedName }}</span>
               <div class="icon"></div>
             </li>
           </ul>
@@ -136,16 +136,16 @@ import { Switch } from 'vue-ydui/dist/lib.rem/switch'
 import {
   getModelVo,
   newQueryDetailByDeviceId,
-  getToken,
   getLocation,
-  getWeather
+  getWeather,
+  sendFunc
 } from './api'
 import Store from './store'
 
-let json = require('./test')
-json = json.data
-const formatItemsList = json.formatItemsList
-const abilitysList = json.abilitysList
+// let json = require('./test')
+// json = json.data
+// const formatItemsList = json.formatItemsList
+// const abilitysList = json.abilitysList
 
 export default {
   data() {
@@ -154,21 +154,36 @@ export default {
       modelVisible: false, //
       windVisible: false, //
       temperatureVisible: false, // 显示温度设定弹框
-      temperature: 26, // 设定温度
       currentOption: 0, // 模式的当前选择项
       currentOptionForWind: 0, // 风速的当前选择项
       windModel: true, // 用户点击了风速模块?
       modelData: {},
       windData: {},
       functionList: [],
-      pageName: json.pageName,
-      formatItemsList: formatItemsList,
+      pageName: '',
+      formatItemsList: [],
+      abilitysList: [],
       location: '',
       weather: '',
       outerTem: '',
       outerHum: '', // 湿度
       outerPm: '', // PM2.5
-      deviceId: this.$route.query.deviceId
+      deviceId: this.$route.query.deviceId,
+      wxDeviceId: this.$route.query.wxDeviceId,
+      setInter: undefined // 定时器的id
+    }
+  },
+  computed: {
+    temperature() {
+      // 动态显示温度的值
+      if (!this.formatItemsList[0]) {
+        return 25
+      }
+      const ablityId = this.formatItemsList[0].abilityId
+      const data = this.abilitysList.filter(
+        item => item.abilityId === ablityId
+      )[0]
+      return data.currValue
     }
   },
   methods: {
@@ -176,8 +191,27 @@ export default {
       history.back()
     },
     setModelData(id, index) {
-      const data = abilitysList.filter(item => item.ablityId === id)[0]
+      const data = this.abilitysList.filter(item => item.abilityId === id)[0]
+      if (!data) {
+        return
+      }
+
+      // 如何用户点击的是“模式”
       index === 1 ? (this.modelData = data) : (this.windData = data)
+
+      // 根据isSelect的值，对相应选项执行默认选中行为
+      data.abilityOptionList.forEach((item, iIndex) => {
+        if (item.isSelect === 0) {
+          return
+        }
+
+        // “模式”
+        if (index === 1) {
+          this.currentOption = iIndex
+          return
+        }
+        this.currentOptionForWind = iIndex
+      })
     },
     modelClickedHandler(id, index) {
       if (index === 0) {
@@ -185,8 +219,8 @@ export default {
         this.temperatureVisible = true
         return
       }
-      this.setModelData(id, index)
 
+      this.setModelData(id, index)
       index === 1 ? (this.modelVisible = true) : (this.windVisible = true)
     },
     increase() {
@@ -209,7 +243,19 @@ export default {
       } else {
         this.currentOption = index
       }
-      // 发送指令，指令应该在data里
+      // 发送指令
+      sendFunc({
+        wxDeviceId: this.wxDeviceId,
+        funcId: data.dirValue,
+        value: data.abilityOptionList[index].dirValue
+      }).then(res => {
+        console.info(
+          '指令发送成功:',
+          data.dirValue,
+          '-',
+          data.abilityOptionList[index].dirValue
+        )
+      })
     },
     functionClicked(item) {
       this.functionList.forEach(list => {
@@ -217,40 +263,64 @@ export default {
       })
       item['able'] = true
     },
-    getIndexAblityData() {
+    getIndexAbilityData() {
       // 获取H5控制页面功能项数据，带isSelect参数
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
         if (res.code === 200 && res.data) {
-          this.getIndexFormatData(res.data)
+          const data = res.data
+          this.pageName = data.pageName
+          this.formatItemsList = data.formatItemsList
+
+          data.abilitysList.forEach(item => {
+            item['currValue'] = ''
+          })
+          this.abilitysList = data.abilitysList
+          // 定时请求接口数据，更新页面数据
+          this.setInter = setInterval(() => {
+            this.getIndexFormatData(res.data)
+          }, 2000)
         }
       })
     },
     getIndexFormatData(list) {
       // 获取H5控制页面功能项数据，带isSelect参数
+
+      // 根据功能项id筛选功能项
+      const findTheAbility = (data, id) => {
+        return data.filter(item => item.id === id)[0]
+      }
+
       newQueryDetailByDeviceId({
         deviceId: this.deviceId,
-        abilityIds: list.formatItemsList.map(item => item.abilityId)
+        abilityIds: list.formatItemsList
+          .filter(item => item.abilityId)
+          .map(item => item.abilityId)
       }).then(res => {
         const data = res.data
         // 将res.data中的isSelect和dirValue赋值过去
-        list.abilitysList.forEach((item, index) => {
+        this.abilitysList.forEach((item, index) => {
+          // 如果有值，说明是温度功能项，讲数值拿过来
+          if (data[index].currValue) {
+            // 找到对应的温度功能项对象
+            const temp = this.abilitysList.filter(
+              itemA => itemA.abilityId === data[index].id
+            )[0]
+            temp['currValue'] = data[index].currValue
+          }
           if (!item.abilityOptionList || item.abilityOptionList.length === 0) {
             return
           }
-          item.ablityType !== 1 &&
+          item.abilityType !== 1 &&
             item.abilityOptionList.forEach((option, oIndex) => {
-              const temp = Object.assign(
-                option,
-                data[index].abilityOptionList[oIndex]
-              )
+              const result = findTheAbility(data, item.abilityId)
+              if (result) {
+                const temp = Object.assign(
+                  option,
+                  result.abilityOptionList[oIndex]
+                )
+              }
             })
         })
-      })
-    },
-    getToken() {
-      // 高级设置Token
-      getToken({ customerId: 12, password: 123456 }).then(res => {
-        Store.save('Token', res.data)
       })
     },
     getLocation() {
@@ -270,28 +340,26 @@ export default {
     }
   },
   created() {
-    this.getToken()
-
-    // 功能项数据赋值
-    const tempArray = abilitysList.filter(
-      item => item.ablityId === this.formatItemsList[3].ablityId
-    )[0].deviceModelAblityOptions
-    tempArray.forEach(item => {
-      item['able'] = false
-    })
-    this.functionList = tempArray
-
-    this.getIndexAblityData()
+    this.getIndexAbilityData()
     this.getLocation()
     this.getWeather()
   },
   mounted() {
-    const containerWidth = document.querySelector('.left').offsetWidth
-    const switchElement = this.$refs.switch.$el
-    const switchWidth = switchElement.offsetWidth
-
-    // 动态改变开关的left属性，以保持一直水平居中
-    switchElement.style.left = (containerWidth - switchWidth) / 2 + 'px'
+    try {
+      const containerWidth =
+        document.querySelector('.left') &&
+        document.querySelector('.left').offsetWidth
+      const switchElement = this.$refs.switch.$el
+      const switchWidth = switchElement.offsetWidth
+      // 动态改变开关的left属性，以保持一直水平居中
+      // switchElement.style.left = (containerWidth - switchWidth) / 2 + 'px'
+      switchElement.style.left = '-10px'
+    } catch (e) {
+      console.log('控制开关位置出错：', e)
+    }
+  },
+  destroyed() {
+    clearInterval(this.setInter)
   },
   components: {
     'yd-popup': Popup,

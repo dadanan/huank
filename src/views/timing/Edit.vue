@@ -71,7 +71,7 @@ export default {
       afterTime: '',
       timer: {
         name: '',
-        deviceId: this.$route.query.deviceId,
+        wxDeviceId: this.$route.query.wxDeviceId,
         timerType: 1,
         type: 1
       },
@@ -119,7 +119,7 @@ export default {
     }
   },
   methods: {
-    getTimerInfo(id, deviceId) {
+    getTimerInfo(id) {
       Loading.open('很快加载好了')
       timerDetail(id)
         .then(res => {
@@ -163,7 +163,6 @@ export default {
         // 如果策略型，需要时分秒
         this.timer.hour = parseInt(arr[0])
         this.timer.minute = parseInt(arr[1])
-        this.timer.second = 0
 
         this.timer['daysOfWeek'] = this.timeList
           .filter(item => item.type)
@@ -187,7 +186,7 @@ export default {
             this.$router.push({
               path: '/timinglist',
               query: {
-                deviceId: this.$route.query.deviceId
+                wxDeviceId: this.$route.query.wxDeviceId
               }
             })
           }
@@ -204,7 +203,7 @@ export default {
     const timerId = this.$route.query.id
     if (timerId + '') {
       this.timerId = timerId
-      this.getTimerInfo(timerId, this.$route.query.deviceId) // 获取定时器详情
+      this.getTimerInfo(timerId, this.$route.query.wxDeviceId) // 获取定时器详情
     }
   },
   components: {

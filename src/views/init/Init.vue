@@ -5,13 +5,14 @@
 <script type="text/ecmascript-6">
 import myUrl from 'common/js/api'
 import { appid } from '../wenkong/api'
+import Store from '../wenkong/store'
 import { getQueryString } from 'utils'
 
 export default {
   created() {
     const customerId = getQueryString('customerId')
     if (customerId) {
-      sessionStorage.setItem('customerId', customerId)
+      Store.save('customerId', customerId)
       this.getAppId(customerId)
     }
   },
@@ -38,9 +39,10 @@ export default {
         let obj = {
           deviceId: getQueryString('deviceId'),
           masterOpenId: getQueryString('masterOpenId'),
-          token: getQueryString('token')
+          token: getQueryString('token'),
+          customerId: getQueryString('customerId')
         }
-        sessionStorage.setItem('obj', JSON.stringify(obj))
+        Store.save('obj', JSON.stringify(obj))
       }
 
       let redirectUrl =

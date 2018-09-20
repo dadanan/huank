@@ -1,14 +1,14 @@
 export const mockData = [
   {
     customerId: 1,
-    deviceModelAblitys: [
+    deviceModelAbilitys: [
       {
-        ablityId: 1,
+        abilityId: 1,
         createTime: 1,
         definedName: '模式1',
-        deviceModelAblityOptions: [
+        deviceModelAbilityOptions: [
           {
-            ablityOptionId: 0,
+            abilityOptionId: 0,
             definedName: 'string',
             id: 0,
             maxVal: 0,
@@ -24,12 +24,12 @@ export const mockData = [
         status: 0
       },
       {
-        ablityId: 1,
+        abilityId: 1,
         createTime: 1,
         definedName: '风速1',
-        deviceModelAblityOptions: [
+        deviceModelAbilityOptions: [
           {
-            ablityOptionId: 0,
+            abilityOptionId: 0,
             definedName: 'string',
             id: 0,
             maxVal: 0,
@@ -56,7 +56,7 @@ export const mockData = [
           id: 0,
           modelFormatItems: [
             {
-              ablityId: 0,
+              abilityId: 0,
               id: 0,
               itemId: 0,
               modelFormatId: 0,
@@ -65,7 +65,7 @@ export const mockData = [
               status: 0
             },
             {
-              ablityId: 0,
+              abilityId: 0,
               id: 0,
               itemId: 0,
               modelFormatId: 0,
@@ -74,7 +74,7 @@ export const mockData = [
               status: 0
             },
             {
-              ablityId: 0,
+              abilityId: 0,
               id: 0,
               itemId: 0,
               modelFormatId: 0,

@@ -8,7 +8,7 @@
     "modelId": 48,
     "abilitysList": [
       {
-        "ablityId": 52,
+        "abilityId": 52,
         "abilityName": "onlymark童锁",
         "definedName": "only显示童锁",
         "dirValue": "270",
@@ -16,7 +16,7 @@
         "readStatus": 1,
         "runStatus": 1,
         "deviceValue": null,
-        "ablityType": 2,
+        "abilityType": 2,
         "minVal": null,
         "maxVal": null,
         "remark": "测试童锁",
@@ -42,29 +42,29 @@
       {
         "id": 428,
         "modelId": 55,
-        "ablityId": 65,
+        "abilityId": 65,
         "definedName": "温度-shuiRong",
         "minVal": null,
         "maxVal": null,
         "status": 1,
         "createTime": null,
         "lastUpdateTime": null,
-        "deviceModelAblityOptions": []
+        "deviceModelAbilityOptions": []
       },
       {
         "id": 429,
         "modelId": 55,
-        "ablityId": 66,
+        "abilityId": 66,
         "definedName": "模式-shuiRong",
         "minVal": null,
         "maxVal": null,
         "status": 1,
         "createTime": null,
         "lastUpdateTime": null,
-        "deviceModelAblityOptions": [
+        "deviceModelAbilityOptions": [
           {
             "id": 745,
-            "ablityOptionId": 117,
+            "abilityOptionId": 117,
             "definedName": "制冷",
             "minVal": null,
             "maxVal": null,
@@ -72,7 +72,7 @@
           },
           {
             "id": 746,
-            "ablityOptionId": 118,
+            "abilityOptionId": 118,
             "definedName": "制热",
             "minVal": null,
             "maxVal": null,
@@ -80,7 +80,7 @@
           },
           {
             "id": 747,
-            "ablityOptionId": 119,
+            "abilityOptionId": 119,
             "definedName": "通风",
             "minVal": null,
             "maxVal": null,
@@ -88,7 +88,7 @@
           },
           {
             "id": 748,
-            "ablityOptionId": 120,
+            "abilityOptionId": 120,
             "definedName": "自动",
             "minVal": null,
             "maxVal": null,
@@ -99,17 +99,17 @@
       {
         "id": 430,
         "modelId": 55,
-        "ablityId": 67,
+        "abilityId": 67,
         "definedName": "风速-shuiRong",
         "minVal": null,
         "maxVal": null,
         "status": 1,
         "createTime": null,
         "lastUpdateTime": null,
-        "deviceModelAblityOptions": [
+        "deviceModelAbilityOptions": [
           {
             "id": 749,
-            "ablityOptionId": 121,
+            "abilityOptionId": 121,
             "definedName": "高速",
             "minVal": null,
             "maxVal": null,
@@ -117,7 +117,7 @@
           },
           {
             "id": 750,
-            "ablityOptionId": 122,
+            "abilityOptionId": 122,
             "definedName": "中速",
             "minVal": null,
             "maxVal": null,
@@ -125,7 +125,7 @@
           },
           {
             "id": 751,
-            "ablityOptionId": 123,
+            "abilityOptionId": 123,
             "definedName": "低俗",
             "minVal": null,
             "maxVal": null,
@@ -136,17 +136,17 @@
       {
         "id": 431,
         "modelId": 55,
-        "ablityId": 68,
+        "abilityId": 68,
         "definedName": "功能-shuiRong",
         "minVal": null,
         "maxVal": null,
         "status": 1,
         "createTime": null,
         "lastUpdateTime": null,
-        "deviceModelAblityOptions": [
+        "deviceModelAbilityOptions": [
           {
             "id": 752,
-            "ablityOptionId": 124,
+            "abilityOptionId": 124,
             "definedName": "空调",
             "minVal": null,
             "maxVal": null,
@@ -154,7 +154,7 @@
           },
           {
             "id": 753,
-            "ablityOptionId": 125,
+            "abilityOptionId": 125,
             "definedName": "快暖",
             "minVal": null,
             "maxVal": null,
@@ -162,7 +162,7 @@
           },
           {
             "id": 754,
-            "ablityOptionId": 126,
+            "abilityOptionId": 126,
             "definedName": "快冷",
             "minVal": null,
             "maxVal": null,
@@ -173,53 +173,53 @@
       {
         "id": 432,
         "modelId": 55,
-        "ablityId": 69,
+        "abilityId": 69,
         "definedName": "温度-shuiRong",
         "minVal": null,
         "maxVal": null,
         "status": 1,
         "createTime": null,
         "lastUpdateTime": null,
-        "deviceModelAblityOptions": []
+        "deviceModelAbilityOptions": []
       },
       {
         "id": 433,
         "modelId": 55,
-        "ablityId": 70,
+        "abilityId": 70,
         "definedName": "湿度-shuiRong",
         "minVal": null,
         "maxVal": null,
         "status": 1,
         "createTime": null,
         "lastUpdateTime": null,
-        "deviceModelAblityOptions": []
+        "deviceModelAbilityOptions": []
       },
       {
         "id": 434,
         "modelId": 55,
-        "ablityId": 71,
+        "abilityId": 71,
         "definedName": "工具-shuiRong",
         "minVal": null,
         "maxVal": null,
         "status": 1,
         "createTime": null,
         "lastUpdateTime": null,
-        "deviceModelAblityOptions": []
+        "deviceModelAbilityOptions": []
       },
       {
         "id": 435,
         "modelId": 55,
-        "ablityId": 72,
+        "abilityId": 72,
         "definedName": "状态-shuiRong",
         "minVal": null,
         "maxVal": null,
         "status": 1,
         "createTime": null,
         "lastUpdateTime": null,
-        "deviceModelAblityOptions": [
+        "deviceModelAbilityOptions": [
           {
             "id": 755,
-            "ablityOptionId": 129,
+            "abilityOptionId": 129,
             "definedName": "开",
             "minVal": null,
             "maxVal": null,
@@ -227,7 +227,7 @@
           },
           {
             "id": 756,
-            "ablityOptionId": 130,
+            "abilityOptionId": 130,
             "definedName": "关",
             "minVal": null,
             "maxVal": null,
@@ -235,7 +235,7 @@
           },
           {
             "id": 757,
-            "ablityOptionId": 131,
+            "abilityOptionId": 131,
             "definedName": "开",
             "minVal": null,
             "maxVal": null,
@@ -243,7 +243,7 @@
           },
           {
             "id": 758,
-            "ablityOptionId": 132,
+            "abilityOptionId": 132,
             "definedName": "关",
             "minVal": null,
             "maxVal": null,
@@ -254,17 +254,17 @@
       {
         "id": 436,
         "modelId": 55,
-        "ablityId": 73,
+        "abilityId": 73,
         "definedName": "开关-shuiRong",
         "minVal": null,
         "maxVal": null,
         "status": 1,
         "createTime": null,
         "lastUpdateTime": null,
-        "deviceModelAblityOptions": [
+        "deviceModelAbilityOptions": [
           {
             "id": 759,
-            "ablityOptionId": 127,
+            "abilityOptionId": 127,
             "definedName": "开",
             "minVal": null,
             "maxVal": null,
@@ -272,7 +272,7 @@
           },
           {
             "id": 760,
-            "ablityOptionId": 128,
+            "abilityOptionId": 128,
             "definedName": "关",
             "minVal": null,
             "maxVal": null,
@@ -283,50 +283,50 @@
       {
         "id": 437,
         "modelId": 55,
-        "ablityId": 74,
+        "abilityId": 74,
         "definedName": "地点-shuiRong",
         "minVal": null,
         "maxVal": null,
         "status": 1,
         "createTime": null,
         "lastUpdateTime": null,
-        "deviceModelAblityOptions": []
+        "deviceModelAbilityOptions": []
       },
       {
         "id": 438,
         "modelId": 55,
-        "ablityId": 75,
+        "abilityId": 75,
         "definedName": "天气/温度-shuiRong",
         "minVal": null,
         "maxVal": null,
         "status": 1,
         "createTime": null,
         "lastUpdateTime": null,
-        "deviceModelAblityOptions": []
+        "deviceModelAbilityOptions": []
       },
       {
         "id": 439,
         "modelId": 55,
-        "ablityId": 76,
+        "abilityId": 76,
         "definedName": "湿度22-shuiRong",
         "minVal": null,
         "maxVal": null,
         "status": 1,
         "createTime": null,
         "lastUpdateTime": null,
-        "deviceModelAblityOptions": []
+        "deviceModelAbilityOptions": []
       },
       {
         "id": 440,
         "modelId": 55,
-        "ablityId": 77,
+        "abilityId": 77,
         "definedName": "pm2.5-shuiRong",
         "minVal": null,
         "maxVal": null,
         "status": 1,
         "createTime": null,
         "lastUpdateTime": null,
-        "deviceModelAblityOptions": []
+        "deviceModelAbilityOptions": []
       }
     ],
     "formatItemsList": [
@@ -334,7 +334,7 @@
         "id": 256,
         "modelFormatId": 36,
         "itemId": 92,
-        "ablityId": 65,
+        "abilityId": 65,
         "showStatus": 1,
         "showName": "温度1",
         "status": 1
@@ -343,7 +343,7 @@
         "id": 257,
         "modelFormatId": 36,
         "itemId": 93,
-        "ablityId": 66,
+        "abilityId": 66,
         "showStatus": 1,
         "showName": "模式1",
         "status": 1
@@ -352,7 +352,7 @@
         "id": 258,
         "modelFormatId": 36,
         "itemId": 94,
-        "ablityId": 67,
+        "abilityId": 67,
         "showStatus": 1,
         "showName": "风速1",
         "status": 1
@@ -361,7 +361,7 @@
         "id": 259,
         "modelFormatId": 36,
         "itemId": 95,
-        "ablityId": 68,
+        "abilityId": 68,
         "showStatus": 1,
         "showName": "功能1",
         "status": 1
@@ -370,7 +370,7 @@
         "id": 260,
         "modelFormatId": 36,
         "itemId": 96,
-        "ablityId": 65,
+        "abilityId": 65,
         "showStatus": 1,
         "showName": "温度",
         "status": 1
@@ -379,7 +379,7 @@
         "id": 261,
         "modelFormatId": 36,
         "itemId": 97,
-        "ablityId": 70,
+        "abilityId": 70,
         "showStatus": 1,
         "showName": "湿度",
         "status": 1
@@ -388,7 +388,7 @@
         "id": 262,
         "modelFormatId": 36,
         "itemId": 98,
-        "ablityId": 71,
+        "abilityId": 71,
         "showStatus": 1,
         "showName": "小工具1",
         "status": 1
@@ -397,7 +397,7 @@
         "id": 263,
         "modelFormatId": 36,
         "itemId": 99,
-        "ablityId": 72,
+        "abilityId": 72,
         "showStatus": 1,
         "showName": "主机状态1",
         "status": 1
@@ -406,7 +406,7 @@
         "id": 264,
         "modelFormatId": 36,
         "itemId": 100,
-        "ablityId": 73,
+        "abilityId": 73,
         "showStatus": 1,
         "showName": "开关1",
         "status": 1
@@ -415,7 +415,7 @@
         "id": 265,
         "modelFormatId": 36,
         "itemId": 101,
-        "ablityId": 74,
+        "abilityId": 74,
         "showStatus": 1,
         "showName": "地点1",
         "status": 1
@@ -424,7 +424,7 @@
         "id": 266,
         "modelFormatId": 36,
         "itemId": 102,
-        "ablityId": 75,
+        "abilityId": 75,
         "showStatus": 1,
         "showName": "温度11",
         "status": 1
@@ -433,7 +433,7 @@
         "id": 267,
         "modelFormatId": 36,
         "itemId": 103,
-        "ablityId": 76,
+        "abilityId": 76,
         "showStatus": 1,
         "showName": "湿度1",
         "status": 1
@@ -442,7 +442,7 @@
         "id": 268,
         "modelFormatId": 36,
         "itemId": 104,
-        "ablityId": 77,
+        "abilityId": 77,
         "showStatus": 1,
         "showName": "pm2.51",
         "status": 1

@@ -154,7 +154,7 @@ export default {
         path: '/timingedet',
         query: {
           id: id,
-          deviceId: this.$route.query.deviceId
+          wxDeviceId: this.$route.query.wxDeviceId
         }
       })
     },
@@ -162,7 +162,7 @@ export default {
       this.$router.push({
         path: '/timingedet',
         query: {
-          deviceId: this.$route.query.deviceId
+          wxDeviceId: this.$route.query.wxDeviceId
         }
       })
     }

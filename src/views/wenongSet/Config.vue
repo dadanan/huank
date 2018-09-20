@@ -164,7 +164,7 @@
         </div>
         <div class="confim-bottom">
           <div class="but" @click="setPwdFlag = false">取消</div>
-          <div class="but create" @click="setPwdFlag = false">确定</div>
+          <div class="but create" @click="getToken">确定</div>
         </div>
       </div>
     </div>
@@ -242,7 +242,7 @@ export default {
       checkbox2: [],
       radio1: 1,
       switch1: true,
-      setPwdFlag: false,
+      setPwdFlag: true,
       delDevFlag: false,
       addDevFlag: false,
       pwd: '',
@@ -251,6 +251,7 @@ export default {
       modelList: [],
       modelSelected: '1',
       deviceChildId: '',
+      deviceId: '',
       deviceName: '',
       deleteTheDevice: ''
     }
@@ -258,7 +259,7 @@ export default {
   methods: {
     createChildDevice() {
       addChildDevice({
-        hostDeviceId: 435,
+        hostDeviceId: this.deviceId,
         childId: this.deviceChildId,
         deviceName: this.deviceName,
         modelId: this.modelSelected
@@ -307,7 +308,7 @@ export default {
     getConfigInfo() {
       Loading.open('很快加载好了')
       this.$http
-        .post(myUrl.getSpeedConfig + '?deviceId=' + this.$route.query.deviceId)
+        .post(myUrl.getSpeedConfig + '?deviceId=' + this.deviceId)
         .then(res => {
           if (res.code === 200) {
             Loading.close()
@@ -322,7 +323,7 @@ export default {
     save() {
       Loading.open('很快加载好了')
       let data = {}
-      data.deviceId = this.$route.query.deviceId
+      data.deviceId = this.deviceId
       data.inSpeed = []
       this.inItems.forEach(v => {
         data.inSpeed.push(v.speed)
@@ -359,19 +360,27 @@ export default {
       this.delDevFlag = true
     },
     childDeviceList() {
-      childDeviceList(435).then(res => {
+      childDeviceList(this.deviceId).then(res => {
         this.childDeviceArray = res.data
       })
     },
     getToken() {
+      console.log('密码:', this.pwdList.join(''))
       // 高级设置Token
-      getToken({ customerId: 12, password: 123456 }).then(res => {
-        Store.save('Token', res.data)
-        this.childDeviceList()
+      getToken({
+        customerId: Store.fetch('customerId'),
+        password: this.pwdList.join('')
+      }).then(res => {
+        if (res.code === 200 && res.data) {
+          Store.save('Token', res.data)
+          this.childDeviceList()
+          this.getModelList()
+          this.setPwdFlag = false
+        }
       })
     },
     getModelList() {
-      modelList(12).then(res => {
+      modelList(Store.fetch('customerId')).then(res => {
         this.modelList = res.data
         this.modelSelected = res.data[0].id
       })
@@ -382,12 +391,7 @@ export default {
     setTimeout(() => {
       Loading.close()
     }, 300)
-    if (!Store.fetch('Token')) {
-      this.getToken()
-    } else {
-      this.childDeviceList()
-    }
-    this.getModelList()
+    this.deviceId = this.$route.query.deviceId
   },
   components: {
     'yd-accordion': Accordion,

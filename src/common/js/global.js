@@ -15,7 +15,7 @@
 const config = {
   url: 'http://www.hcocloud.com/dash',
   appId: 'wx292d0902bf9841d6',
-  shareUrl: 'http://www.hcocloud.com/xf',
+  shareUrl: 'http://dev.hcocloud.com/xf/list',
   redUrl: 'http://dev.hcocloud.com/xf/auth/'
 }
 

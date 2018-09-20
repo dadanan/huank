@@ -3,7 +3,7 @@
     <yd-accordion style="position: relative;padding-bottom: 50px;" v-if="teamList.length">
       <yd-accordion-item open="open" v-for="(item,index) in teamList" :key="index" v-press="press">
         <div slot="title">
-          <img :src="item.icon" />
+          <img class='team-icon' :src="item.icon" />
           <span>{{item.teamName}}</span>
         </div>
         <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 90px;" v-show="groupFlag && item.teamName !== '默认组'" @click="OpenGroup(item)">编辑
@@ -13,7 +13,7 @@
         <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 30px;" v-show="groupFlag && item.teamName !== '默认组'" @click="groupFlag = false">取消
         </div>
         <div style="padding:15px">
-          <div class="list-item" v-swipeleft="swipeleft" v-swiperight="swiperight" @click="intoIndex(child.deviceId,child.deviceName,child.icon,child.deviceTypeName)" v-for="(child,cindex) in item.deviceItemPos" :key="cindex">
+          <div class="list-item" v-swipeleft="swipeleft" v-swiperight="swiperight" @click="intoIndex(child)" v-for="(child,cindex) in item.deviceItemPos" :key="cindex">
             <div class="item-left">
               <div class="icon" :class="{ active : containIds(child.deviceId) }" v-if="loopValue === true" @click.stop="selectDev(child.deviceId)"></div>
               <div class="img">
@@ -158,8 +158,10 @@ import {
   deleteTeam,
   updateTeamName,
   editDevice,
-  updateDeviceTeam
+  updateDeviceTeam,
+  share
 } from '../wenkong/api'
+import Store from '../wenkong/store'
 
 export default {
   data() {
@@ -184,27 +186,12 @@ export default {
       devIds: [], // 选中设备id列表
       delDevFlag: false,
       deviceId: '',
+      deleteTheDeviceId: '', //将要删除的设备id
+      deleteTheDeviceName: '',
       selname: '',
       teamList: [],
       editingDeviceData: []
     }
-  },
-  components: {
-    'yd-accordion': Accordion,
-    'yd-accordion-item': AccordionItem,
-    'yd-radio-group': RadioGroup,
-    'yd-radio': Radio
-  },
-  created() {
-    if (JSON.parse(sessionStorage.getItem('obj'))) {
-      // 分享人进来
-      console.log('从分享进来')
-      this.shareBind(JSON.parse(sessionStorage.getItem('obj')))
-    } else {
-      console.log('未从分享进来')
-      this.getDeviceList()
-    }
-    this.obtainMyDevice()
   },
   methods: {
     obtainMyDevice() {
@@ -286,7 +273,7 @@ export default {
       if (this.selectId === '') {
         this.$toast('请选择组', 'bottom')
       } else {
-        const deviceId = this.devInfo.wxDevicdId
+        const deviceId = this.devInfo.deviceId
         updateDeviceTeam({
           teamId: this.selectId,
           deviceIds: [deviceId]
@@ -303,7 +290,7 @@ export default {
               this.teamList.forEach(team => {
                 if (team.teamId === this.currentTeamId) {
                   team.deviceItemPos = team.deviceItemPos.filter(
-                    item => item.wxDevicdId !== deviceId
+                    item => item.deviceId !== deviceId
                   )
                   return
                 }
@@ -325,12 +312,15 @@ export default {
     },
     deleteDev(obj) {
       this.delDevFlag = true
-      this.deviceId = obj.deviceId
+      this.deleteTheDeviceId = obj.deviceId
+      this.deleteTheDeviceName = obj.deviceName
     },
     confirmdeleteDev() {
       Loading.open('很快加载好了')
-      this.$http
-        .get(myUrl.deleteDevice + '?deviceId=' + this.deviceId)
+      deleteDevice({
+        deviceId: this.deleteTheDeviceId,
+        deviceName: this.deleteTheDeviceName
+      })
         .then(res => {
           if (res.code === 200) {
             Toast({
@@ -339,7 +329,7 @@ export default {
               icon: 'success'
             })
             Loading.close()
-            this.getDeviceList()
+            this.obtainMyDevice()
           }
         })
         .catch(error => {
@@ -375,24 +365,6 @@ export default {
         this.createValue = true
       }
     },
-    getDeviceList() {
-      Loading.open('很快加载好了')
-      this.$http
-        .get(myUrl.obtainMyDevice)
-        .then(res => {
-          if (res.code === 200) {
-            Loading.close()
-            this.loopValue = false
-            this.groupFlag = false
-            if (res.data.groupDataList && res.data.groupDataList.length) {
-              this.devGroupList = res.data.groupDataList
-            }
-          }
-        })
-        .catch(error => {
-          Loading.close()
-        })
-    },
     addGroup() {
       if (this.teamName === null || this.teamName === '') {
         this.$toast('请输入设备组名称', 'bottom')
@@ -400,20 +372,12 @@ export default {
       }
 
       Loading.open('很快加载好了')
-      // let data = {
-      //   teamName: this.teamName
-      // }
-      // if (this.devIds.length) {
-      //   // 选中了设备
-      //   data.deviceIds = this.devIds
-      // }
       createTeam({
         teamName: this.teamName
       })
         .then(res => {
           if (res.code === 200) {
             Loading.close()
-            // this.getDeviceList()
             this.teamList.push({
               teamName: this.teamName,
               teamId: res.data,
@@ -462,22 +426,24 @@ export default {
           this.$toast(error.msg, 'bottom')
         })
     },
-    intoIndex(id, name, icon, model) {
-      sessionStorage.setItem('name', name)
-      sessionStorage.setItem('icon', icon)
-      sessionStorage.setItem('model', model)
-      if (model === '电子净化') {
+    intoIndex(child) {
+      Store.save('name', child.deviceName)
+      Store.save('icon', child.icon)
+      Store.save('model', child.deviceTypeName)
+      if (child.deviceTypeName === '电子净化') {
         this.$router.push({
           path: '/air-purifier',
           query: {
-            deviceId: id
+            wxDeviceId: child.wxDeviceId,
+            deviceId: child.deviceId
           }
         })
       } else {
         this.$router.push({
           path: '/wenkongindex',
           query: {
-            deviceId: id
+            wxDeviceId: child.wxDeviceId,
+            deviceId: child.deviceId
           }
         })
       }
@@ -496,38 +462,51 @@ export default {
     },
     shareBind(obj) {
       // 分享绑定
-      this.$http
-        .get(
-          myUrl.share +
-            '?masterOpenId=' +
-            obj.masterOpenId +
-            '&deviceId=' +
-            obj.deviceId +
-            '&token=' +
-            obj.token
-        )
+      share({
+        masterOpenId: obj.masterOpenId,
+        deviceId: obj.deviceId,
+        token: obj.token
+      })
         .then(res => {
+          console.log('绑定结果：', res)
           if (res.code === 200) {
             if (res.data) {
               // 成功
               Toast({
-                mes: '绑定成功',
+                mes: '绑定成功！',
                 timeout: 1500,
                 icon: 'success'
               })
             } else {
               Toast({
-                mes: '链接已过期',
+                mes: '绑定失败！',
                 timeout: 1500
               })
+              console.log('绑定失败：', res)
             }
-            this.getDeviceList() // 获取设备列表
+            this.obtainMyDevice()
           }
         })
         .catch(error => {
           this.$toast(error.msg, 'bottom')
         })
     }
+  },
+  created() {
+    if (JSON.parse(Store.fetch('obj'))) {
+      // 分享人进来
+      console.log('从分享进来')
+      this.shareBind(JSON.parse(Store.fetch('obj')))
+    } else {
+      console.log('未从分享进来')
+      this.obtainMyDevice()
+    }
+  },
+  components: {
+    'yd-accordion': Accordion,
+    'yd-accordion-item': AccordionItem,
+    'yd-radio-group': RadioGroup,
+    'yd-radio': Radio
   }
 }
 </script>
@@ -811,6 +790,9 @@ export default {
       border-bottom: none;
       margin-bottom: 0px;
     }
+  }
+  .team-icon {
+    width: 40px;
   }
 }
 

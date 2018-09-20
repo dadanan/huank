@@ -6,6 +6,7 @@
 import myUrl from 'common/js/api'
 import { auth } from '../wenkong/api'
 import { getQueryString } from 'utils'
+import Store from '../wenkong/store'
 
 export default {
   created() {
@@ -13,10 +14,10 @@ export default {
   },
   methods: {
     authMethod() {
-      auth(sessionStorage.getItem('customerId'), getQueryString('code'))
+      auth(Store.fetch('customerId'), getQueryString('code'))
         .then(res => {
           // 拿到微信openid
-          sessionStorage.setItem('Ticket', res.data)
+          Store.save('Ticket', res.data)
           this.$router.push({
             path: '/list'
           })
@@ -47,9 +48,10 @@ export default {
         let obj = {
           deviceId: getQueryString('deviceId'),
           masterOpenId: getQueryString('masterOpenId'),
-          token: getQueryString('token')
+          token: getQueryString('token'),
+          customerId: getQueryString('customerId')
         }
-        sessionStorage.setItem('obj', JSON.stringify(obj))
+        Store.save('obj', JSON.stringify(obj))
       }
 
       let redirectUrl =

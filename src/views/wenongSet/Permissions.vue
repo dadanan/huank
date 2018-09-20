@@ -9,7 +9,7 @@
       <ul v-if="shareList.length">
         <li v-for="(item,index) in shareList" :key="index">
           <a class="img">
-            <img :src="item.avatar"/>
+            <img :src="item.avatar" />
             <span>{{ item.nickname }}</span>
           </a>
           <span class="delete" @click="deleteMethod(item.openId)">删除</span>
@@ -26,7 +26,7 @@ import myUrl from 'common/js/api'
 import Vue from 'vue'
 
 export default {
-  data () {
+  data() {
     return {
       inItems: [],
       outItems: [],
@@ -34,118 +34,122 @@ export default {
       shareList: []
     }
   },
-  created () {
+  created() {
     Loading.open('很快加载好了')
     setTimeout(() => {
       Loading.close()
     }, 300)
   },
-  computed: {
-  },
-  watch: {
-  },
-  mounted () {
+  mounted() {
     this.getShareList()
   },
   methods: {
-    returnMethod () {
+    returnMethod() {
       this.$router.back(-1)
     },
-    deleteMethod (openid) {
+    deleteMethod(openid) {
       Loading.open('很快加载好了')
-      this.$http.get(myUrl.clearRelation + '?deviceId=' + this.$route.query.deviceId + '&joinOpenId=' + openid).then(res => {
-        if (res.code === 200) {
+      this.$http
+        .get(
+          myUrl.clearRelation +
+            '?deviceId=' +
+            this.$route.query.deviceId +
+            '&joinOpenId=' +
+            openid
+        )
+        .then(res => {
+          if (res.code === 200) {
+            Loading.close()
+            this.getShareList()
+          }
+        })
+        .catch(error => {
           Loading.close()
-          this.getShareList()
-        }
-      })
-      .catch(error => {
-        Loading.close()
-        this.$toast(error.msg, 'bottom')
-      })
+          this.$toast(error.msg, 'bottom')
+        })
     },
-    getShareList () {
+    getShareList() {
       Loading.open('很快加载好了')
-      this.$http.get(myUrl.shareList + '?deviceId=' + this.$route.query.deviceId).then(res => {
-        if (res.code === 200) {
+      this.$http
+        .get(myUrl.shareList + '?deviceId=' + this.$route.query.deviceId)
+        .then(res => {
+          if (res.code === 200) {
+            Loading.close()
+            this.shareList = res.data
+          }
+        })
+        .catch(error => {
           Loading.close()
-          this.shareList = res.data
-        }
-      })
-      .catch(error => {
-        Loading.close()
-        this.$toast(error.msg, 'bottom')
-      })
+          this.$toast(error.msg, 'bottom')
+        })
     }
   }
 }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-  @import "src/common/scss/variable.scss";
-  @import "src/common/scss/mixins.scss";
-  .set-wrapper{
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top:0;
-    .header{
-      height: 40px;
-      font-size: 16px;
-      line-height: 40px;
-      text-align: center;
-      position: relative;
-      .return{
-        position: absolute;
-        left:0px;
-        background: url('../../assets/arr-left.png') no-repeat center center;
-        background-size: 8px 16px;
-        width: 40px;
-        height: 40px;
-        display: block;
-        top:0px;
-      }
-    }
-    .config-wrapper{
+@import 'src/common/scss/variable.scss';
+@import 'src/common/scss/mixins.scss';
+.set-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  .header {
+    height: 40px;
+    font-size: 16px;
+    line-height: 40px;
+    text-align: center;
+    position: relative;
+    .return {
       position: absolute;
-      top:40px;
-      bottom: 0px;
-      height: auto;
-      //background: #ffffff;
-      left:0;
-      width: 100%;
-      .title{
-        padding: 15px;
-      }
-      & ul li{
-        width: 100%;
-        height: 40px;
-        line-height: 40px;
-        background: #ffffff;
-        padding-left: 15px;
-        padding-right: 15px;
-        margin-bottom: 10px;
-        font-size: 14px;
-        & a{
-          float: left;
-          & img{
-            width: 20px;
-            height: 20px;
-            margin-top: 5px;
-            vertical-align: top;
-          }
-          & span{
-            margin-left: 10px;
-          }
-        }
-        & .delete{
-          float: right;
-          font-size: 16px;
-          color: #999999;
-        }
-      }
-      
+      left: 0px;
+      background: url('../../assets/arr-left.png') no-repeat center center;
+      background-size: 8px 16px;
+      width: 40px;
+      height: 40px;
+      display: block;
+      top: 0px;
     }
   }
-  
+  .config-wrapper {
+    position: absolute;
+    top: 40px;
+    bottom: 0px;
+    height: auto;
+    //background: #ffffff;
+    left: 0;
+    width: 100%;
+    .title {
+      padding: 15px;
+    }
+    & ul li {
+      width: 100%;
+      height: 40px;
+      line-height: 40px;
+      background: #ffffff;
+      padding-left: 15px;
+      padding-right: 15px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      & a {
+        float: left;
+        & img {
+          width: 20px;
+          height: 20px;
+          margin-top: 5px;
+          vertical-align: top;
+        }
+        & span {
+          margin-left: 10px;
+        }
+      }
+      & .delete {
+        float: right;
+        font-size: 16px;
+        color: #999999;
+      }
+    }
+  }
+}
 </style>
 
