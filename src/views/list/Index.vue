@@ -430,7 +430,7 @@ export default {
       Store.save('name', child.deviceName)
       Store.save('icon', child.icon)
       Store.save('model', child.deviceTypeName)
-      if (child.deviceTypeName === '电子净化') {
+      if (child.deviceTypeName === '电子净化器') {
         this.$router.push({
           path: '/air-purifier',
           query: {
@@ -438,9 +438,18 @@ export default {
             deviceId: child.deviceId
           }
         })
-      } else {
+      } else if (child.deviceTypeName === '温控器') {
         this.$router.push({
           path: '/wenkongindex',
+          query: {
+            wxDeviceId: child.wxDeviceId,
+            deviceId: child.deviceId
+          }
+        })
+      } else {
+        // 智慧新风
+        this.$router.push({
+          path: '/index',
           query: {
             wxDeviceId: child.wxDeviceId,
             deviceId: child.deviceId
