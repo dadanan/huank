@@ -28,10 +28,17 @@
         </div>
       </div>
 
-      <div class="cell-item" @click="intoPermissions">
+      <div class="cell-item border-bottom" @click="intoPermissions">
         <div class="cell-left">
           <span>授权管理</span>
         </div>
+      </div>
+
+      <div class="cell-item border-bottom device-group" @click="intoGroup">
+        <div class="cell-left">
+          <span>群控</span>
+        </div>
+        <div class="cell-right"></div>
       </div>
 
       <div class="cell-item white" @click="intoData">
@@ -107,8 +114,6 @@ export default {
       province: '',
       city: '',
       area: '',
-      switch1: false,
-      switch2: false,
       editDevFlag: false,
       deviceName: '',
       modelName: '',
@@ -117,30 +122,6 @@ export default {
       model2: '',
       district: District
     }
-  },
-  created() {
-    Loading.open('很快加载好了')
-    if (Store.fetch('location')) {
-      this.model2 = Store.fetch('location')
-      let arr = this.model2.split(',')
-      if (arr.length === 3) {
-        this.province = arr[0]
-        this.city = arr[1]
-        this.area = arr[2]
-      }
-    }
-    if (Store.fetch('screens')) {
-      this.batteryList = JSON.parse(Store.fetch('screens'))
-    }
-    setTimeout(() => {
-      Loading.close()
-    }, 300)
-  },
-  components: {
-    'yd-cityselect': CitySelect
-  },
-  mounted() {
-    this.modelName = Store.fetch('model')
   },
   methods: {
     result2(ret) {
@@ -180,6 +161,14 @@ export default {
     intoPermissions() {
       this.$router.push({
         path: '/permissions',
+        query: {
+          deviceId: this.$route.query.deviceId
+        }
+      })
+    },
+    intoGroup() {
+      this.$router.push({
+        path: '/group',
         query: {
           deviceId: this.$route.query.deviceId
         }
@@ -243,6 +232,30 @@ export default {
     getDevice() {
       return Store.fetch('name')
     }
+  },
+  created() {
+    Loading.open('很快加载好了')
+    if (Store.fetch('location')) {
+      this.model2 = Store.fetch('location')
+      let arr = this.model2.split(',')
+      if (arr.length === 3) {
+        this.province = arr[0]
+        this.city = arr[1]
+        this.area = arr[2]
+      }
+    }
+    if (Store.fetch('screens')) {
+      this.batteryList = JSON.parse(Store.fetch('screens'))
+    }
+    setTimeout(() => {
+      Loading.close()
+    }, 300)
+  },
+  components: {
+    'yd-cityselect': CitySelect
+  },
+  mounted() {
+    this.modelName = Store.fetch('model')
   }
 }
 </script>
@@ -410,6 +423,17 @@ export default {
         & span {
           color: #999999;
         }
+      }
+    }
+  }
+  .device-group {
+    justify-content: space-between;
+    .right {
+      margin-right: 20px;
+      display: flex;
+      align-items: center;
+      > span {
+        margin: 0 10px;
       }
     }
   }

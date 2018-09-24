@@ -94,7 +94,6 @@
             </div>
             <span style="float: right; color: #6fbff8; margin-left: 10px;" @click='delDev()' v-show='switch1'>删除</span>
             <span style="float: right; color: #6fbff8;" @click='addDev()' v-show='switch1'>+添加从设备</span>
-
           </div>
           <table class="table" style="margin-top: 5px;">
             <tr>
@@ -149,7 +148,6 @@
         </div>
       </yd-accordion-item>
     </yd-accordion>
-
     <div class="create-dialog dialog" v-if="setPwdFlag">
       <div class="confirm">
         <div class="confim-top">

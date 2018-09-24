@@ -11,8 +11,8 @@
         <div class="box-left" :ref="'boxref'+(index)">
           <div class="del" style="float:left" @click="delTimer(item.id)">删除</div>
           <div class="c-text">
-            <p v-if="item.remainTime !== 0">{{ MillisecondToDate(item.remainTime) }}后关闭</p>
-            <p v-else>已过期</p>
+            <p v-if="item.remainTime">{{ MillisecondToDate(item.remainTime) }}后关闭</p>
+            <p v-else>{{ item.hour }}:{{item.minute}} 关闭</p>
             <p>{{ item.name }}</p>
           </div>
         </div>
@@ -44,7 +44,8 @@ export default {
     return {
       isEdit: false,
       timeList: [],
-      value: ''
+      value: '',
+      wxDeviceId: this.$route.query.wxDeviceId
     }
   },
   methods: {
@@ -89,7 +90,7 @@ export default {
     getTimeList() {
       Loading.open('很快加载好了')
       queryTimerList({
-        wxDeviceId: 'gh_88f99c7775df_9e63dcd34ca2d6ff'
+        wxDeviceId: this.wxDeviceId
       })
         .then(res => {
           if (res.code === 200) {
@@ -154,7 +155,7 @@ export default {
         path: '/timingedet',
         query: {
           id: id,
-          wxDeviceId: this.$route.query.wxDeviceId
+          wxDeviceId: this.wxDeviceId
         }
       })
     },
@@ -162,7 +163,7 @@ export default {
       this.$router.push({
         path: '/timingedet',
         query: {
-          wxDeviceId: this.$route.query.wxDeviceId
+          wxDeviceId: this.wxDeviceId
         }
       })
     }

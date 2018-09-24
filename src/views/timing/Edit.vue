@@ -19,11 +19,11 @@
         </div>
       </div>
       <div v-if='timer.type === 1' class="form-item time border-none inline">
-        <p>倒计时</p>
+        <p>时间</p>
         <yd-datetime type="time" v-model="afterTime" slot="right"></yd-datetime>
       </div>
     </div>
-    <div v-if='timer.type === 1' class="timing-but">
+    <div class="timing-but left">
       <span>开/关</span>
       <div class="but-group">
         <button class="but" :class="{ active : timer.timerType === 1 }" @click="timer.timerType = 1">定时开</button>
@@ -79,37 +79,37 @@ export default {
         {
           name: '周一',
           type: false,
-          value: 1
+          value: 2
         },
         {
           name: '周二',
           type: false,
-          value: 2
+          value: 3
         },
         {
           name: '周三',
           type: false,
-          value: 3
+          value: 4
         },
         {
           name: '周四',
           type: false,
-          value: 4
+          value: 5
         },
         {
           name: '周五',
           type: false,
-          value: 5
+          value: 6
         },
         {
           name: '周六',
           type: false,
-          value: 6
+          value: 7
         },
         {
           name: '周日',
           type: false,
-          value: 0
+          value: 1
         }
       ],
       timerTypeList: [

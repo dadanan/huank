@@ -21,6 +21,7 @@ const WKConfig = resolve => require(['@/views/wenongSet/Config'], resolve)
 const List = resolve => require(['@/views/list/Index'], resolve)
 const Demo = resolve => require(['@/views/demo'], resolve)
 const Permissions = resolve => require(['@/views/set/Permissions'], resolve)
+const Group = resolve => require(['@/views/set/Group'], resolve)
 const WenKongIndex = resolve => require(['@/views/wenkong/Index'], resolve)
 const AirPurifier = resolve => require(['@/views/air-purifier'], resolve)
 const KaiChe = resolve => require(['@/views/kaiche'], resolve)
@@ -54,6 +55,13 @@ let routes = [
   {
     path: '/permissions',
     component: Permissions,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/group',
+    component: Group,
     meta: {
       title: ''
     }

@@ -277,3 +277,20 @@ export function getSign(url) {
     headers: { Ticket: Store.fetch('Ticket') }
   })
 }
+
+export function list() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/group/list`,
+    method: 'get',
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+
+export function groupSendFunc(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/group/groupSendFunc`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}

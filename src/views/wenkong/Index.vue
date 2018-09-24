@@ -9,19 +9,21 @@
       <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;&nbsp;
       <span v-show='formatItemsList[9] && formatItemsList[9].showStatus'>{{location}}&nbsp;&nbsp;</span>
       <span v-show='formatItemsList[10] && formatItemsList[10].showStatus'>{{weather}} {{outerTem}}&nbsp;&nbsp;</span>
-      <span v-show='formatItemsList[11] && formatItemsList[11].showStatus'>湿度: {{outerHum}}&nbsp;&nbsp;</span>
+      <span v-if='formatItemsList[11] && formatItemsList[11].showStatus'>湿度: {{outerHum}}%&nbsp;&nbsp;</span>
       <span v-show='formatItemsList[12] && formatItemsList[12].showStatus'>PM2.5: {{outerPm}}ug/m3</span>
     </div>
     <div class='switch'>
       <div v-show='formatItemsList[7] && formatItemsList[7].showStatus'>
         <div class='left'>
-          <yd-switch v-model="switch1" ref='switch'></yd-switch>
+          <img src='@/assets/status-open.png' v-if='status'>
+          <img src='@/assets/status-close.png' v-else>
         </div>
         <p>{{formatItemsList[7] && formatItemsList[7].showName}}</p>
       </div>
-      <div v-show='formatItemsList[8] && formatItemsList[8].showStatus'>
+      <div v-show='formatItemsList[8] && formatItemsList[8].showStatus' @click='onOffMethod'>
         <div>
-          <img src='@/assets/wenkong_close.png'>
+          <img src='@/assets/wenkong_close.png' v-if='isOpen'>
+          <img src='@/assets/wenkong_close.png' v-else>
         </div>
         <p>{{formatItemsList[8] && formatItemsList[8].showName}}</p>
       </div>
@@ -29,19 +31,19 @@
     <div class='main'>
       <div>
         <h3>设定值</h3>
-        <h1>{{temperature}}</h1>
+        <h1 v-if='formatItemsList[4]'>{{getAbilityData(formatItemsList[4].abilityId).currValue}}</h1>
         <h3 class='last'>℃</h3>
       </div>
     </div>
     <div class='current-info'>
-      <p v-show='formatItemsList[4] && formatItemsList[4].showStatus'>
+      <p v-if='formatItemsList[4] && formatItemsList[4].showStatus'>
         {{formatItemsList[4] && formatItemsList[4].showName}}
-        <span class='strong'>{{temperature}}</span>
+        <span class='strong'>{{getAbilityData(formatItemsList[4].abilityId).currValue}}</span>
         ℃
       </p>
-      <p v-show='formatItemsList[5] && formatItemsList[5].showStatus'>
-        {{formatItemsList[4] && formatItemsList[4].showName}}
-        <span class='strong'>80</span>
+      <p v-if='formatItemsList[5] && formatItemsList[5].showStatus'>
+        {{formatItemsList[5] && formatItemsList[5].showName}}
+        <span class='strong'>{{getAbilityData(formatItemsList[5].abilityId).currValue}}</span>
         %
       </p>
     </div>
@@ -132,7 +134,6 @@
 import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
 import { Popup } from 'vue-ydui/dist/lib.rem/popup'
 import { Picker } from 'mint-ui'
-import { Switch } from 'vue-ydui/dist/lib.rem/switch'
 import {
   getModelVo,
   newQueryDetailByDeviceId,
@@ -141,6 +142,7 @@ import {
   sendFunc
 } from './api'
 import Store from './store'
+let hasSetTemperature = false // 初始化时根据当前温度设置下「预设温度」的值
 
 // let json = require('./test')
 // json = json.data
@@ -150,9 +152,9 @@ import Store from './store'
 export default {
   data() {
     return {
-      switch1: true,
       modelVisible: false, //
       windVisible: false, //
+      temperature: 0, // 客户设定温度
       temperatureVisible: false, // 显示温度设定弹框
       currentOption: 0, // 模式的当前选择项
       currentOptionForWind: 0, // 风速的当前选择项
@@ -170,23 +172,90 @@ export default {
       outerPm: '', // PM2.5
       deviceId: this.$route.query.deviceId,
       wxDeviceId: this.$route.query.wxDeviceId,
-      setInter: undefined // 定时器的id
-    }
-  },
-  computed: {
-    temperature() {
-      // 动态显示温度的值
-      if (!this.formatItemsList[0]) {
-        return 25
-      }
-      const ablityId = this.formatItemsList[0].abilityId
-      const data = this.abilitysList.filter(
-        item => item.abilityId === ablityId
-      )[0]
-      return data.currValue
+      setInter: undefined, // 定时器的id
+      isOpen: false, // 开机状态？
+      status: false // 主机状态
     }
   },
   methods: {
+    setTemperature() {
+      // 动态显示温度的值
+      if (!this.formatItemsList[4] || hasSetTemperature) {
+        return
+      }
+      const ablityId = this.formatItemsList[4].abilityId
+      const data = this.abilitysList.filter(
+        item => item.abilityId === ablityId
+      )[0]
+
+      this.temperature = Number(data.currValue)
+      this.hasSetTemperature = true
+    },
+    switchHandler() {
+      // 开关机初始化
+      const tempArray = this.abilitysList.filter(
+        item => item.abilityId === this.formatItemsList[8].abilityId
+      )[0].abilityOptionList
+
+      // 找到关机的对象
+      const tempObj = tempArray[0].dirValue == 0 ? tempArray[0] : tempArray[1]
+      if (tempObj.isSelect === 1) {
+        // 说明是关机
+        this.isOpen = false
+      } else {
+        this.isOpen = true
+      }
+
+      // 主机状态初始化
+      const tempArray2 = this.abilitysList.filter(
+        item => item.abilityId === this.formatItemsList[7].abilityId
+      )[0].abilityOptionList
+
+      // 找到关机的对象
+      const tempObj2 =
+        tempArray2[0].dirValue == 0 ? tempArray2[0] : tempArray2[1]
+      if (tempObj2.isSelect === 1) {
+        // 说明是关机
+        this.status = false
+      } else {
+        this.status = true
+      }
+    },
+    onOffMethod() {
+      // 开关机
+
+      const tempArray = this.abilitysList.filter(
+        item => item.abilityId === this.formatItemsList[8].abilityId
+      )[0]
+      const tempList = tempArray.abilityOptionList
+      let index = 0
+      if (this.isOpen) {
+        // 找“关”的项
+        index = tempList.findIndex(item => item.dirValue === '0')
+      } else {
+        index = tempList.findIndex(item => item.dirValue === '1')
+      }
+
+      sendFunc({
+        deviceId: this.deviceId,
+        funcId: tempArray.dirValue,
+        value: tempList[index].dirValue
+      }).then(res => {
+        this.isOpen = !this.isOpen
+        console.info(
+          '指令发送成功:',
+          tempArray.dirValue,
+          '-',
+          tempList[index].dirValue
+        )
+      })
+    },
+    getAbilityData(abilityId) {
+      const result = this.abilitysList.filter(
+        item => item.abilityId === abilityId
+      )[0]
+      return result
+    },
     goBack() {
       history.back()
     },
@@ -225,9 +294,13 @@ export default {
     },
     increase() {
       this.temperature += 1
+      const data = this.getAbilityData(this.formatItemsList[0].abilityId)
+      this.sendFunc(data.dirValue, this.temperature)
     },
     reduce() {
       this.temperature -= 1
+      const data = this.getAbilityData(this.formatItemsList[0].abilityId)
+      this.sendFunc(data.dirValue, this.temperature)
     },
     intoSet() {
       this.$router.push({
@@ -243,18 +316,16 @@ export default {
       } else {
         this.currentOption = index
       }
+      this.sendFunc(data.dirValue, data.abilityOptionList[index].dirValue)
+    },
+    sendFunc(funcId, value) {
       // 发送指令
       sendFunc({
-        wxDeviceId: this.wxDeviceId,
-        funcId: data.dirValue,
-        value: data.abilityOptionList[index].dirValue
+        deviceId: this.deviceId,
+        funcId: funcId,
+        value: value
       }).then(res => {
-        console.info(
-          '指令发送成功:',
-          data.dirValue,
-          '-',
-          data.abilityOptionList[index].dirValue
-        )
+        console.info('指令发送成功:', funcId, '-', value)
       })
     },
     functionClicked(item) {
@@ -300,12 +371,19 @@ export default {
         // 将res.data中的isSelect和dirValue赋值过去
         this.abilitysList.forEach((item, index) => {
           // 如果有值，说明是温度功能项，讲数值拿过来
-          if (data[index].currValue) {
+          if (data[index] && data[index].currValue) {
             // 找到对应的温度功能项对象
             const temp = this.abilitysList.filter(
               itemA => itemA.abilityId === data[index].id
             )[0]
-            temp['currValue'] = data[index].currValue
+            if (!data[index]) {
+              return
+            }
+            try {
+              temp.currValue = data[index].currValue
+            } catch (e) {
+              // 怪异的错误，就算判断data[index]不为空，也会出现currValue of undefined错误～
+            }
           }
           if (!item.abilityOptionList || item.abilityOptionList.length === 0) {
             return
@@ -321,6 +399,9 @@ export default {
               }
             })
         })
+
+        this.switchHandler()
+        this.setTemperature()
       })
     },
     getLocation() {
@@ -340,31 +421,17 @@ export default {
     }
   },
   created() {
+    // Store.save('oJlAuv3vgnY6fRxH_UyDKZ3Kg7K4')
     this.getIndexAbilityData()
     this.getLocation()
     this.getWeather()
-  },
-  mounted() {
-    try {
-      const containerWidth =
-        document.querySelector('.left') &&
-        document.querySelector('.left').offsetWidth
-      const switchElement = this.$refs.switch.$el
-      const switchWidth = switchElement.offsetWidth
-      // 动态改变开关的left属性，以保持一直水平居中
-      // switchElement.style.left = (containerWidth - switchWidth) / 2 + 'px'
-      switchElement.style.left = '-10px'
-    } catch (e) {
-      console.log('控制开关位置出错：', e)
-    }
   },
   destroyed() {
     clearInterval(this.setInter)
   },
   components: {
     'yd-popup': Popup,
-    'mt-picker': Picker,
-    [Switch.name]: Switch
+    'mt-picker': Picker
   }
 }
 </script>
@@ -455,6 +522,13 @@ export default {
       }
       p {
         color: #fff;
+      }
+    }
+    div.left {
+      img {
+        width: 80%;
+        position: relative;
+        top: 0.2px;
       }
     }
   }
@@ -650,8 +724,13 @@ export default {
       display: flex;
       align-items: center;
       span {
+        display: inline-block;
         color: white;
         font-size: 15px;
+        width: 36px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        height: 21px;
       }
     }
     img {

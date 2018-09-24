@@ -32,12 +32,18 @@
                     <i class="addr"></i>
                     <span>{{child.location && child.location.split(',')[1]}}</span>
                   </p>
-                  <p>ID:{{ child.deviceId }}</p>
-                  <p>型号：{{ child.deviceTypeName }}</p>
+                  <template v-if='child.hasOwnProperty("childId")'>
+                    <p>childId:{{ child.childId }}</p>
+                    <p>从设备</p>
+                  </template>
+                  <template v-else>
+                    <p>ID:{{ child.deviceId }}</p>
+                    <p>型号：{{ child.deviceTypeName }}</p>
+                  </template>
                 </div>
               </div>
             </div>
-            <div class="item-right">
+            <div class="item-right" v-if='!child.hasOwnProperty("childId")'>
               <span class="group" v-if="loopValue === true" @click.stop="OpenDev(child,item.teamId,1)">分组</span>
               <span class="edit" v-if="loopValue === true" @click.stop="OpenDev(child,2)">编辑</span>
               <span class="delete" v-if="loopValue === true" @click.stop="deleteDev(child)" style="color: #a0a0a0;">删除</span>
@@ -159,7 +165,8 @@ import {
   updateTeamName,
   editDevice,
   updateDeviceTeam,
-  share
+  share,
+  childDeviceList
 } from '../wenkong/api'
 import Store from '../wenkong/store'
 
@@ -196,8 +203,31 @@ export default {
   methods: {
     obtainMyDevice() {
       obtainMyDevice().then(res => {
-        this.teamList = res.data.teamDataList
+        const data = res.data
+        this.teamList = data.teamDataList
+        data.teamDataList.forEach(team => {
+          const deviceList = team.deviceItemPos
+          if (!deviceList || deviceList.length === 0) {
+            return
+          }
+          // 如果设备存在从设备，调接口
+          deviceList.forEach(device => {
+            if (device.childDeviceCount === 0) {
+              return
+            }
+            this.childDeviceList(device.deviceId, deviceList)
+          })
+        })
       })
+    },
+    childDeviceList(id, data) {
+      childDeviceList(id).then(res => {
+        res.data.forEach(item => {
+          item['deviceId'] = item.id
+        })
+        data.push(...res.data)
+      })
+      console.log('push', data)
     },
     cancelGroup() {
       this.groupDialog = false
@@ -430,6 +460,7 @@ export default {
       Store.save('name', child.deviceName)
       Store.save('icon', child.icon)
       Store.save('model', child.deviceTypeName)
+      console.log('child', child)
       if (child.deviceTypeName === '电子净化器') {
         this.$router.push({
           path: '/air-purifier',

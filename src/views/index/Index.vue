@@ -1,116 +1,123 @@
 <template>
-  <div class="main-wrapper" :class="{ active: isOpen === true }" v-if="deviceObj.pm" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')','background-repeat':'no-repeat','background-size':'cover' }">
+  <div class="main-wrapper" :class="{ active: isOpen === true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')','background-repeat':'no-repeat','background-size':'cover' }">
     <div class="header">
       <span>{{ deviceName }}</span>
       <span class="edit" @click="intoSet"></span>
       <span class="time" v-if="1===2">{{ currentTime }}s</span>
     </div>
     <div class="info">
-      <img src="../../assets/map.png" style="width:12px;height:auto"/>
-      {{ address }}&nbsp;&nbsp;天气{{ deviceObj.weather }}&nbsp;&nbsp;{{ deviceObj.outerTem }}&nbsp;&nbsp;湿度{{ deviceObj.outerHum }}&nbsp;&nbsp;PM2.5:{{ deviceObj.outerPm }}{{ deviceObj.pm.unit }} 质量:{{ deviceObj.pm.mass }}
+      <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;&nbsp;
+      <span v-show='formatItemsList[12] && formatItemsList[2].showStatus'>{{location}}&nbsp;&nbsp;</span>
+      <span v-show='formatItemsList[13] && formatItemsList[13].showStatus'>{{weather}} {{outerTem}}&nbsp;&nbsp;</span>
+      <span v-show='formatItemsList[14] && formatItemsList[14].showStatus'>湿度: {{outerHum}}%&nbsp;&nbsp;</span>
+      <span v-show='formatItemsList[15] && formatItemsList[15].showStatus'>PM2.5: {{outerPm}}ug/m3</span>
     </div>
     <div class="but-list">
-      <div class="but-group" >
+      <!-- 童锁 -->
+      <div class="but-group" v-if='formatItemsList[10] && formatItemsList[10].showStatus'>
         <div class="icon suo" @click="childMethod"></div>
-        <div class="text" @click="childMethod">童锁</div>
+        <div class="text" @click="childMethod">{{formatItemsList[10].showName}}</div>
       </div>
       <div class="but-group" v-if="1===2">
         <div class="icon shop"></div>
         <div class="text">商城</div>
       </div>
-      <div class="but-group">
-        <div class="icon close" :class="{ active:isOpen === true  }"  @click="onOffMethod"></div>
-        <div class="text"  @click="onOffMethod">开关</div>
+      <!-- 开关 -->
+      <div class="but-group" v-if='formatItemsList[11] && formatItemsList[11].showStatus'>
+        <div class="icon close" :class="{ active:isOpen === true  }" @click="onOffMethod"></div>
+        <div class="text" @click="onOffMethod">{{formatItemsList[11].showName}}</div>
       </div>
     </div>
     <div class="center">
       <div class="circle-data" :style="{ height:cHeight+'px' }">
         <div class="circle-inner">
           <p>
-            PM2.5 <span>{{ deviceObj.pm.mass }}</span>
+            PM2.5
+            <span>{{outerPm}}</span>
           </p>
-          <p :class="{ active:  isOpen === true}">{{ deviceObj.pm.data }}</p>
-          <p>{{ deviceObj.pm.unit }}</p>
+          <p :class="{ active:  isOpen === true}">33</p>
+          <p>33</p>
         </div>
       </div>
       <div class="temper">
-        <div class="t1">
-          <p><span>{{ deviceObj.tem.data }}</span>&#176;c</p>
-          <p><span style="font-size:16px">温度</span></p>
+        <div class="t1" v-if='formatItemsList[8] && formatItemsList[8].showStatus'>
+          <p>
+            <span>{{getAbilityData(formatItemsList[8].abilityId).currValue}}</span>&#176;c</p>
+          <p>
+            <!-- 温度 -->
+            <span style="font-size:16px">{{formatItemsList[8].showName}}</span>
+          </p>
         </div>
-        <div class="t2">
-          <p><span>{{ deviceObj.hum.data }}</span>%</p>
-          <p><span style="font-size:16px">湿度</span></p>
+        <div class="t2" v-if='formatItemsList[9] && formatItemsList[9].showStatus'>
+          <p>
+            <span>{{getAbilityData(formatItemsList[9].abilityId).currValue}}</span>%</p>
+          <p>
+            <!-- 湿度 -->
+            <span style="font-size:16px">{{formatItemsList[9].showName}}</span>
+          </p>
         </div>
       </div>
-      <div class="tip">
-        <p>滤芯剩余寿命{{ parseInt(deviceObj.screen.data / 3600) }}时</p>
-        <p v-if="1===2">设备租赁剩余时间{{ parseInt(deviceObj.remain.data / 3600) }}时</p>
+      <div class="tip" v-show='formatItemsList[7] && formatItemsList[7].showStatus'>
+        <p>滤芯剩余寿命 1 时</p>
+        <p v-if="1===2">设备租赁剩余时间 2 时</p>
       </div>
       <div class="b-data">
-        <span>CO2 <em>{{ deviceObj.co2.data }}</em> PPM</span>
-        <span>TVOC <em>{{ deviceObj.tvoc.data }}</em> mg/m³</span>
-        <span>甲醛 <em>{{ deviceObj.hcho.data }}</em> mg/m³</span>
+        <!-- CO2 -->
+        <span v-if='formatItemsList[4] && formatItemsList[4].showStatus'>{{formatItemsList[4].showName}}
+          <em>{{getAbilityData(formatItemsList[4].abilityId).currValue}}</em> PPM</span>
+        <!-- TVOC -->
+        <span v-if='formatItemsList[5] && formatItemsList[5].showStatus'>{{formatItemsList[5].showName}}
+          <em>{{getAbilityData(formatItemsList[5].abilityId).currValue}}</em> mg/m³</span>
+        <span v-if='formatItemsList[6] && formatItemsList[6].showStatus'>{{formatItemsList[6].showName}}
+          <!-- 甲醛 -->
+          <em>{{getAbilityData(formatItemsList[6].abilityId).currValue}}</em> mg/m³</span>
       </div>
     </div>
     <div class="but-list fixed">
-      <div class="but-group" @click="intiTime">
-          <div class="icon time"></div>
-          <div class="text">定时</div>
+      <div class="but-group" @click="intiTime" v-if='formatItemsList[0] && formatItemsList[0].showStatus'>
+        <div class="icon time"></div>
+        <!-- 定时 -->
+        <div class="text">{{formatItemsList[0].showName}}</div>
       </div>
-      <div class="but-group" @click="switchModel()">
+      <div class="but-group" @click="switchModel(formatItemsList[1].abilityId)" v-if='formatItemsList[1] && formatItemsList[1].showStatus'>
         <div class="icon model"></div>
-        <div class="text">模式</div>
+        <!-- 模式 -->
+        <div class="text">{{formatItemsList[1].showName}}</div>
       </div>
-      <div class="but-group" @click="switchSpeed()">
+      <div class="but-group" @click="switchSpeed(formatItemsList[2].abilityId)" v-if='formatItemsList[2] && formatItemsList[2].showStatus'>
         <div class="icon shan"></div>
-        <div class="text">风速</div>
+        <!-- 风速 -->
+        <div class="text">{{formatItemsList[2].showName}}</div>
       </div>
-      <div class="but-group" @click="switchFunction()">
+      <div class="but-group" @click="switchFunction(formatItemsList[3].abilityId)" v-if='formatItemsList[3] && formatItemsList[3].showStatus'>
         <div class="icon menu"></div>
-        <div class="text">功能</div>
+        <!-- 功能 -->
+        <div class="text">{{formatItemsList[3].showName}}</div>
       </div>
     </div>
     <yd-popup v-model="modeFlag" position="bottom" width="90%">
       <div class="content">
         <div class="title">模式设定</div>
         <div class="list">
-          <ul>
-            <li v-for="(item,index) in modeData" :key="index" :class="{ active: modeCurrent == index }" v-show="index != 0" @click="sendFunc(index,1)">
-              <span>{{ item }}</span>
+          <ul v-if='formatItemsList[1]'>
+            <li v-for="(item,index) in getListData(formatItemsList[1].abilityId)" :class="{ active: modeCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[1].abilityId),index,1)">
+              <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
             </li>
           </ul>
         </div>
       </div>
     </yd-popup>
-    <yd-popup v-model="speedFlag" position="bottom" width="90%" v-if="deviceObj.windItems.length === 1">
+    <yd-popup v-model="speedFlag" position="bottom" width="90%">
       <div class="content">
         <div class="title">风速设定</div>
         <div class="list">
-          <ul>
-            <li v-for="(item,index) in speedData" :key="index" :class="{ active: speedCurrent == index + 1 }" @click="sendFunc(index,2)">
-              <span>{{ item }}</span>
+          <ul v-if='formatItemsList[2]'>
+            <li v-for="(item,index) in getListData(formatItemsList[2].abilityId)" :class="{ active: speedCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[2].abilityId),index,2)">
+              <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
             </li>
           </ul>
-        </div>
-      </div>
-    </yd-popup>
-    <yd-popup v-model="speedFlag" position="bottom" width="90%" v-else>
-      <!--<mt-picker :slots="slots" @change="onValuesChange"></mt-picker>-->
-      <div class="content">
-        <div class="title" style="position:relative;">
-          风速设定
-          <span style="position:absolute;right:0px;color:#3fa9f5" @click="saveSpeeed">保存</span>
-        </div>
-        <div class="list spec">
-          <div style="float:left;width:50%;">
-            <mt-picker :slots="slotsType" @change="onValuesChange1"></mt-picker>
-          </div>
-          <div style="float:right;width:50%;font-size:14px">
-            <mt-picker :slots="slotsDw" @change="onValuesChange"></mt-picker>
-          </div>
         </div>
       </div>
     </yd-popup>
@@ -118,17 +125,17 @@
       <div class="content">
         <div class="title">其它功能设定</div>
         <div class="list">
-          <ul>
-            <li v-for="(item,index) in functionData" :key="index" :class="{ active: item[0].value == 1 }" @click="selectFunction(index,item[0].value)">
-              <span>{{ item[0].name }}</span>
+          <ul v-if='formatItemsList[3]'>
+            <li v-for="(item,index) in getListData(formatItemsList[3].abilityId,3)" :key="item.dirValue" :class="{ active: item.isChecked}" @click="nodeClicked(item,index,3)">
+              <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
             </li>
           </ul>
         </div>
       </div>
     </yd-popup>
-    <div class="child-suo" v-show="childItem === '1'">
-      <img src="../../assets/ts.png"/>
+    <div class="child-suo" v-if="isLock">
+      <img src="../../assets/ts.png" />
       <span @click="childMethod(true)">点此解除锁屏</span>
     </div>
   </div>
@@ -144,14 +151,24 @@ import img2 from '../../assets/bak2.jpg' // 夜晚阴
 import img3 from '../../assets/bak1.jpg' // 夜晚晴
 import img4 from '../../assets/bak4.jpg' // 白天晴
 import { Picker } from 'mint-ui'
+import Store from '../wenkong/store'
+import {
+  getModelVo,
+  newQueryDetailByDeviceId,
+  getLocation,
+  getWeather,
+  sendFunc
+} from '../wenkong/api'
+
 export default {
-  data () {
+  data() {
     return {
       specIndex: 0,
       specTypeIndex: 0, // 默认内风扇
       isFlag2: false,
       address: '',
-      slotsType: [ // 风扇类型
+      slotsType: [
+        // 风扇类型
         {
           defaultIndex: null,
           flex: 1,
@@ -160,7 +177,8 @@ export default {
           textAlign: 'left'
         }
       ],
-      slotsDw: [ // 风扇挡位
+      slotsDw: [
+        // 风扇挡位
         {
           defaultIndex: null,
           flex: 1,
@@ -170,114 +188,108 @@ export default {
         }
       ],
       isFlag: false,
-      img: '',
+      img: img4,
       currentBak: '',
       currentTime: 2,
-      childItem: '0',
       timeSet: null,
       deviceName: '',
       cHeight: 200,
-      isOpen: false,
+      isOpen: true, // 开关
+      isLock: false, // 童锁
       modeFlag: false, // 模式设置
       deviceObj: {},
-      modeCurrent: null,
+      modeCurrent: undefined,
+      speedCurrent: undefined,
       modeData: [],
       speedFlag: false,
-      speedCurrent: null,
       speedData: [],
       functionFlag: false,
       functionCurrent: null,
       functionData: [],
       weather: null,
-      currentSpeed: []
+      currentSpeed: [],
+      formatItemsList: [],
+      abilitysList: [],
+      location: '',
+      weather: '',
+      outerTem: '',
+      outerHum: '', // 湿度
+      outerPm: '', // PM2.5
+      deviceId: this.$route.query.deviceId,
+      wxDeviceId: this.$route.query.wxDeviceId,
+      setInter: undefined // 定时id
     }
-  },
-  components: {
-    'yd-popup': Popup,
-    'mt-picker': Picker
-
-  },
-  created () {
-    this.timeSet = setInterval(() => {
-      if (this.currentTime === 0) {
-        this.currentTime = 3
-        this.getInfoData(true)
-      }
-      this.currentTime--
-    }, 1000)
-    this.cHeight = window.innerWidth * 0.45
-    if (window.innerWidth <= 340) {
-      this.cHeight = window.innerWidth * 0.45
-    }
-    this.getInfoData()
-    this.deviceName = sessionStorage.getItem('name')
-    setWechatTitle(this.deviceName, '')
-  },
-  computed: {
-  },
-  watch: {
-    isOpen: function (val) {
-      if (val) {
-        this.img = this.currentBak
-      } else {
-        this.img = ''
-      }
-    }
-  },
-  mounted () {
   },
   methods: {
-    saveSpeeed () {
-      let currentValue = null
-      this.speedData[this.specTypeIndex].choice.forEach((v, index) => {
-        if (v === this.currentSpeed[0]) {
-          currentValue = index
-          this.speedData[this.specTypeIndex].value = index
-        }
-      })
-      let data = {}
-      data.deviceId = this.$route.query.deviceId
-      data.funcId = this.speedData[this.specTypeIndex].type
-      data.value = currentValue + 1
-      // 发送指令
-      this.$http.post(myUrl.sendFunc, data).then(res => {
-        if (res.code === 200) {
-          Loading.close()
-          Toast({
-            mes: '发送成功',
-            timeout: 1500,
-            icon: 'success'
-          })
-        }
-      })
-      .catch(error => {
-        Loading.close()
-      })
+    getListData(abilityId, type) {
+      // 根据功能id获取功能项的数据
+      const result = this.abilitysList.filter(
+        item => item.abilityId === abilityId
+      )[0].abilityOptionList
+
+      return result
     },
-    changeSpeed (item, index) {
+    getAbilityData(abilityId) {
+      const result = this.abilitysList.filter(
+        item => item.abilityId === abilityId
+      )[0]
+      return result
+    },
+    saveSpeeed() {
+      return
+      // let currentValue = null
+      // this.speedData[this.specTypeIndex].choice.forEach((v, index) => {
+      //   if (v === this.currentSpeed[0]) {
+      //     currentValue = index
+      //     this.speedData[this.specTypeIndex].value = index
+      //   }
+      // })
+      // let data = {}
+      // data.deviceId = this.$route.query.deviceId
+      // data.funcId = this.speedData[this.specTypeIndex].type
+      // data.value = currentValue + 1
+      // // 发送指令
+      // this.$http
+      //   .post(myUrl.sendFunc, data)
+      //   .then(res => {
+      //     if (res.code === 200) {
+      //       Loading.close()
+      //       Toast({
+      //         mes: '发送成功',
+      //         timeout: 1500,
+      //         icon: 'success'
+      //       })
+      //     }
+      //   })
+      //   .catch(error => {
+      //     Loading.close()
+      //   })
+    },
+    changeSpeed(item, index) {
       this.specIndex = index
       this.slots[0].values = item.choice
       this.slots[0].defaultIndex = parseInt(item.value) - 1
     },
-    onValuesChange (picker, values) {
+    onValuesChange(picker, values) {
       if (values[0] > values[1]) {
         picker.setSlotValue(1, values[0])
       }
       this.currentSpeed = values
     },
-    onValuesChange1 (picker, values) {
-      if (values[0] > values[1]) {
-        picker.setSlotValue(1, values[0])
-      }
-      if (values[0] == '内风扇') {
-        this.specTypeIndex = 0
-      } else {
-        this.specTypeIndex = 1
-      }
-      this.slotsDw[0].values = this.speedData[this.specTypeIndex].choice
-      this.slotsDw[0].defaultIndex = parseInt(this.speedData[this.specTypeIndex].value) - 1
+    onValuesChange1(picker, values) {
+      // if (values[0] > values[1]) {
+      //   picker.setSlotValue(1, values[0])
+      // }
+      // if (values[0] == '内风扇') {
+      //   this.specTypeIndex = 0
+      // } else {
+      //   this.specTypeIndex = 1
+      // }
+      // this.slotsDw[0].values = this.speedData[this.specTypeIndex].choice
+      // this.slotsDw[0].defaultIndex =
+      //   parseInt(this.speedData[this.specTypeIndex].value) - 1
     },
-    intiTime () {
+    intiTime() {
       if (!this.isOpen) {
         this.$toast('当前关机状态，不可操作', 'bottom')
         return false
@@ -290,28 +302,55 @@ export default {
         }
       })
     },
-    switchModel () {
+    setModelData(type, id) {
+      const data = this.abilitysList.filter(item => item.abilityId === id)[0]
+      if (!data) {
+        return
+      }
+
+      // 根据isSelect的值，对相应选项执行默认选中行为
+      data.abilityOptionList.forEach((item, iIndex) => {
+        if (item.isSelect === 0) {
+          return
+        }
+
+        // “模式”
+        if (type === 1) {
+          this.modeCurrent = iIndex
+          return
+        }
+        this.speedCurrent = iIndex
+      })
+    },
+    switchModel(id) {
       if (!this.isOpen) {
         this.$toast('当前关机状态，不可操作', 'bottom')
         return false
       }
       this.modeFlag = true
+      this.setModelData(1, id)
     },
-    switchSpeed () {
+    switchSpeed(id) {
       if (!this.isOpen) {
         this.$toast('当前关机状态，不可操作', 'bottom')
         return false
       }
       this.speedFlag = true
+      this.setModelData(2, id)
     },
-    switchFunction () {
+    switchFunction() {
       if (!this.isOpen) {
         this.$toast('当前关机状态，不可操作', 'bottom')
         return false
       }
+      // 做下功能多选项的初始化
+      const data = this.getListData(this.formatItemsList[3].abilityId, 3)
+      data.forEach(item => {
+        item.isSelect == 1 && (item.isChecked = true)
+      })
       this.functionFlag = true
     },
-    intoSet () {
+    intoSet() {
       this.$router.push({
         path: '/set',
         query: {
@@ -319,175 +358,161 @@ export default {
         }
       })
     },
-    childMethod (type) {
+    childMethod(type) {
       if (!this.isOpen && type) {
         this.$toast('当前关机状态，不可操作', 'bottom')
         return false
       }
-      let data = {}
-      data.funcId = 270
-      data.deviceId = this.$route.query.deviceId
-      data.value = this.childItem === '1' ? 0 : 1
-      this.$http.post(myUrl.sendFunc, data).then(res => {
-        if (res.code === 200) {
-          Loading.close()
-          this.childItem = this.childItem === '1' ? '0' : '1'
-          let tit = this.childItem === '1' ? '开启成功' : '关闭成功'
-          Toast({
-            mes: tit,
-            timeout: 1500,
-            icon: 'success'
-          })
-        }
-      })
-      .catch(error => {
-        Loading.close()
-      })
-    },
-    onOffMethod () {
-      let data = {}
-      data.funcId = 210
-      data.deviceId = this.$route.query.deviceId
-      data.value = this.isOpen ? 0 : 1
-      this.$http.post(myUrl.sendFunc, data).then(res => {
-        if (res.code === 200) {
-          Loading.close()
-          this.isOpen = !this.isOpen
-          let tit = this.isOpen ? '开启成功' : '关闭成功'
-          Toast({
-            mes: tit,
-            timeout: 1500,
-            icon: 'success'
-          })
-        }
-      })
-      .catch(error => {
-        Loading.close()
-      })
-    },
-    selectMode (index) {
-      this.modeCurrent = index
-    },
-    selectSpeed (index) {
-      this.speedCurrent = index
-    },
-    selectFunction (index, value) {
-      let data = {}
-      data.deviceId = this.$route.query.deviceId
-      data.funcId = this.functionData[index][0].type
-      data.value = value === '0' ? '1' : '0'
-      let tit = value === '0' ? '开启成功' : '关闭成功'
-      this.$http.post(myUrl.sendFunc, data).then(res => {
-        if (res.code === 200) {
-          Loading.close()
-          this.functionData[index][0].value = value === '0' ? '1' : '0'
-          Toast({
-            mes: tit,
-            timeout: 1500,
-            icon: 'success'
-          })
-        }
-      })
-      .catch(error => {
-        Loading.close()
-      })
-    },
-    getInfoData (type) {
-      if (!type) {
-        Loading.open('很快加载好了')
-      }
-      this.$http.get(myUrl.queryDetailByDeviceId + '?deviceId=' + this.$route.query.deviceId).then(res => {
-        if (res.code === 200) {
-          this.deviceObj = res.data
-          this.weather = res.data.weather
-          this.setWether()
-          if (res.data.modeItem.value == 0) { // 开机
-            this.img = ''
-          } else {
-            this.isOpen = true
-          }
-          if (res.data.location) {
-            this.address = res.data.location.split(',')[1]
-          }
-          sessionStorage.setItem('location', res.data.location)
-          sessionStorage.setItem('ip', res.data.ip)
-          sessionStorage.setItem('deviceInfoItem', JSON.stringify(res.data.deviceInfoItem))
-          sessionStorage.setItem('screens', JSON.stringify(res.data.screens))// 设置滤芯缓存
-          this.childItem = res.data.childItem.value
-          this.modeData = this.toArray(res.data.modeItem.choice)
-          if (res.data.windItems.length === 1) {
-            this.speedData = this.toArray(res.data.windItems[0].choice)
-          } else if (res.data.windItems.length === 2) { // 内外风扇
-            this.speedData = res.data.windItems
-            this.speedData.forEach((v, index) => {
-              v.name = index === 0 ? '内风扇' : '外风扇'
-              v.choice = this.toArray(v.choice)
-            })
-            this.slotsDw[0].defaultIndex = parseInt(this.speedData[this.specTypeIndex].value) - 1
-            this.slotsDw[0].values = this.speedData[0].choice
-          }
-          this.speedCurrent = res.data.windItems[0].value
-          this.modeCurrent = res.data.modeItem.value
-          this.functionData = res.data.funcs
-          Loading.close()
-        }
-      })
-      .catch(error => {
-        Loading.close()
-      })
-    },
-    // 发送指令
-    sendFunc (index, type) {
-      Loading.open('发送中...')
-      let data = {}
-      data.deviceId = this.$route.query.deviceId
-      if (type === 1) { // 模式
-        data.funcId = 210
-        data.value = index
-      } else if (type === 2) { // 风速
-        data.funcId = 280
-        data.value = index + 1
+
+      // 童锁开关
+      const tempArray = this.abilitysList.filter(
+        item => item.abilityId === this.formatItemsList[10].abilityId
+      )[0]
+      const tempList = tempArray.abilityOptionList
+      let index = 0
+      if (this.isLock) {
+        // 找“关”的项
+        index = tempList.findIndex(item => item.dirValue === '0')
+      } else {
+        index = tempList.findIndex(item => item.dirValue === '1')
       }
 
-      this.$http.post(myUrl.sendFunc, data).then(res => {
-        if (type === 1) { // 模式
-          this.modeCurrent = index
-        } else if (type === 2) { // 风速
-          this.speedCurrent = index + 1
-        }
-        if (res.code === 200) {
-          Loading.close()
-          Toast({
-            mes: '发送成功',
-            timeout: 1500,
-            icon: 'success'
-          })
-        }
-      })
-      .catch(error => {
-        Loading.close()
+      sendFunc({
+        deviceId: this.deviceId,
+        funcId: tempArray.dirValue,
+        value: tempList[index].dirValue
+      }).then(res => {
+        this.isLock = !this.isLock
+        Toast({
+          mes: tit,
+          timeout: 1000,
+          icon: 'success'
+        })
+        console.info(
+          '指令发送成功:',
+          tempArray.dirValue,
+          '-',
+          tempList[index].dirValue
+        )
       })
     },
-    setWether () {
+    onOffMethod() {
+      // 开关机
+
+      const tempArray = this.abilitysList.filter(
+        item => item.abilityId === this.formatItemsList[11].abilityId
+      )[0]
+      const tempList = tempArray.abilityOptionList
+      let index = 0
+      if (this.isOpen) {
+        // 找“关”的项
+        index = tempList.findIndex(item => item.dirValue === '0')
+      } else {
+        index = tempList.findIndex(item => item.dirValue === '1')
+      }
+
+      sendFunc({
+        deviceId: this.deviceId,
+        funcId: tempArray.dirValue,
+        value: tempList[index].dirValue
+      }).then(res => {
+        this.isOpen = !this.isOpen
+        console.info(
+          '指令发送成功:',
+          tempArray.dirValue,
+          '-',
+          tempList[index].dirValue
+        )
+      })
+    },
+    selectMode(index) {
+      this.modeCurrent = index
+    },
+    selectSpeed(index) {
+      this.speedCurrent = index
+    },
+    nodeClicked(item, index, type) {
+      // 如果是功能，index表示将要发送的指令value： 0/1 不选中/选中
+      if (type === 3) {
+        index = item.isChecked ? 0 : 1
+      }
+      this.sendFunc(item, index, type)
+    },
+    sendFunc(item, index, type) {
+      // 模式、风速、功能的指令发送函数
+      // Loading.open('发送中...')
+      sendFunc({
+        deviceId: this.deviceId,
+        funcId: item.dirValue,
+        value: type === 3 ? index : item.abilityOptionList[index].dirValue
+      })
+        .then(res => {
+          if (res.code === 200) {
+            // Loading.close()
+            if (type === 1) {
+              this.modeCurrent = index
+            } else if (type === 2) {
+              this.speedCurrent = index
+            } else if (type === 3) {
+              item.isChecked = !item.isChecked
+            }
+            // Toast({
+            //   mes: '发送成功',
+            //   timeout: 1500,
+            //   icon: 'success'
+            // })
+            console.info(
+              '指令发送成功:',
+              item.dirValue,
+              '-',
+              type === 3 ? index : item.abilityOptionList[index].dirValue
+            )
+          }
+        })
+        .catch(error => {
+          Loading.close()
+        })
+    },
+    setWether() {
       var myDate = new Date()
-      let h = myDate.getHours()// 获取当前小时
-      if (!this.weather) { // 未返回值
-        if ((parseInt(h) < 6 && parseInt(h) >= 0) || (parseInt(h) < 24) && parseInt(h) > 18) { // 夜晚
+      let h = myDate.getHours() // 获取当前小时
+      if (!this.weather) {
+        // 未返回值
+        if (
+          (parseInt(h) < 6 && parseInt(h) >= 0) ||
+          (parseInt(h) < 24 && parseInt(h) > 18)
+        ) {
+          // 夜晚
           this.currentBak = img3
-        } else { // 白天
+        } else {
+          // 白天
           this.currentBak = img4
         }
       } else {
-        if (this.weather.indexOf('雨') != -1 || this.weather.indexOf('阴') != -1) { // 阴天
-          if ((parseInt(h) < 6 && parseInt(h) >= 0) || (parseInt(h) < 24) && parseInt(h) > 18) { // 夜晚
+        if (
+          this.weather.indexOf('雨') != -1 ||
+          this.weather.indexOf('阴') != -1
+        ) {
+          // 阴天
+          if (
+            (parseInt(h) < 6 && parseInt(h) >= 0) ||
+            (parseInt(h) < 24 && parseInt(h) > 18)
+          ) {
+            // 夜晚
             this.currentBak = img2
-          } else { // 白天
+          } else {
+            // 白天
             this.currentBak = img1
           }
         } else {
-          if ((parseInt(h) < 6 && parseInt(h) >= 0) || (parseInt(h) < 24) && parseInt(h) > 18) { // 夜晚
+          if (
+            (parseInt(h) < 6 && parseInt(h) >= 0) ||
+            (parseInt(h) < 24 && parseInt(h) > 18)
+          ) {
+            // 夜晚
             this.currentBak = img3
-          } else { // 白天
+          } else {
+            // 白天
             this.currentBak = img4
           }
         }
@@ -495,293 +520,422 @@ export default {
       this.img = this.currentBak
     },
     // 字符串转数组
-    toArray (str) {
+    toArray(str) {
       let arr = []
       let newstr = str.split(',')
       for (let i = 0; i < newstr.length; i++) {
         arr.push(newstr[i].slice(2))
       }
       return arr
+    },
+    getIndexAbilityData() {
+      // 获取H5控制页面功能项数据，带isSelect参数
+      getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
+        if (res.code === 200 && res.data) {
+          const data = res.data
+          this.pageName = data.pageName
+          this.formatItemsList = data.formatItemsList
+
+          data.abilitysList.forEach(item => {
+            item['currValue'] = ''
+            item.abilityOptionList &&
+              item.abilityOptionList.forEach(iItem => {
+                iItem.isChecked = false
+              })
+          })
+          this.abilitysList = data.abilitysList
+          // 定时请求接口数据，更新页面数据
+          this.setInter = setInterval(() => {
+            this.getIndexFormatData(res.data)
+          }, 2000)
+        }
+      })
+    },
+    getIndexFormatData(list) {
+      // 获取H5控制页面功能项数据，带isSelect参数
+
+      // 根据功能项id筛选功能项
+      const findTheAbility = (data, id) => {
+        return data.filter(item => item.id === id)[0]
+      }
+
+      newQueryDetailByDeviceId({
+        deviceId: this.deviceId,
+        abilityIds: list.formatItemsList
+          .filter(item => item.abilityId)
+          .map(item => item.abilityId)
+      }).then(res => {
+        const data = res.data
+        // 将res.data中的isSelect和dirValue赋值过去
+        this.abilitysList.forEach((item, index) => {
+          // 如果有值，说明是温度功能项，讲数值拿过来
+          if (data[index].currValue) {
+            // 找到对应的温度功能项对象
+            const temp = this.abilitysList.filter(
+              itemA => itemA.abilityId === data[index].id
+            )[0]
+            temp['currValue'] = data[index].currValue
+          }
+          if (!item.abilityOptionList || item.abilityOptionList.length === 0) {
+            return
+          }
+          item.abilityType !== 1 &&
+            item.abilityOptionList.forEach((option, oIndex) => {
+              const result = findTheAbility(data, item.abilityId)
+              if (result) {
+                const temp = Object.assign(
+                  option,
+                  result.abilityOptionList[oIndex]
+                )
+              }
+            })
+        })
+
+        this.switchHandler()
+      })
+    },
+    getLocation() {
+      getLocation(this.deviceId).then(res => {
+        this.location = res.data.location
+      })
+    },
+    getWeather() {
+      getWeather(this.deviceId).then(res => {
+        const data = res.data
+
+        this.weather = data.weather
+        this.outerTem = data.outerTem
+        this.outerPm = data.outerPm
+        this.outerHum = data.outerHum
+      })
+    },
+    switchHandler() {
+      // 开关机初始化
+      const tempArray = this.abilitysList.filter(
+        item => item.abilityId === this.formatItemsList[11].abilityId
+      )[0].abilityOptionList
+
+      // 找到关机的对象
+      const tempObj = tempArray[0].dirValue == 0 ? tempArray[0] : tempArray[1]
+      if (tempObj.isSelect === 1) {
+        // 说明是关机
+        this.isOpen = false
+      } else {
+        this.isOpen = true
+      }
+
+      // 童锁初始化
+      const tempArray2 = this.abilitysList.filter(
+        item => item.abilityId === this.formatItemsList[10].abilityId
+      )[0].abilityOptionList
+
+      const tempObj2 =
+        tempArray2[0].dirValue == 0 ? tempArray2[0] : tempArray2[1]
+      if (tempObj2.isSelect === 1) {
+        this.isLock = false
+      } else {
+        this.isLock = true
+      }
     }
-
   },
-  destroyed () {
-    clearInterval(this.timeSet)
-  }
+  created() {
+    // Store.save('Ticket', 'oJlAuv3vgnY6fRxH_UyDKZ3Kg7K4')
+    this.cHeight = window.innerWidth * 0.45
+    if (window.innerWidth <= 340) {
+      this.cHeight = window.innerWidth * 0.45
+    }
+    this.deviceName = Store.fetch('name')
+    setWechatTitle(this.deviceName, '')
 
+    this.getIndexAbilityData()
+    this.getLocation()
+    this.getWeather()
+  },
+  watch: {
+    isOpen: function(val) {
+      if (val) {
+        this.img = img4
+      } else {
+        this.img = ''
+      }
+    }
+  },
+  components: {
+    'yd-popup': Popup,
+    'mt-picker': Picker
+  },
+  destroyed() {
+    clearInterval(this.setInter)
+  }
 }
 </script>
+
 <style rel="stylesheet/scss" lang="scss" scoped>
-  @import "src/common/scss/variable.scss";
-  @import "src/common/scss/mixins.scss";
-  .main-wrapper{
+@import 'src/common/scss/variable.scss';
+@import 'src/common/scss/mixins.scss';
+.main-wrapper {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  overflow: auto;
+  top: 0;
+  bottom: 0;
+  background-color: #999999;
+  color: #ffffff;
+  transition-property: background-color;
+  transition-duration: 0.3s;
+  transition-timing-function: linear;
+  .child-suo {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    position: fixed;
-    overflow: auto;
-    top:0;
-    bottom:0;
-    background-color: #999999;
-    color: #ffffff;
-    transition-property: background-color;
-    transition-duration: 0.3s;
-    transition-timing-function: linear;
-    .child-suo{
+    background: rgba(0, 0, 0, 0.6);
+    text-align: center;
+    & img {
+      width: 20%;
+      margin-top: 40%;
+    }
+    & span {
       position: absolute;
-      top:0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0,0.6);
-      text-align: center;
-      & img{
-        width: 20%;
-        margin-top: 40%;
-      }
-      & span{
-        position: absolute;
-        bottom: 100px;
-        left: 50%;
-        margin-left: -42px;
-        font-size: 14px;
-        border: 1px solid #fff;
-        border-radius:20px ;
-        line-height: 32px;
-        width: 110px;
-      }
+      bottom: 100px;
+      left: 50%;
+      margin-left: -42px;
+      font-size: 14px;
+      border: 1px solid #fff;
+      border-radius: 20px;
+      line-height: 32px;
+      width: 110px;
     }
-    &.active{
-      //background-color:-webkit-gradient(linear, 0 0, 0 top, from(#2689ed), to(rgba(30, 79, 251, 0.8)));
-      //background-color: #21a6f7;
+  }
+  &.active {
+    //background-color:-webkit-gradient(linear, 0 0, 0 top, from(#2689ed), to(rgba(30, 79, 251, 0.8)));
+    //background-color: #21a6f7;
+  }
+  .info {
+    margin: 0 auto tvw(34) auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    span {
+      color: #fff;
+      font-size: tvw(83);
     }
-    .info{
-      padding-left: 15px;
-      padding-right: 15px;
-      /*overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;*/
-      & img{
-        vertical-align: middle;
-        margin-right: 5px;
-      }
+  }
+  .header {
+    height: 40px;
+    font-size: 16px;
+    line-height: 40px;
+    text-align: center;
+    position: relative;
+    .time {
+      position: absolute;
+      left: 15px;
+      top: 3px;
+      color: #ffffff;
     }
-    .header{
-      height: 40px;
+    .edit {
+      position: absolute;
+      z-index: 999;
+      right: 15px;
+      width: 20px;
+      height: 20px;
+      top: 10px;
+      background: url('../../assets/set.png') no-repeat center center;
+      background-size: 20px 20px;
+    }
+  }
+  .content {
+    padding: 20px 15px 20px 15px;
+    color: #4d4d4d;
+    .title {
       font-size: 16px;
-      line-height: 40px;
-      text-align: center;
-      position: relative;
-      .time{
-        position: absolute;
-        left:15px;
-        top:3px;
-        color: #ffffff;
-      }
-      .edit{
-        position: absolute;
-        z-index: 999;
-        right:15px;
-        width: 20px;
-        height: 20px;
-        top:10px;
-        background: url('../../assets/set.png') no-repeat center center;
-        background-size:20px 20px;
-      }
+      padding-bottom: 10px;
+      border-bottom: 1px solid #dfdfdf;
     }
-    .content{
-      padding: 20px 15px 20px 15px;
-      color: #4d4d4d;
-      .title{
-        font-size: 16px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #dfdfdf;
-      }
-      .list{
-        & ul li{
-          font-size: 14px;
-          margin-top: 20px;
-          .icon{
-            float: right;
-            margin-right: 5px;
-            width: 20px;
-            height: 20px;
-            border:1px solid #a3a3a3;
-            border-radius: 100%;
-          }
-          &.active{
-            .icon{
-              background:url('../../assets/select.png') no-repeat center center;
-              background-size:20px 20px;
-              border:none;
-            }
-          }
-        }
-      }
-      .spec{
-        padding-left:10px;
-        padding-right:10px;
-        & ul li{
-          &.active{
-            color:#000;
-            background: url('../../assets/left.png') no-repeat center right 60%;
-            background-size: 20px 15px;
-          }
-        }
-      }
-    }
-    .center{
-      margin-top: 10px;
-      .tip{
-        text-align: center;
-        margin-top: 10px;
-        font-size: 12px;
-        line-height: 20px;
-      }
-      .b-data{
-        margin-top: 10px;
-        font-size: 12px;
-        text-align: center;
-        & span{
-          margin-right: 10px;
-          & em{
-            font-size: 18px;
-          }
-          &:last-child{
-            margin-right: 0px;
-          }
-        }
-      }
-      .temper{
-        width: 55%;
-        margin: 0 auto;
-        margin-top:10px;
-        position: relative;
-        overflow: hidden;
-        &::before{
-          content: '';
-          position: absolute;
-          width: 1px;
-          height: 30px;
-          background: #ffffff;
-          left:50%;
-          top:10px;
-        }
-        & div{
-          width: 60px;
-          text-align: center;
-          font-size:14px;
-          line-height: 24px;
-          & span{
-            font-size: 16px;
-          }
-        }
-        .t1{
-          float: left;
-        }
-        .t2{
+    .list {
+      & ul li {
+        font-size: 14px;
+        margin-top: 20px;
+        .icon {
           float: right;
-        }
-      }
-      .circle-data{
-        width: 45%;
-        border:1px solid #ffffff;
-        border-radius: 100%;
-        @media only screen and (min-device-width : 320px)  and (max-device-width : 340px) {
-          width: 45%;
-        }
-
-        margin: 0 auto;
-        .circle-inner{
-          width: 95%;
-          height: 100%;
-          border: 1px solid #ffffff;
+          margin-right: 5px;
+          width: 20px;
+          height: 20px;
+          border: 1px solid #a3a3a3;
           border-radius: 100%;
-          margin: 0 auto;
-          text-align:  center;
-          & p:nth-child(1){
-            margin-top: 30px;
-            font-size: 24px;
-          }
-          & p:nth-child(2){
-            font-size: 450%;
-            font-weight: 600;
-            color: #d86e5d;
-            letter-spacing:5px;
-            transition-property: color;
-            transition-duration: 0.3s;
-            transition-timing-function: linear;
-            @media only screen and (min-device-width : 320px)  and (max-device-width : 340px) {
-              font-size: 300%;
-            }
-            &.active{
-              color: #5ddb5d;
-            }
+        }
+        &.active {
+          .icon {
+            background: url('../../assets/select.png') no-repeat center center;
+            background-size: 20px 20px;
+            border: none;
           }
         }
       }
     }
-    .but-list{
-      margin-top: 10px;
-      display: flex;
+    .spec {
+      padding-left: 10px;
+      padding-right: 10px;
+      & ul li {
+        &.active {
+          color: #000;
+          background: url('../../assets/left.png') no-repeat center right 60%;
+          background-size: 20px 15px;
+        }
+      }
+    }
+  }
+  .center {
+    margin-top: 10px;
+    .tip {
       text-align: center;
-      font-size:14px;
-      @media only screen and (min-device-width : 320px)  and (max-device-width : 340px) {
-        margin-top: 10px;
+      margin-top: 10px;
+      font-size: 12px;
+      line-height: 20px;
+    }
+    .b-data {
+      margin-top: 10px;
+      font-size: 12px;
+      text-align: center;
+      & span {
+        margin-right: 10px;
+        & em {
+          font-size: 18px;
+        }
+        &:last-child {
+          margin-right: 0px;
+        }
       }
-      &.fixed{
-        position: fixed;
-        bottom: 10px;
-        width: 100%;
+    }
+    .temper {
+      width: 55%;
+      margin: 0 auto;
+      margin-top: 10px;
+      position: relative;
+      overflow: hidden;
+      &::before {
+        content: '';
+        position: absolute;
+        width: 1px;
+        height: 30px;
+        background: #ffffff;
+        left: 50%;
+        top: 10px;
       }
-      .but-group{
-        flex: 1;
-        & .icon{
-          width: 35px;
-          height: 35px;
-          border:1px solid #ffffff;
-          border-radius: 100%;
-          margin: 0 auto;
-          margin-bottom: 5px;
-          &.suo{
-            background: url('../../assets/suo.png') no-repeat center center;
-            background-size: 15px 20px;
+      & div {
+        width: 60px;
+        text-align: center;
+        font-size: 14px;
+        line-height: 24px;
+        & span {
+          font-size: 16px;
+        }
+      }
+      .t1 {
+        float: left;
+      }
+      .t2 {
+        float: right;
+      }
+    }
+    .circle-data {
+      width: 45%;
+      border: 1px solid #ffffff;
+      border-radius: 100%;
+      @media only screen and (min-device-width: 320px) and (max-device-width: 340px) {
+        width: 45%;
+      }
+
+      margin: 0 auto;
+      .circle-inner {
+        width: 95%;
+        height: 100%;
+        border: 1px solid #ffffff;
+        border-radius: 100%;
+        margin: 0 auto;
+        text-align: center;
+        & p:nth-child(1) {
+          margin-top: 30px;
+          font-size: 24px;
+        }
+        & p:nth-child(2) {
+          font-size: 450%;
+          font-weight: 600;
+          color: #d86e5d;
+          letter-spacing: 5px;
+          transition-property: color;
+          transition-duration: 0.3s;
+          transition-timing-function: linear;
+          @media only screen and (min-device-width: 320px) and (max-device-width: 340px) {
+            font-size: 300%;
           }
-          &.shop{
-            background: url('../../assets/cart.png') no-repeat center left 7px;
-            background-size: 23px 18px;
-          }
-          &.close{
-            background: url('../../assets/close.png') no-repeat center center;
-            background-size: 18px 21px;
-            //background-color:#20a8f8;
-            border:1px solid #ffffff;
-            &.active{
-              border:1px solid #ffffff;
-            }
-          }
-          &.time{
-            background: url('../../assets/zhong.png') no-repeat center center;
-            background-size: 21px 20px;
-          }
-          &.model{
-            background: url('../../assets/modle.png') no-repeat center center;
-            background-size: 17px 15px;
-          }
-          &.shan{
-            background: url('../../assets/shan.png') no-repeat center top 6px;
-            background-size: 22px 20px;
-          }
-          &.menu{
-            background: url('../../assets/menu.png') no-repeat center center;
-            background-size: 18px 16px;
+          &.active {
+            color: #5ddb5d;
           }
         }
       }
     }
   }
-
-
-
-
+  .but-list {
+    margin-top: 10px;
+    display: flex;
+    text-align: center;
+    font-size: 14px;
+    @media only screen and (min-device-width: 320px) and (max-device-width: 340px) {
+      margin-top: 10px;
+    }
+    &.fixed {
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+    }
+    .but-group {
+      flex: 1;
+      & .icon {
+        width: 35px;
+        height: 35px;
+        border: 1px solid #ffffff;
+        border-radius: 100%;
+        margin: 0 auto;
+        margin-bottom: 5px;
+        &.suo {
+          background: url('../../assets/suo.png') no-repeat center center;
+          background-size: 15px 20px;
+        }
+        &.shop {
+          background: url('../../assets/cart.png') no-repeat center left 7px;
+          background-size: 23px 18px;
+        }
+        &.close {
+          background: url('../../assets/close.png') no-repeat center center;
+          background-size: 18px 21px;
+          //background-color:#20a8f8;
+          border: 1px solid #ffffff;
+          &.active {
+            border: 1px solid #ffffff;
+          }
+        }
+        &.time {
+          background: url('../../assets/zhong.png') no-repeat center center;
+          background-size: 21px 20px;
+        }
+        &.model {
+          background: url('../../assets/modle.png') no-repeat center center;
+          background-size: 17px 15px;
+        }
+        &.shan {
+          background: url('../../assets/shan.png') no-repeat center top 6px;
+          background-size: 22px 20px;
+        }
+        &.menu {
+          background: url('../../assets/menu.png') no-repeat center center;
+          background-size: 18px 16px;
+        }
+      }
+    }
+  }
+}
 </style>
 
