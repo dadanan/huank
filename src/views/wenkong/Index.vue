@@ -144,11 +144,6 @@ import {
 import Store from './store'
 let hasSetTemperature = false // 初始化时根据当前温度设置下「预设温度」的值
 
-// let json = require('./test')
-// json = json.data
-// const formatItemsList = json.formatItemsList
-// const abilitysList = json.abilitysList
-
 export default {
   data() {
     return {

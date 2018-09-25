@@ -144,7 +144,6 @@
 <script type="text/ecmascript-6">
 import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
 import { Popup } from 'vue-ydui/dist/lib.rem/popup'
-import myUrl from 'common/js/api'
 import { setWechatTitle } from 'utils'
 import img1 from '../../assets/bak3.jpg' // 白天阴
 import img2 from '../../assets/bak2.jpg' // 夜晚阴
@@ -235,36 +234,6 @@ export default {
       )[0]
       return result
     },
-    saveSpeeed() {
-      return
-      // let currentValue = null
-      // this.speedData[this.specTypeIndex].choice.forEach((v, index) => {
-      //   if (v === this.currentSpeed[0]) {
-      //     currentValue = index
-      //     this.speedData[this.specTypeIndex].value = index
-      //   }
-      // })
-      // let data = {}
-      // data.deviceId = this.$route.query.deviceId
-      // data.funcId = this.speedData[this.specTypeIndex].type
-      // data.value = currentValue + 1
-      // // 发送指令
-      // this.$http
-      //   .post(myUrl.sendFunc, data)
-      //   .then(res => {
-      //     if (res.code === 200) {
-      //       Loading.close()
-      //       Toast({
-      //         mes: '发送成功',
-      //         timeout: 1500,
-      //         icon: 'success'
-      //       })
-      //     }
-      //   })
-      //   .catch(error => {
-      //     Loading.close()
-      //   })
-    },
     changeSpeed(item, index) {
       this.specIndex = index
       this.slots[0].values = item.choice
@@ -275,19 +244,6 @@ export default {
         picker.setSlotValue(1, values[0])
       }
       this.currentSpeed = values
-    },
-    onValuesChange1(picker, values) {
-      // if (values[0] > values[1]) {
-      //   picker.setSlotValue(1, values[0])
-      // }
-      // if (values[0] == '内风扇') {
-      //   this.specTypeIndex = 0
-      // } else {
-      //   this.specTypeIndex = 1
-      // }
-      // this.slotsDw[0].values = this.speedData[this.specTypeIndex].choice
-      // this.slotsDw[0].defaultIndex =
-      //   parseInt(this.speedData[this.specTypeIndex].value) - 1
     },
     intiTime() {
       if (!this.isOpen) {
@@ -472,61 +428,6 @@ export default {
         .catch(error => {
           Loading.close()
         })
-    },
-    setWether() {
-      var myDate = new Date()
-      let h = myDate.getHours() // 获取当前小时
-      if (!this.weather) {
-        // 未返回值
-        if (
-          (parseInt(h) < 6 && parseInt(h) >= 0) ||
-          (parseInt(h) < 24 && parseInt(h) > 18)
-        ) {
-          // 夜晚
-          this.currentBak = img3
-        } else {
-          // 白天
-          this.currentBak = img4
-        }
-      } else {
-        if (
-          this.weather.indexOf('雨') != -1 ||
-          this.weather.indexOf('阴') != -1
-        ) {
-          // 阴天
-          if (
-            (parseInt(h) < 6 && parseInt(h) >= 0) ||
-            (parseInt(h) < 24 && parseInt(h) > 18)
-          ) {
-            // 夜晚
-            this.currentBak = img2
-          } else {
-            // 白天
-            this.currentBak = img1
-          }
-        } else {
-          if (
-            (parseInt(h) < 6 && parseInt(h) >= 0) ||
-            (parseInt(h) < 24 && parseInt(h) > 18)
-          ) {
-            // 夜晚
-            this.currentBak = img3
-          } else {
-            // 白天
-            this.currentBak = img4
-          }
-        }
-      }
-      this.img = this.currentBak
-    },
-    // 字符串转数组
-    toArray(str) {
-      let arr = []
-      let newstr = str.split(',')
-      for (let i = 0; i < newstr.length; i++) {
-        arr.push(newstr[i].slice(2))
-      }
-      return arr
     },
     getIndexAbilityData() {
       // 获取H5控制页面功能项数据，带isSelect参数
