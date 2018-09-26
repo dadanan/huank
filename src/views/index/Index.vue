@@ -470,7 +470,7 @@ export default {
         // 将res.data中的isSelect和dirValue赋值过去
         this.abilitysList.forEach((item, index) => {
           // 如果有值，说明是温度功能项，讲数值拿过来
-          if (data[index].currValue) {
+          if (data[index] && data[index].currValue) {
             // 找到对应的温度功能项对象
             const temp = this.abilitysList.filter(
               itemA => itemA.abilityId === data[index].id
@@ -541,6 +541,7 @@ export default {
   },
   created() {
     // Store.save('Ticket', 'oJlAuv3vgnY6fRxH_UyDKZ3Kg7K4')
+    Store.save('Ticket', 'oJlAuv3VTrGAo0P3N3jY41mVvkuI')
     this.cHeight = window.innerWidth * 0.45
     if (window.innerWidth <= 340) {
       this.cHeight = window.innerWidth * 0.45

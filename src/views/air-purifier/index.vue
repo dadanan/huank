@@ -465,7 +465,6 @@ export default {
     this.pageName = Store.fetch('name')
     setWechatTitle(this.pageName)
 
-    // Store.save('oJlAuv3vgnY6fRxH_UyDKZ3Kg7K4')
     this.getIndexAbilityData()
     this.getLocation()
     this.getWeather()

@@ -1,133 +1,133 @@
 <template>
-  <div class='index-container' :class="{ cold: currentOption == 0,hot: currentOption == 1,wind: currentOption == 2 }">
+  <div class='index-container' :class="{ cold: currentOption == 0,hot: currentOption == 1,wind: currentOption == 2,off: currentOption == 3 }">
     <div class='header'>
       <img src='@/assets/arrow_left.png' @click='goBack()'>
       <span>{{pageName}}</span>
       <img class='setting' @click='intoSet' src='@/assets/set.png'>
     </div>
-    <div class='info'>
-      <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;&nbsp;
-      <span v-show='formatItemsList[9] && formatItemsList[9].showStatus'>{{location}}&nbsp;&nbsp;</span>
-      <span v-show='formatItemsList[10] && formatItemsList[10].showStatus'>{{weather}} {{outerTem}}&nbsp;&nbsp;</span>
-      <span v-if='formatItemsList[11] && formatItemsList[11].showStatus'>湿度: {{outerHum}}%&nbsp;&nbsp;</span>
-      <span v-show='formatItemsList[12] && formatItemsList[12].showStatus'>PM2.5: {{outerPm}}ug/m3</span>
-    </div>
-    <div class='switch'>
-      <div v-show='formatItemsList[7] && formatItemsList[7].showStatus'>
-        <div class='left'>
-          <img src='@/assets/status-open.png' v-if='status'>
-          <img src='@/assets/status-close.png' v-else>
+      <div class='info'>
+        <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;&nbsp;
+        <span v-show='formatItemsList[9] && formatItemsList[9].showStatus'>{{location}}&nbsp;&nbsp;</span>
+        <span v-show='formatItemsList[10] && formatItemsList[10].showStatus'>{{weather}} {{outerTem}}&nbsp;&nbsp;</span>
+        <span v-if='formatItemsList[11] && formatItemsList[11].showStatus'>湿度: {{outerHum}}%&nbsp;&nbsp;</span>
+        <span v-show='formatItemsList[12] && formatItemsList[12].showStatus'>PM2.5: {{outerPm}}ug/m3</span>
+      </div>
+      <div class='switch'>
+        <div v-show='formatItemsList[7] && formatItemsList[7].showStatus'>
+          <div class='left'>
+            <img src='@/assets/status-open.png' v-if='status'>
+            <img src='@/assets/status-close.png' v-else>
         </div>
-        <p>{{formatItemsList[7] && formatItemsList[7].showName}}</p>
-      </div>
-      <div v-show='formatItemsList[8] && formatItemsList[8].showStatus' @click='onOffMethod'>
-        <div>
-          <img src='@/assets/wenkong_close.png' v-if='isOpen'>
-          <img src='@/assets/wenkong_close.png' v-else>
-        </div>
-        <p>{{formatItemsList[8] && formatItemsList[8].showName}}</p>
-      </div>
-    </div>
-    <div class='main'>
-      <div>
-        <h3>设定值</h3>
-        <h1 v-if='formatItemsList[4]'>{{getAbilityData(formatItemsList[4].abilityId).currValue}}</h1>
-        <h3 class='last'>℃</h3>
-      </div>
-    </div>
-    <div class='current-info'>
-      <p v-if='formatItemsList[4] && formatItemsList[4].showStatus'>
-        {{formatItemsList[4] && formatItemsList[4].showName}}
-        <span class='strong'>{{getAbilityData(formatItemsList[4].abilityId).currValue}}</span>
-        ℃
-      </p>
-      <p v-if='formatItemsList[5] && formatItemsList[5].showStatus'>
-        {{formatItemsList[5] && formatItemsList[5].showName}}
-        <span class='strong'>{{getAbilityData(formatItemsList[5].abilityId).currValue}}</span>
-        %
-      </p>
-    </div>
-    <div class='function' v-show='formatItemsList[3] && formatItemsList[3].showStatus'>
-      <div v-for='item in functionList' @click='functionClicked(item)' :class="{able: item.able}" :key='item.id'>
-        <span>{{item.definedName}}</span>
-      </div>
-    </div>
-    <div class='menu'>
-      <div @click='modelClickedHandler(formatItemsList[0] && formatItemsList[0].abilityId,0)' v-show='formatItemsList[0] && formatItemsList[0].showStatus'>
-        <div>
-          <img class='first' src='@/assets/temperature.png'>
-        </div>
-        <span>{{formatItemsList[0] && formatItemsList[0].showName}}</span>
-      </div>
-      <div @click='modelClickedHandler(formatItemsList[1].abilityId,1)' v-show='formatItemsList[1] && formatItemsList[1].showStatus'>
-        <div>
-          <img src='@/assets/model.png'>
-        </div>
-        <span>{{formatItemsList[1] && formatItemsList[1].showName}}</span>
-      </div>
-      <div @click='modelClickedHandler(formatItemsList[2] && formatItemsList[2].abilityId,2)' v-show='formatItemsList[2] && formatItemsList[2].showStatus'>
-        <div>
-          <img class='third' src='@/assets/wind.png'>
-        </div>
-        <span>{{formatItemsList[2] && formatItemsList[2].showName}}</span>
-      </div>
-    </div>
-    <div class='left-side' v-show='formatItemsList[6] && formatItemsList[6].showStatus'>
-      <div>
-        <img class='first' src='@/assets/wind.png'>
-        <span>{{windData.abilityOptionList && windData.abilityOptionList[currentOptionForWind].optionDefinedName}}</span>
-      </div>
-      <div>
-        <img class='second' src='@/assets/model.png'>
-        <span>{{modelData.abilityOptionList && modelData.abilityOptionList[currentOption].optionDefinedName}}</span>
-      </div>
-    </div>
-    <!-- 模式 -->
-    <yd-popup v-model="modelVisible" position="bottom" width="90%">
-      <div class="content">
-        <div class="title">{{modelData.definedName}}</div>
-        <div class="list">
-          <ul>
-            <li v-for="(item,index) in modelData.abilityOptionList" :key="index" :class="{ active: currentOption == index }" @click='modelClicked(index,modelData)'>
-              <span>{{ item.optionDefinedName }}</span>
-              <div class="icon"></div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </yd-popup>
-    <!-- 风速 -->
-    <yd-popup v-model="windVisible" position="bottom" width="90%">
-      <div class="content">
-        <div class="title">{{windData.definedName}}</div>
-        <div class="list">
-          <ul>
-            <li v-for="(item,index) in windData.abilityOptionList" :key="index" :class="{ active: currentOptionForWind == index }" @click='modelClicked(index,windData,3)'>
-              <span>{{ item.optionDefinedName }}</span>
-              <div class="icon"></div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </yd-popup>
-    <yd-popup v-model="temperatureVisible" position="bottom" width="90%">
-      <div class="content">
-        <div class="title">温度设定</div>
-        <div class="list">
-          <div class='inside'>
-            <img @click='increase' src='@/assets/add.png'>
-            <div>
-              <span class='number'>{{temperature}}</span>
-              <span class='icon'>℃</span>
-            </div>
-            <img @click='reduce' src='@/assets/reduce.png'>
+            <p>{{formatItemsList[7] && formatItemsList[7].showName}}</p>
           </div>
+          <div v-show='formatItemsList[8] && formatItemsList[8].showStatus' @click='onOffMethod'>
+            <div>
+              <img src='@/assets/wenkong_close.png' v-if='isOpen'>
+              <img src='@/assets/wenkong_close.png' v-else>
         </div>
-      </div>
-    </yd-popup>
-    <div class='gif'>
-    </div>
-  </div>
+              <p>{{formatItemsList[8] && formatItemsList[8].showName}}</p>
+            </div>
+          </div>
+          <div class='main'>
+            <div>
+              <h3>设定值</h3>
+              <h1 v-if='formatItemsList[4]'>{{getAbilityData(formatItemsList[4].abilityId).currValue}}</h1>
+              <h3 class='last'>℃</h3>
+            </div>
+          </div>
+          <div class='current-info'>
+            <p v-if='formatItemsList[4] && formatItemsList[4].showStatus'>
+              {{formatItemsList[4] && formatItemsList[4].showName}}
+              <span class='strong'>{{getAbilityData(formatItemsList[4].abilityId).currValue}}</span>
+              ℃
+            </p>
+            <p v-if='formatItemsList[5] && formatItemsList[5].showStatus'>
+              {{formatItemsList[5] && formatItemsList[5].showName}}
+              <span class='strong'>{{getAbilityData(formatItemsList[5].abilityId).currValue}}</span>
+              %
+            </p>
+          </div>
+          <div class='function' v-show='formatItemsList[3] && formatItemsList[3].showStatus'>
+            <div v-for='item in functionList' @click='functionClicked(item)' :class="{able: item.able}" :key='item.id'>
+              <span>{{item.definedName}}</span>
+            </div>
+          </div>
+          <div class='menu'>
+            <div @click='modelClickedHandler(formatItemsList[0] && formatItemsList[0].abilityId,0)' v-show='formatItemsList[0] && formatItemsList[0].showStatus'>
+              <div>
+                <img class='first' src='@/assets/temperature.png'>
+        </div>
+                <span>{{formatItemsList[0] && formatItemsList[0].showName}}</span>
+              </div>
+              <div @click='modelClickedHandler(formatItemsList[1].abilityId,1)' v-show='formatItemsList[1] && formatItemsList[1].showStatus'>
+                <div>
+                  <img src='@/assets/model.png'>
+        </div>
+                  <span>{{formatItemsList[1] && formatItemsList[1].showName}}</span>
+                </div>
+                <div @click='modelClickedHandler(formatItemsList[2] && formatItemsList[2].abilityId,2)' v-show='formatItemsList[2] && formatItemsList[2].showStatus'>
+                  <div>
+                    <img class='third' src='@/assets/wind.png'>
+        </div>
+                    <span>{{formatItemsList[2] && formatItemsList[2].showName}}</span>
+                  </div>
+                </div>
+                <div class='left-side' v-show='formatItemsList[6] && formatItemsList[6].showStatus'>
+                  <div>
+                    <img class='first' src='@/assets/wind.png'>
+                    <span>{{windData.abilityOptionList && windData.abilityOptionList[currentOptionForWind].optionDefinedName}}</span>
+                  </div>
+                  <div>
+                    <img class='second' src='@/assets/model.png'>
+                    <span>{{modelData.abilityOptionList && modelData.abilityOptionList[currentOption].optionDefinedName}}</span>
+                  </div>
+                </div>
+                <!-- 模式 -->
+                <yd-popup v-model="modelVisible" position="bottom" width="90%">
+                  <div class="content">
+                    <div class="title">{{modelData.definedName}}</div>
+                    <div class="list">
+                      <ul>
+                        <li v-for="(item,index) in modelData.abilityOptionList" :key="index" :class="{ active: currentOption == index }" @click='modelClicked(index,modelData)'>
+                          <span>{{ item.optionDefinedName }}</span>
+                          <div class="icon"></div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </yd-popup>
+                <!-- 风速 -->
+                <yd-popup v-model="windVisible" position="bottom" width="90%">
+                  <div class="content">
+                    <div class="title">{{windData.definedName}}</div>
+                    <div class="list">
+                      <ul>
+                        <li v-for="(item,index) in windData.abilityOptionList" :key="index" :class="{ active: currentOptionForWind == index }" @click='modelClicked(index,windData,3)'>
+                          <span>{{ item.optionDefinedName }}</span>
+                          <div class="icon"></div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </yd-popup>
+                <yd-popup v-model="temperatureVisible" position="bottom" width="90%">
+                  <div class="content">
+                    <div class="title">温度设定</div>
+                    <div class="list">
+                      <div class='inside'>
+                        <img @click='increase' src='@/assets/add.png'>
+                        <div>
+                          <span class='number'>{{temperature}}</span>
+                          <span class='icon'>℃</span>
+                        </div>
+                        <img @click='reduce' src='@/assets/reduce.png'>
+          </div>
+                      </div>
+                    </div>
+                </yd-popup>
+                <div class='gif'>
+                </div>
+              </div>
 </template>
 
 <script type="text/ecmascript-6">
@@ -143,6 +143,7 @@ import {
 } from './api'
 import Store from './store'
 let hasSetTemperature = false // 初始化时根据当前温度设置下「预设温度」的值
+let isInited = false // 是否已经被初始化了
 
 export default {
   data() {
@@ -168,7 +169,7 @@ export default {
       deviceId: this.$route.query.deviceId,
       wxDeviceId: this.$route.query.wxDeviceId,
       setInter: undefined, // 定时器的id
-      isOpen: false, // 开机状态？
+      isOpen: null, // 开机状态？
       status: false // 主机状态
     }
   },
@@ -187,6 +188,10 @@ export default {
       this.hasSetTemperature = true
     },
     switchHandler() {
+      // 保证只初始化一次
+      if (isInited) {
+        return
+      }
       // 开关机初始化
       const tempArray = this.abilitysList.filter(
         item => item.abilityId === this.formatItemsList[8].abilityId
@@ -194,6 +199,7 @@ export default {
 
       // 找到关机的对象
       const tempObj = tempArray[0].dirValue == 0 ? tempArray[0] : tempArray[1]
+
       if (tempObj.isSelect === 1) {
         // 说明是关机
         this.isOpen = false
@@ -206,7 +212,6 @@ export default {
         item => item.abilityId === this.formatItemsList[7].abilityId
       )[0].abilityOptionList
 
-      // 找到关机的对象
       const tempObj2 =
         tempArray2[0].dirValue == 0 ? tempArray2[0] : tempArray2[1]
       if (tempObj2.isSelect === 1) {
@@ -215,6 +220,8 @@ export default {
       } else {
         this.status = true
       }
+
+      isInited = true
     },
     onOffMethod() {
       // 开关机
@@ -415,8 +422,13 @@ export default {
       })
     }
   },
+  watch: {
+    isOpen(val) {
+      this.currentOption = val ? 2 : 3
+    }
+  },
   created() {
-    // Store.save('oJlAuv3vgnY6fRxH_UyDKZ3Kg7K4')
+    // Store.save('Ticket', 'oJlAuv3VTrGAo0P3N3jY41mVvkuI')
     this.getIndexAbilityData()
     this.getLocation()
     this.getWeather()
@@ -805,6 +817,10 @@ export default {
     background-image: url('~@/assets/flow-snow.png');
     -webkit-animation: flow 8s infinite linear;
   }
+}
+
+.index-container.off {
+  background: grey;
 }
 </style>
 
