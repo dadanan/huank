@@ -154,7 +154,6 @@
 <script type="text/ecmascript-6">
 import { Loading, Toast, Confirm } from 'vue-ydui/dist/lib.rem/dialog'
 import { Accordion, AccordionItem } from 'vue-ydui/dist/lib.rem/accordion'
-import myUrl from 'common/js/api'
 import { getQueryString } from 'utils'
 import { scanQRCode } from 'utils/wx'
 import { Radio, RadioGroup } from 'vue-ydui/dist/lib.rem/radio'

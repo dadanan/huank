@@ -29,7 +29,7 @@ Vue.prototype.GLOBAL = global_
 const router = new VueRouter({
   routes,
   mode: 'history',
-  base: 'xf'
+  base: 'h5'
 })
 
 router.beforeEach((to, from, next) => {

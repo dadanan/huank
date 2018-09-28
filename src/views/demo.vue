@@ -23,7 +23,6 @@
 
 <script type="text/ecmascript-6">
 import { Loading, Toast} from 'vue-ydui/dist/lib.rem/dialog'
-import myUrl from 'common/js/api'
 import Vue from 'vue'
 import draggable from 'vuedraggable'
 

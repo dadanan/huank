@@ -3,7 +3,6 @@
 </template>
 
 <script type="text/ecmascript-6">
-import myUrl from 'common/js/api'
 import { auth } from '../wenkong/api'
 import { getQueryString } from 'utils'
 import Store from '../wenkong/store'

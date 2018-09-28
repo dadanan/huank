@@ -36,7 +36,6 @@
 import { Switch } from 'vue-ydui/dist/lib.rem/switch'
 import { addClass, removeClass } from 'utils/dom'
 import { Loading, Toast, Confirm } from 'vue-ydui/dist/lib.rem/dialog'
-import myUrl from 'common/js/api'
 import { queryTimerList, cancelTimer, deleteTimer } from '../wenkong/api'
 
 export default {

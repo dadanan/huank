@@ -28,13 +28,12 @@
     <div class="share-shude" v-if="shudeDialog" @click="shudeDialog = false">
       <img src="../../assets/share.png" />
     </div>
-  </div>
+    </div>
 </template>
 
 <script type="text/ecmascript-6">
 import { Loading } from 'vue-ydui/dist/lib.rem/dialog'
 import QRCode from 'qrcodejs2'
-import myUrl from 'common/js/api'
 import { put, get, remove, clear } from 'utils/cache'
 import { wxShare } from 'utils/wx'
 import { returnUrl } from 'utils'

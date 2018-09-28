@@ -156,7 +156,6 @@ import { Popup } from 'vue-ydui/dist/lib.rem/popup'
 import { Spinner } from 'vue-ydui/dist/lib.rem/spinner'
 import img from '../../assets/bak4.jpg'
 import { setWechatTitle } from 'utils'
-import apiURI from 'common/js/api'
 import Store from '../wenkong/store'
 import {
   getModelVo,
