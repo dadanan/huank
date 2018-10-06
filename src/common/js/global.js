@@ -15,8 +15,8 @@
 const config = {
   url: 'http://www.hcocloud.com/dash',
   appId: 'wx292d0902bf9841d6',
-  shareUrl: 'http://dev.hcocloud.com/h5/list',
-  redUrl: 'http://dev.hcocloud.com/h5/auth/'
+  shareUrl: `${window.location.origin}/h5/list`,
+  redUrl: `${window.location.origin}/h5/auth`
 }
 
 export default config

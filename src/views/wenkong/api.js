@@ -1,6 +1,7 @@
-const BASE_URL = 'http://dev.hcocloud.com'
+const BASE_URL = window.location.origin
 import { http } from '@/common/js/https'
 import Store from './store'
+
 
 export function newQueryDetailByDeviceId(data) {
   return http({

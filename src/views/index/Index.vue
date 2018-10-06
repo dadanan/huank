@@ -541,7 +541,7 @@ export default {
   },
   created() {
     // Store.save('Ticket', 'oJlAuv3vgnY6fRxH_UyDKZ3Kg7K4')
-    Store.save('Ticket', 'oJlAuv3VTrGAo0P3N3jY41mVvkuI')
+    // Store.save('Ticket', 'oJlAuv3VTrGAo0P3N3jY41mVvkuI')
     this.cHeight = window.innerWidth * 0.45
     if (window.innerWidth <= 340) {
       this.cHeight = window.innerWidth * 0.45
