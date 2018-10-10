@@ -459,8 +459,7 @@ export default {
       Store.save('name', child.deviceName)
       Store.save('icon', child.icon)
       Store.save('model', child.deviceTypeName)
-      console.log('child', child)
-      if (child.deviceTypeName === '电子净化器') {
+      if (child.formatName === '电子净化器') {
         this.$router.push({
           path: '/air-purifier',
           query: {
@@ -468,7 +467,7 @@ export default {
             deviceId: child.deviceId
           }
         })
-      } else if (child.deviceTypeName === '温控器') {
+      } else if (child.formatName === '温控器') {
         this.$router.push({
           path: '/wenkongindex',
           query: {
