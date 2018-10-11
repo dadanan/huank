@@ -10,7 +10,8 @@
       <span v-show='formatItemsList[12] && formatItemsList[2].showStatus'>{{location}}&nbsp;&nbsp;</span>
       <span v-show='formatItemsList[13] && formatItemsList[13].showStatus'>{{weather}} {{outerTem}}&nbsp;&nbsp;</span>
       <span v-show='formatItemsList[14] && formatItemsList[14].showStatus'>湿度: {{outerHum}}%&nbsp;&nbsp;</span>
-      <span v-show='formatItemsList[15] && formatItemsList[15].showStatus'>PM2.5: {{outerPm}}ug/m3</span>
+      <span v-show='formatItemsList[15] && formatItemsList[15].showStatus'>PM2.5: {{outerPm}}ug/m3&nbsp;</span>
+      <span>质量: 优</span>
     </div>
     <div class="but-list">
       <!-- 童锁 -->
@@ -33,16 +34,16 @@
         <div class="circle-inner">
           <p>
             PM2.5
-            <span>{{outerPm}}</span>
+            <span>优</span>
           </p>
           <p :class="{ active:  isOpen === true}">33</p>
-          <p>33</p>
+          <p>ug/m3</p>
         </div>
       </div>
       <div class="temper">
         <div class="t1" v-if='formatItemsList[8] && formatItemsList[8].showStatus'>
           <p>
-            <span>{{getAbilityData(formatItemsList[8].abilityId).currValue}}</span>&#176;c</p>
+            <span>{{getAbilityData(formatItemsList[8].abilityId).currValue}}</span>℃</p>
           <p>
             <!-- 温度 -->
             <span style="font-size:16px">{{formatItemsList[8].showName}}</span>
@@ -192,6 +193,7 @@ export default {
       currentTime: 2,
       timeSet: null,
       deviceName: '',
+      customerName: '',
       cHeight: 200,
       isOpen: true, // 开关
       isLock: false, // 童锁
@@ -540,14 +542,13 @@ export default {
     }
   },
   created() {
-    // Store.save('Ticket', 'oJlAuv3vgnY6fRxH_UyDKZ3Kg7K4')
-    // Store.save('Ticket', 'oJlAuv3VTrGAo0P3N3jY41mVvkuI')
     this.cHeight = window.innerWidth * 0.45
     if (window.innerWidth <= 340) {
       this.cHeight = window.innerWidth * 0.45
     }
-    this.deviceName = Store.fetch('name')
-    setWechatTitle(this.deviceName, '')
+    this.deviceName = Store.fetch('deviceName')
+    this.customerName = Store.fetch('customerName')
+    setWechatTitle(this.customerName, '')
 
     this.getIndexAbilityData()
     this.getLocation()
@@ -620,6 +621,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
     span {
       color: #fff;
       font-size: tvw(83);
@@ -703,6 +705,7 @@ export default {
       text-align: center;
       & span {
         margin-right: 10px;
+        font-size: 13px;
         & em {
           font-size: 18px;
         }
@@ -727,7 +730,6 @@ export default {
         top: 10px;
       }
       & div {
-        width: 60px;
         text-align: center;
         font-size: 14px;
         line-height: 24px;
@@ -740,6 +742,12 @@ export default {
       }
       .t2 {
         float: right;
+      }
+      em {
+        font-weight: 500;
+      }
+      span {
+        word-break: keep-all;
       }
     }
     .circle-data {

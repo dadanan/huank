@@ -461,7 +461,7 @@ export default {
     }
   },
   created() {
-    this.pageName = Store.fetch('name')
+    this.pageName = Store.fetch('deviceName')
     setWechatTitle(this.pageName)
 
     this.getIndexAbilityData()

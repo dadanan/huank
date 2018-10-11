@@ -1,7 +1,9 @@
-const BASE_URL = window.location.origin
+const BASE_URL =
+  process.env.NODE_ENV === 'development'
+    ? 'http://pro.hcocloud.com'
+    : window.location.origin
 import { http } from '@/common/js/https'
 import Store from './store'
-
 
 export function newQueryDetailByDeviceId(data) {
   return http({

@@ -18,7 +18,7 @@
           <span>设备信息</span>
         </div>
         <div class="cell-right">
-          <span>{{ modelName }}</span>
+          <span>{{ deviceName }}</span>
         </div>
       </div>
 
@@ -116,7 +116,6 @@ export default {
       area: '',
       editDevFlag: false,
       deviceName: '',
-      modelName: '',
       batteryList: [],
       show2: false,
       model2: '',
@@ -230,7 +229,7 @@ export default {
       })
     },
     getDevice() {
-      return Store.fetch('name')
+      return Store.fetch('deviceName')
     }
   },
   created() {
@@ -255,7 +254,7 @@ export default {
     'yd-cityselect': CitySelect
   },
   mounted() {
-    this.modelName = Store.fetch('model')
+    this.deviceName = Store.fetch('model')
   }
 }
 </script>

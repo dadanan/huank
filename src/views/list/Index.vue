@@ -226,7 +226,6 @@ export default {
         })
         data.push(...res.data)
       })
-      console.log('push', data)
     },
     cancelGroup() {
       this.groupDialog = false
@@ -456,9 +455,9 @@ export default {
         })
     },
     intoIndex(child) {
-      Store.save('name', child.deviceName)
+      Store.save('customerName', child.customerName)
+      Store.save('deviceName', child.deviceName)
       Store.save('icon', child.icon)
-      Store.save('model', child.deviceTypeName)
       if (child.formatName === '电子净化器') {
         this.$router.push({
           path: '/air-purifier',
