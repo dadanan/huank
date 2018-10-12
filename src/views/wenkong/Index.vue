@@ -1,15 +1,15 @@
 <template>
-  <div class='index-container' :class="{ cold: currentOption == 0,hot: currentOption == 1,wind: currentOption == 2,off: currentOption == 3 }">
+  <div class='index-container' :class="{ cold: currentOption == 0,hot: currentOption == 1,wind: currentOption == 2,off: currentOption == 3 }" v-show='pageIsShow'>
     <div class='header'>
       <img src='@/assets/arrow_left.png' @click='goBack()'>
       <span>{{deviceName}}</span>
       <img class='setting' @click='intoSet' src='@/assets/set.png'>
     </div>
     <div class='info'>
-      <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;&nbsp;
-      <span v-show='formatItemsList[9] && formatItemsList[9].showStatus'>{{location}}&nbsp;&nbsp;</span>
-      <span v-show='formatItemsList[10] && formatItemsList[10].showStatus'>{{weather}} {{outerTem}}&nbsp;&nbsp;</span>
-      <span v-if='formatItemsList[11] && formatItemsList[11].showStatus'>湿度: {{outerHum}}%&nbsp;&nbsp;</span>
+      <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;
+      <span v-show='formatItemsList[9] && formatItemsList[9].showStatus'>{{location}}&nbsp;</span>
+      <span v-show='formatItemsList[10] && formatItemsList[10].showStatus'>{{weather}} {{outerTem}}&nbsp;</span>
+      <span v-if='formatItemsList[11] && formatItemsList[11].showStatus'>湿度: {{outerHum}}%&nbsp;</span>
       <span v-show='formatItemsList[12] && formatItemsList[12].showStatus'>PM2.5: {{outerPm}}ug/m3</span>
     </div>
     <div class='switch'>
@@ -150,6 +150,7 @@ export default {
     return {
       modelVisible: false, //
       windVisible: false, //
+      pageIsShow: false,
       temperature: 0, // 客户设定温度
       temperatureVisible: false, // 显示温度设定弹框
       currentOption: 0, // 模式的当前选择项
@@ -428,6 +429,9 @@ export default {
     }
   },
   created() {
+    setTimeout(() => {
+      this.pageIsShow = true
+    }, 1000)
     // Store.save('Ticket', 'oJlAuv3VTrGAo0P3N3jY41mVvkuI')
     this.deviceName = Store.fetch('deviceName')
     this.customerName = Store.fetch('customerName')

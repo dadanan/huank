@@ -10,7 +10,7 @@
           <span>设备名称</span>
         </div>
         <div class="cell-right">
-          <span>{{ getDevice() }}</span>
+          <span>{{ deviceName }}</span>
         </div>
       </div>
       <div class="cell-item border-bottom" @click="intoInfo">
@@ -18,7 +18,6 @@
           <span>设备信息</span>
         </div>
         <div class="cell-right">
-          <span>{{ deviceName }}</span>
         </div>
       </div>
 
@@ -82,7 +81,7 @@
     <div class="create-dialog dialog" v-if="editDevFlag">
       <div class="confirm">
         <div class="confim-top">
-          <textarea class="name" placeholder="输入新设备的名称" v-model="deviceName"></textarea>
+          <textarea class="name" placeholder="输入新设备的名称" v-model="setDeviceName"></textarea>
         </div>
         <div class="confim-bottom">
           <div class="but" @click="editDevFlag = false">取消</div>
@@ -98,6 +97,7 @@
 import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
 import District from 'ydui-district/dist/jd_province_city_area_id'
 import myUrl from 'common/js/api'
+import { editDevice } from '../wenkong/api'
 import { CitySelect } from 'vue-ydui/dist/lib.rem/cityselect'
 import Store from '../wenkong/store'
 
@@ -111,35 +111,13 @@ export default {
       switch2: false,
       editDevFlag: false,
       deviceName: '',
+      setDeviceName: '',
       batteryList: [],
       show2: false,
       model2: '',
-      district: District
+      district: District,
+      deviceId: this.$route.query.deviceId
     }
-  },
-  created() {
-    Loading.open('很快加载好了')
-    if (Store.fetch('location')) {
-      this.model2 = Store.fetch('location')
-      let arr = this.model2.split(',')
-      if (arr.length === 3) {
-        this.province = arr[0]
-        this.city = arr[1]
-        this.area = arr[2]
-      }
-    }
-    if (Store.fetch('screens')) {
-      this.batteryList = JSON.parse(Store.fetch('screens'))
-    }
-    setTimeout(() => {
-      Loading.close()
-    }, 300)
-  },
-  components: {
-    'yd-cityselect': CitySelect
-  },
-  mounted() {
-    this.deviceName = Store.fetch('deviceName')
   },
   methods: {
     result2(ret) {
@@ -172,7 +150,7 @@ export default {
       this.$router.push({
         path: '/share',
         query: {
-          deviceId: this.$route.query.deviceId
+          deviceId: this.deviceId
         }
       })
     },
@@ -180,7 +158,7 @@ export default {
       this.$router.push({
         path: '/permissions',
         query: {
-          deviceId: this.$route.query.deviceId
+          deviceId: this.deviceId
         }
       })
     },
@@ -188,7 +166,7 @@ export default {
       this.$router.push({
         path: '/config',
         query: {
-          deviceId: this.$route.query.deviceId
+          deviceId: this.deviceId
         }
       })
     },
@@ -196,7 +174,7 @@ export default {
       this.$router.push({
         path: '/battery',
         query: {
-          deviceId: this.$route.query.deviceId
+          deviceId: this.deviceId
         }
       })
     },
@@ -204,26 +182,22 @@ export default {
       this.$router.push({
         path: '/data',
         query: {
-          deviceId: this.$route.query.deviceId
+          deviceId: this.deviceId
         }
       })
     },
     editDev() {
       Loading.open('很快加载好了')
-      this.$http
-        .get(
-          myUrl.editDevice +
-            '?deviceId=' +
-            this.$route.query.deviceId +
-            '&deviceName=' +
-            this.deviceName
-        )
+      editDevice({
+        deviceId: this.deviceId,
+        deviceName: this.setDeviceName
+      })
         .then(res => {
           if (res.code === 200) {
             Loading.close()
             this.editDevFlag = false
-            sessionStorage.setItem('name', this.deviceName)
-            this.getDevice()
+            Store.save('deviceName', this.setDeviceName)
+            this.deviceName = this.setDeviceName
           }
         })
         .catch(error => {
@@ -235,13 +209,34 @@ export default {
       this.$router.push({
         path: '/devinfo',
         query: {
-          deviceId: this.$route.query.deviceId
+          deviceId: this.deviceId
         }
       })
-    },
-    getDevice() {
-      return Store.fetch('deviceName')
     }
+  },
+  created() {
+    Loading.open('很快加载好了')
+    if (Store.fetch('location')) {
+      this.model2 = Store.fetch('location')
+      let arr = this.model2.split(',')
+      if (arr.length === 3) {
+        this.province = arr[0]
+        this.city = arr[1]
+        this.area = arr[2]
+      }
+    }
+    if (Store.fetch('screens')) {
+      this.batteryList = JSON.parse(Store.fetch('screens'))
+    }
+    setTimeout(() => {
+      Loading.close()
+    }, 300)
+  },
+  components: {
+    'yd-cityselect': CitySelect
+  },
+  mounted() {
+    this.deviceName = Store.fetch('deviceName')
   }
 }
 </script>

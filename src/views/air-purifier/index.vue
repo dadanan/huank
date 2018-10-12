@@ -1,5 +1,5 @@
 <template>
-  <div class="we-page" :style="{ 'background-image': 'url(' + bg + ')','background-repeat':'no-repeat','background-size':'cover' }">
+  <div class="we-page" v-show='pageIsShow' :style="{ 'background-image': 'url(' + bg + ')','background-repeat':'no-repeat','background-size':'cover' }">
     <div class="we-header">
       <router-link class="we-back" to="/list">
         <i class="iconfont icon-xiangzuojiantou"></i>
@@ -177,6 +177,7 @@ export default {
       jsSwitch: '0',
       jhSwitch: '0',
       show1: false,
+      pageIsShow: false,
       prePmSpinner: 0,
       preJhSpinner: 0,
       preTemSpinner: 0,
@@ -461,8 +462,12 @@ export default {
     }
   },
   created() {
-    this.pageName = Store.fetch('deviceName')
-    setWechatTitle(this.pageName)
+    setTimeout(() => {
+      this.pageIsShow = true
+    }, 1000)
+
+    this.customerName = Store.fetch('customerName')
+    setWechatTitle(this.customerName, '')
 
     this.getIndexAbilityData()
     this.getLocation()

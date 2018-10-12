@@ -6,14 +6,14 @@
           <img class='team-icon' :src="item.icon" />
           <span>{{item.teamName}}</span>
         </div>
-        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 90px;" v-show="groupFlag && item.teamName !== '默认组'" @click="OpenGroup(item)">编辑
+        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 90px;" v-show="groupFlag" @click="OpenGroup(item)">编辑
         </div>
-        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 60px;" v-show="groupFlag && item.teamName !== '默认组'" @click="deleteTeam(item.teamId)">删除
+        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 60px;" v-show="groupFlag" @click="deleteTeam(item.teamId)">删除
         </div>
-        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 30px;" v-show="groupFlag && item.teamName !== '默认组'" @click="groupFlag = false">取消
+        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 30px;" v-show="groupFlag" @click="groupFlag = false">取消
         </div>
         <div style="padding:15px">
-          <div class="list-item" v-swipeleft="swipeleft" v-swiperight="swiperight" @click="intoIndex(child)" v-for="(child,cindex) in item.deviceItemPos" :key="cindex">
+          <div class="list-item" v-swipeleft="swipeleft" v-swiperight="swiperight" @click="intoIndex(child,item)" v-for="(child,cindex) in item.deviceItemPos" :key="cindex">
             <div class="item-left">
               <div class="icon" :class="{ active : containIds(child.deviceId) }" v-if="loopValue === true" @click.stop="selectDev(child.deviceId)"></div>
               <div class="img">
@@ -454,10 +454,14 @@ export default {
           this.$toast(error.msg, 'bottom')
         })
     },
-    intoIndex(child) {
+    intoIndex(child, team) {
       Store.save('customerName', child.customerName)
+      Store.save('customerId', this.$route.query.customerId)
       Store.save('deviceName', child.deviceName)
+      Store.save('formatName', child.formatName)
+      Store.save('teamId', team.teamId)
       Store.save('icon', child.icon)
+
       if (child.formatName === '电子净化器') {
         this.$router.push({
           path: '/air-purifier',
@@ -502,7 +506,8 @@ export default {
       share({
         masterOpenId: obj.masterOpenId,
         deviceId: obj.deviceId,
-        token: obj.token
+        token: obj.token,
+        teamId: obj.teamId
       })
         .then(res => {
           console.log('绑定结果：', res)

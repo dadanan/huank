@@ -39,7 +39,7 @@
         <span slot="left">关机时间</span>
         <yd-datetime type="time" v-model="timer.endTime" slot="right"></yd-datetime>
       </div> -->
-      <p>倒计时</p>
+      <p>时间</p>
       <yd-datetime type="time" v-model="afterTime" slot="right"></yd-datetime>
     </div>
     <div v-if='timer.type === 2' class="timing-but">
@@ -69,9 +69,11 @@ export default {
     return {
       timerId: '', //如果是编辑状态，有值
       afterTime: '',
+      wxDeviceId: this.$route.query.wxDeviceId,
+      deviceId: this.$route.query.deviceId,
       timer: {
         name: '',
-        wxDeviceId: this.$route.query.wxDeviceId,
+        wxDeviceId: this.wxDeviceId,
         timerType: 1,
         type: 1
       },
@@ -186,7 +188,8 @@ export default {
             this.$router.push({
               path: '/timinglist',
               query: {
-                wxDeviceId: this.$route.query.wxDeviceId
+                wxDeviceId: this.wxDeviceId,
+                deviceId: this.deviceId
               }
             })
           }
@@ -203,7 +206,7 @@ export default {
     const timerId = this.$route.query.id
     if (timerId + '') {
       this.timerId = timerId
-      this.getTimerInfo(timerId, this.$route.query.wxDeviceId) // 获取定时器详情
+      this.getTimerInfo(timerId, this.wxDeviceId) // 获取定时器详情
     }
   },
   components: {

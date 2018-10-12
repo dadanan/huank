@@ -37,6 +37,7 @@ import { Switch } from 'vue-ydui/dist/lib.rem/switch'
 import { addClass, removeClass } from 'utils/dom'
 import { Loading, Toast, Confirm } from 'vue-ydui/dist/lib.rem/dialog'
 import { queryTimerList, cancelTimer, deleteTimer } from '../wenkong/api'
+import Store from '../wenkong/store'
 
 export default {
   data() {
@@ -44,7 +45,8 @@ export default {
       isEdit: false,
       timeList: [],
       value: '',
-      wxDeviceId: this.$route.query.wxDeviceId
+      wxDeviceId: this.$route.query.wxDeviceId,
+      deviceId: this.$route.query.deviceId
     }
   },
   methods: {
@@ -73,7 +75,35 @@ export default {
       })
     },
     returnMethod() {
-      this.$router.back(-1)
+      // this.$router.back(-1)
+      const formatName = Store.fetch('formatName')
+
+      if (formatName === '电子净化器') {
+        this.$router.push({
+          path: '/air-purifier',
+          query: {
+            wxDeviceId: this.wxDeviceId,
+            deviceId: this.deviceId
+          }
+        })
+      } else if (formatName === '温控器') {
+        this.$router.push({
+          path: '/wenkongindex',
+          query: {
+            wxDeviceId: this.wxDeviceId,
+            deviceId: this.deviceId
+          }
+        })
+      } else {
+        // 智慧新风
+        this.$router.push({
+          path: '/index',
+          query: {
+            wxDeviceId: this.wxDeviceId,
+            deviceId: this.deviceId
+          }
+        })
+      }
     },
     edit() {
       this.isEdit = !this.isEdit
@@ -154,7 +184,8 @@ export default {
         path: '/timingedet',
         query: {
           id: id,
-          wxDeviceId: this.wxDeviceId
+          wxDeviceId: this.wxDeviceId,
+          deviceId: this.deviceId
         }
       })
     },
@@ -162,7 +193,8 @@ export default {
       this.$router.push({
         path: '/timingedet',
         query: {
-          wxDeviceId: this.wxDeviceId
+          wxDeviceId: this.wxDeviceId,
+          deviceId: this.deviceId
         }
       })
     }

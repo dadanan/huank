@@ -1,15 +1,15 @@
 <template>
-  <div class="main-wrapper" :class="{ active: isOpen === true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')','background-repeat':'no-repeat','background-size':'cover' }">
+  <div class="main-wrapper" v-show='pageIsShow' :class="{ active: isOpen === true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')','background-repeat':'no-repeat','background-size':'cover' }">
     <div class="header">
       <span>{{ deviceName }}</span>
       <span class="edit" @click="intoSet"></span>
       <span class="time" v-if="1===2">{{ currentTime }}s</span>
     </div>
     <div class="info">
-      <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;&nbsp;
-      <span v-show='formatItemsList[12] && formatItemsList[2].showStatus'>{{location}}&nbsp;&nbsp;</span>
-      <span v-show='formatItemsList[13] && formatItemsList[13].showStatus'>{{weather}} {{outerTem}}&nbsp;&nbsp;</span>
-      <span v-show='formatItemsList[14] && formatItemsList[14].showStatus'>湿度: {{outerHum}}%&nbsp;&nbsp;</span>
+      <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;
+      <span v-show='formatItemsList[12] && formatItemsList[2].showStatus'>{{location}}&nbsp;</span>
+      <span v-show='formatItemsList[13] && formatItemsList[13].showStatus'>{{weather}} {{outerTem}}&nbsp;</span>
+      <span v-show='formatItemsList[14] && formatItemsList[14].showStatus'>湿度: {{outerHum}}&nbsp;</span>
       <span v-show='formatItemsList[15] && formatItemsList[15].showStatus'>PM2.5: {{outerPm}}ug/m3&nbsp;</span>
       <span>质量: 优</span>
     </div>
@@ -36,7 +36,7 @@
             PM2.5
             <span>优</span>
           </p>
-          <p :class="{ active:  isOpen === true}">33</p>
+          <p v-if='formatItemsList[15]' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[15].abilityId).currValue}}</p>
           <p>ug/m3</p>
         </div>
       </div>
@@ -59,7 +59,7 @@
         </div>
       </div>
       <div class="tip" v-show='formatItemsList[7] && formatItemsList[7].showStatus'>
-        <p>滤芯剩余寿命 1 时</p>
+        <p>滤芯剩余寿命 1204 时</p>
         <p v-if="1===2">设备租赁剩余时间 2 时</p>
       </div>
       <div class="b-data">
@@ -68,10 +68,10 @@
           <em>{{getAbilityData(formatItemsList[4].abilityId).currValue}}</em> PPM</span>
         <!-- TVOC -->
         <span v-if='formatItemsList[5] && formatItemsList[5].showStatus'>{{formatItemsList[5].showName}}
-          <em>{{getAbilityData(formatItemsList[5].abilityId).currValue}}</em> mg/m³</span>
+          <em>{{Number(getAbilityData(formatItemsList[5].abilityId).currValue) / 100}}</em> mg/m³</span>
         <span v-if='formatItemsList[6] && formatItemsList[6].showStatus'>{{formatItemsList[6].showName}}
           <!-- 甲醛 -->
-          <em>{{getAbilityData(formatItemsList[6].abilityId).currValue}}</em> mg/m³</span>
+          <em>{{Number(getAbilityData(formatItemsList[6].abilityId).currValue) / 100}}</em> mg/m³</span>
       </div>
     </div>
     <div class="but-list fixed">
@@ -127,7 +127,7 @@
         <div class="title">其它功能设定</div>
         <div class="list">
           <ul v-if='formatItemsList[3]'>
-            <li v-for="(item,index) in getListData(formatItemsList[3].abilityId,3)" :key="item.dirValue" :class="{ active: item.isChecked}" @click="nodeClicked(item,index,3)">
+            <li v-for="(item,index) in getListData(formatItemsList[3].abilityId)" :key="item.dirValue" :class="{ active: item.isChecked}" @click="nodeClicked(item,index,3)">
               <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
             </li>
@@ -167,6 +167,7 @@ export default {
       specTypeIndex: 0, // 默认内风扇
       isFlag2: false,
       address: '',
+      pageIsShow: false,
       slotsType: [
         // 风扇类型
         {
@@ -222,7 +223,7 @@ export default {
     }
   },
   methods: {
-    getListData(abilityId, type) {
+    getListData(abilityId) {
       // 根据功能id获取功能项的数据
       const result = this.abilitysList.filter(
         item => item.abilityId === abilityId
@@ -255,7 +256,7 @@ export default {
       this.$router.push({
         path: '/timinglist',
         query: {
-          deviceId: this.$route.query.deviceId,
+          deviceId: this.deviceId,
           wxDeviceId: this.$route.query.wxDeviceId
         }
       })
@@ -280,6 +281,65 @@ export default {
         this.speedCurrent = iIndex
       })
     },
+    setPopDialogData(arr) {
+      // 实时设置下方模式、风速，功能等弹框内的数据
+      // 为了解决：弹框打开的情况下，设备状态变化时，弹框内选项数据却没有变更的问题。
+
+      // 更新模式选项
+      const updateModel = () => {
+        const data = this.abilitysList.filter(
+          item => item.abilityId === this.formatItemsList[1].abilityId
+        )[0]
+        if (!data) {
+          return
+        }
+
+        // 根据isSelect的值，对相应选项执行默认选中行为
+        data.abilityOptionList.forEach((item, iIndex) => {
+          if (item.isSelect === 0) {
+            return
+          }
+
+          // “模式选项”
+          this.modeCurrent = iIndex
+        })
+      }
+
+      const updateWindSpeed = () => {
+        const data = this.abilitysList.filter(
+          item => item.abilityId === this.formatItemsList[2].abilityId
+        )[0]
+        if (!data) {
+          return
+        }
+
+        // 根据isSelect的值，对相应选项执行默认选中行为
+        data.abilityOptionList.forEach((item, iIndex) => {
+          if (item.isSelect === 0) {
+            return
+          }
+
+          // “风速选项”
+          this.speedCurrent = iIndex
+        })
+      }
+
+      // 功能多选项的初始化
+      const updateAbility = () => {
+        const data = this.getListData(this.formatItemsList[3].abilityId)
+        data.forEach(item => {
+          if (item.isSelect == 1) {
+            item.isChecked = true
+          } else {
+            item.isChecked = false
+          }
+        })
+      }
+
+      updateModel()
+      updateWindSpeed()
+      updateAbility()
+    },
     switchModel(id) {
       if (!this.isOpen) {
         this.$toast('当前关机状态，不可操作', 'bottom')
@@ -302,9 +362,13 @@ export default {
         return false
       }
       // 做下功能多选项的初始化
-      const data = this.getListData(this.formatItemsList[3].abilityId, 3)
+      const data = this.getListData(this.formatItemsList[3].abilityId)
       data.forEach(item => {
-        item.isSelect == 1 && (item.isChecked = true)
+        if (item.isSelect == 1) {
+          item.isChecked = true
+        } else {
+          item.isChecked = false
+        }
       })
       this.functionFlag = true
     },
@@ -312,7 +376,7 @@ export default {
       this.$router.push({
         path: '/set',
         query: {
-          deviceId: this.$route.query.deviceId
+          deviceId: this.deviceId
         }
       })
     },
@@ -342,7 +406,7 @@ export default {
       }).then(res => {
         this.isLock = !this.isLock
         Toast({
-          mes: tit,
+          mes: '指令发送成功！',
           timeout: 1000,
           icon: 'success'
         })
@@ -450,7 +514,7 @@ export default {
           // 定时请求接口数据，更新页面数据
           this.setInter = setInterval(() => {
             this.getIndexFormatData(res.data)
-          }, 2000)
+          }, 1000)
         }
       })
     },
@@ -477,7 +541,10 @@ export default {
             const temp = this.abilitysList.filter(
               itemA => itemA.abilityId === data[index].id
             )[0]
-            temp['currValue'] = data[index].currValue
+
+            try {
+              temp['currValue'] = data[index].currValue
+            } catch (e) {}
           }
           if (!item.abilityOptionList || item.abilityOptionList.length === 0) {
             return
@@ -495,10 +562,26 @@ export default {
         })
 
         this.switchHandler()
+        this.setPopDialogData()
       })
     },
     getLocation() {
       getLocation(this.deviceId).then(res => {
+        const data = res.data
+        // 直辖市
+        const area = [
+          '北京市',
+          '天津市',
+          '上海市',
+          '重庆市',
+          '北京',
+          '天津',
+          '上海',
+          '重庆'
+        ]
+        if (area.includes(data.city)) {
+          data.location = data.city
+        }
         this.location = res.data.location
       })
     },
@@ -542,6 +625,9 @@ export default {
     }
   },
   created() {
+    setTimeout(() => {
+      this.pageIsShow = true
+    }, 1000)
     this.cHeight = window.innerWidth * 0.45
     if (window.innerWidth <= 340) {
       this.cHeight = window.innerWidth * 0.45
