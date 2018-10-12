@@ -73,7 +73,7 @@ export default {
       deviceId: this.$route.query.deviceId,
       timer: {
         name: '',
-        wxDeviceId: this.wxDeviceId,
+        wxDeviceId: this.$route.query.wxDeviceId,
         timerType: 1,
         type: 1
       },
@@ -180,7 +180,6 @@ export default {
         form['id'] = this.timerId
       }
 
-      console.log(form)
       addTimer(form)
         .then(res => {
           if (res.code === 200) {
@@ -204,7 +203,7 @@ export default {
   },
   created() {
     const timerId = this.$route.query.id
-    if (timerId + '') {
+    if (timerId) {
       this.timerId = timerId
       this.getTimerInfo(timerId, this.wxDeviceId) // 获取定时器详情
     }

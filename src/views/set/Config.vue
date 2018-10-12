@@ -250,6 +250,7 @@ export default {
       modelSelected: '1',
       deviceChildId: '',
       deviceId: '',
+      customerId: Store.fetch('customerId') || this.$route.query.customerId,
       deviceName: '',
       deleteTheDevice: ''
     }
@@ -365,7 +366,7 @@ export default {
     getToken() {
       // 高级设置Token
       getToken({
-        customerId: Store.fetch('customerId'),
+        customerId: this.customerId,
         password: this.pwdList.join('')
       }).then(res => {
         if (res.code === 200 && res.data) {
@@ -377,7 +378,7 @@ export default {
       })
     },
     getModelList() {
-      modelList(Store.fetch('customerId')).then(res => {
+      modelList(this.customerId).then(res => {
         this.modelList = res.data
         this.modelSelected = res.data[0].id
       })

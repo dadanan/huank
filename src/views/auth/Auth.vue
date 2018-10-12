@@ -18,7 +18,10 @@ export default {
           // 拿到微信openid
           Store.save('Ticket', res.data)
           this.$router.push({
-            path: '/list'
+            path: '/list',
+            query: {
+              customerId: Store.fetch('customerId')
+            }
           })
         })
         .catch(err => {
@@ -43,6 +46,7 @@ export default {
         state: 'STATE#wechat_redirect'
       }
       if (getQueryString('masterOpenId')) {
+        console.log('query', getQueryString('masterOpenId'))
         // 从分享进入,存储分享人信息
         let obj = {
           deviceId: getQueryString('deviceId'),

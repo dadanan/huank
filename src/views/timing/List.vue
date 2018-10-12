@@ -12,7 +12,7 @@
           <div class="del" style="float:left" @click="delTimer(item.id)">删除</div>
           <div class="c-text">
             <p v-if="item.remainTime">{{ MillisecondToDate(item.remainTime) }}后关闭</p>
-            <p v-else>{{ item.hour }}:{{item.minute}} 关闭</p>
+            <p v-else>{{ item.hour }}:{{ item.minute}} 关闭</p>
             <p>{{ item.name }}</p>
           </div>
         </div>
@@ -130,6 +130,12 @@ export default {
                 this.$set(v, 'switch', true)
               } else {
                 this.$set(v, 'switch', false)
+              }
+
+              if (v.minute == 0) {
+                v.minute = '00'
+              } else if (v.minute < 10) {
+                v.minute = '0' + v.minute
               }
             })
           }

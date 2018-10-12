@@ -24,12 +24,12 @@
 
 <script type="text/ecmascript-6">
 import MyEcharts from '../../components/echart'
-import {Radio, RadioGroup} from 'vue-ydui/dist/lib.rem/radio'
+import { Radio, RadioGroup } from 'vue-ydui/dist/lib.rem/radio'
 import myUrl from 'common/js/api'
 import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
 
 export default {
-  data () {
+  data() {
     return {
       dataList: [],
       value: '',
@@ -43,7 +43,7 @@ export default {
       }
     }
   },
-  created () {
+  created() {
     this.getData()
   },
   components: {
@@ -51,35 +51,33 @@ export default {
     'yd-radio': Radio,
     'my-echarts': MyEcharts
   },
-  computed: {
-  },
+  computed: {},
   watch: {
     dataList: {
-      handler: function (val, oldval) {
-      },
+      handler: function(val, oldval) {},
       deep: true
     }
   },
-  mounted () {
-
-  },
+  mounted() {},
   methods: {
-    returnMethod () {
+    returnMethod() {
       this.$router.back(-1)
     },
-    getData () {
+    getData() {
       Loading.open('很快加载好了')
-      this.$http.get(myUrl.getHistoryData + '?deviceId=' + this.$route.query.deviceId).then(res => {
-        if (res.code === 200) {
+      this.$http
+        .get(myUrl.getHistoryData + '?deviceId=' + this.$route.query.deviceId)
+        .then(res => {
+          if (res.code === 200) {
+            Loading.close()
+            this.dataList = res.data
+          }
+        })
+        .catch(function(error) {
           Loading.close()
-          this.dataList = res.data
-        }
-      })
-      .catch(function (error) {
-        Loading.close()
-      })
+        })
     },
-    initChart () {
+    initChart() {
       this.chart = echarts.init(document.getElementById(this.id))
       this.chart.setOption({
         tooltip: {
@@ -91,11 +89,11 @@ export default {
         toolbox: {
           show: false,
           feature: {
-            mark: {show: true},
-            dataView: {show: true, readOnly: false},
-            magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
-            restore: {show: true},
-            saveAsImage: {show: true}
+            mark: { show: true },
+            dataView: { show: true, readOnly: false },
+            magicType: { show: true, type: ['line', 'bar', 'stack', 'tiled'] },
+            restore: { show: true },
+            saveAsImage: { show: true }
           }
         },
         calculable: true,
@@ -138,55 +136,54 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-  @import "src/common/scss/variable.scss";
-  @import "src/common/scss/mixins.scss";
-  .set-wrapper{
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top:0;
-    .header{
+@import 'src/common/scss/variable.scss';
+@import 'src/common/scss/mixins.scss';
+.set-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  .header {
+    height: 40px;
+    font-size: 16px;
+    line-height: 40px;
+    text-align: center;
+    position: relative;
+    .return {
+      position: absolute;
+      left: 0px;
+      background: url('../../assets/arr-left.png') no-repeat center center;
+      background-size: 8px 16px;
+      width: 40px;
       height: 40px;
-      font-size: 16px;
-      line-height: 40px;
-      text-align: center;
-      position: relative;
-      .return{
-        position: absolute;
-        left:0px;
-        background: url('../../assets/arr-left.png') no-repeat center center;
-        background-size: 8px 16px;
-        width: 40px;
-        height: 40px;
-        display: block;
-        top:0px;
-      }
-    }
-    .data-cell{
-      padding: 10px 10px;
-      background: #ffffff;
-      margin-bottom: 10px;
-      .cell-header{
-        position: relative;
-        display: flex;
-        .title{
-          display: flex;
-          font-size: 14px;
-        }
-        .cell-right{
-          flex: 1;
-          text-align: right
-        }
-      }
-      .chart{
-        width: 100%;
-        height: 250px;
-      }
-      &:last-child{
-        margin-bottom: 0px;
-      }
+      display: block;
+      top: 0px;
     }
   }
-  
+  .data-cell {
+    padding: 10px 10px;
+    background: #ffffff;
+    margin-bottom: 10px;
+    .cell-header {
+      position: relative;
+      display: flex;
+      .title {
+        display: flex;
+        font-size: 14px;
+      }
+      .cell-right {
+        flex: 1;
+        text-align: right;
+      }
+    }
+    .chart {
+      width: 100%;
+      height: 250px;
+    }
+    &:last-child {
+      margin-bottom: 0px;
+    }
+  }
+}
 </style>
 

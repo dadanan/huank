@@ -88,7 +88,7 @@
         <div class="title">{{modelData.definedName}}</div>
         <div class="list">
           <ul>
-            <li v-for="(item,index) in modelData.abilityOptionList" :key="index" :class="{ active: currentOption == index }" @click='modelClicked(index,modelData)'>
+            <li v-if='item.status !== 2' v-for="(item,index) in modelData.abilityOptionList" :key="index" :class="{ active: currentOption == index }" @click='modelClicked(index,modelData)'>
               <span>{{ item.optionDefinedName }}</span>
               <div class="icon"></div>
             </li>
@@ -102,7 +102,7 @@
         <div class="title">{{windData.definedName}}</div>
         <div class="list">
           <ul>
-            <li v-for="(item,index) in windData.abilityOptionList" :key="index" :class="{ active: currentOptionForWind == index }" @click='modelClicked(index,windData,3)'>
+            <li v-if='item.status !== 2' v-for="(item,index) in windData.abilityOptionList" :key="index" :class="{ active: currentOptionForWind == index }" @click='modelClicked(index,windData,3)'>
               <span>{{ item.optionDefinedName }}</span>
               <div class="icon"></div>
             </li>

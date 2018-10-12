@@ -1,7 +1,7 @@
 <template>
   <div class="list-wrapper">
     <yd-accordion style="position: relative;padding-bottom: 50px;" v-if="teamList.length">
-      <yd-accordion-item open="open" v-for="(item,index) in teamList" :key="index" v-press="press">
+      <yd-accordion-item open="open" v-for="(item,index) in teamList" :key="index" v-swipeleft="swipeTeamLeft">
         <div slot="title">
           <img class='team-icon' :src="item.icon" />
           <span>{{item.teamName}}</span>
@@ -13,7 +13,7 @@
         <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 30px;" v-show="groupFlag" @click="groupFlag = false">取消
         </div>
         <div style="padding:15px">
-          <div class="list-item" v-swipeleft="swipeleft" v-swiperight="swiperight" @click="intoIndex(child,item)" v-for="(child,cindex) in item.deviceItemPos" :key="cindex">
+          <div class="list-item" v-swipeleft.stop="swipeleft" v-swiperight="swiperight" @click="intoIndex(child,item)" v-for="(child,cindex) in item.deviceItemPos" :key="cindex">
             <div class="item-left">
               <div class="icon" :class="{ active : containIds(child.deviceId) }" v-if="loopValue === true" @click.stop="selectDev(child.deviceId)"></div>
               <div class="img">
@@ -192,6 +192,7 @@ export default {
       devIds: [], // 选中设备id列表
       delDevFlag: false,
       deviceId: '',
+      customerId: this.$route.query.customerId,
       deleteTheDeviceId: '', //将要删除的设备id
       deleteTheDeviceName: '',
       selname: '',
@@ -237,13 +238,16 @@ export default {
     swipeleft(s, e) {
       // 左滑动
       this.loopValue = true
+      console.log(2)
+      this.groupFlag = false
     },
     swiperight(s, e) {
       // 右滑动
       this.loopValue = false
     },
-    press(s, e) {
+    swipeTeamLeft(s, e) {
       this.groupFlag = true
+      console.log(1)
     },
     returnMethod() {
       this.$router.back(-1)
@@ -456,36 +460,37 @@ export default {
     },
     intoIndex(child, team) {
       Store.save('customerName', child.customerName)
-      Store.save('customerId', this.$route.query.customerId)
+      Store.save('customerId', this.customerId)
       Store.save('deviceName', child.deviceName)
       Store.save('formatName', child.formatName)
       Store.save('teamId', team.teamId)
       Store.save('icon', child.icon)
 
+      Store.save('deviceId', child.deviceId)
+      Store.save('MAC', child.mac)
+      Store.save('wxDeviceId', child.wxDeviceId)
+
+      const query = {
+        wxDeviceId: child.wxDeviceId,
+        deviceId: child.deviceId,
+        customerId: this.customerId
+      }
+
       if (child.formatName === '电子净化器') {
         this.$router.push({
           path: '/air-purifier',
-          query: {
-            wxDeviceId: child.wxDeviceId,
-            deviceId: child.deviceId
-          }
+          query
         })
       } else if (child.formatName === '温控器') {
         this.$router.push({
           path: '/wenkongindex',
-          query: {
-            wxDeviceId: child.wxDeviceId,
-            deviceId: child.deviceId
-          }
+          query
         })
       } else {
         // 智慧新风
         this.$router.push({
           path: '/index',
-          query: {
-            wxDeviceId: child.wxDeviceId,
-            deviceId: child.deviceId
-          }
+          query
         })
       }
     },
@@ -506,11 +511,9 @@ export default {
       share({
         masterOpenId: obj.masterOpenId,
         deviceId: obj.deviceId,
-        token: obj.token,
-        teamId: obj.teamId
+        token: obj.token
       })
         .then(res => {
-          console.log('绑定结果：', res)
           if (res.code === 200) {
             if (res.data) {
               // 成功

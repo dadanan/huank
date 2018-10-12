@@ -100,6 +100,7 @@ import myUrl from 'common/js/api'
 import { editDevice } from '../wenkong/api'
 import { CitySelect } from 'vue-ydui/dist/lib.rem/cityselect'
 import Store from '../wenkong/store'
+import { updateDeviceLocation } from '../wenkong/api'
 
 export default {
   data() {
@@ -116,7 +117,8 @@ export default {
       show2: false,
       model2: '',
       district: District,
-      deviceId: this.$route.query.deviceId
+      deviceId: this.$route.query.deviceId,
+      cusomterId: this.$route.query.cusomterId
     }
   },
   methods: {
@@ -124,6 +126,7 @@ export default {
       this.model2 = ret.itemName1 + ',' + ret.itemName2 + ',' + ret.itemName3
       // 发送服务端
       Loading.open('很快加载好了')
+
       this.$http
         .get(
           myUrl.updateDeviceLocation +
@@ -150,7 +153,8 @@ export default {
       this.$router.push({
         path: '/share',
         query: {
-          deviceId: this.deviceId
+          deviceId: this.deviceId,
+          cusomterId: this.cusomterId
         }
       })
     },
@@ -166,7 +170,8 @@ export default {
       this.$router.push({
         path: '/config',
         query: {
-          deviceId: this.deviceId
+          deviceId: this.deviceId,
+          cusomterId: this.cusomterId
         }
       })
     },

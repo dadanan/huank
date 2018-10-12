@@ -34,11 +34,10 @@
 <script type="text/ecmascript-6">
 import { Loading } from 'vue-ydui/dist/lib.rem/dialog'
 import QRCode from 'qrcodejs2'
-import myUrl from 'common/js/api'
 import { put, get, remove, clear } from 'utils/cache'
 import { wxShare } from 'utils/wx'
-import { returnUrl } from 'utils'
 import Store from '../wenkong/store'
+import { token } from '../wenkong/api'
 
 export default {
   data() {
@@ -53,18 +52,17 @@ export default {
     setTimeout(() => {
       Loading.close()
     }, 300)
+    this.getToken()
   },
-  computed: {},
-  watch: {},
   mounted() {
-    this.$nextTick(function() {
-      if (!get('time')) {
-        this.getToken()
-      } else {
-        this.qrcode()
-      }
-      this.time = get('time')
-    })
+    // this.$nextTick(function() {
+    //   if (!get('time')) {
+    //     this.getToken()
+    //   } else {
+    //     this.qrcode()
+    //   }
+    //   this.time = get('time')
+    // })
   },
   methods: {
     returnMethod() {
@@ -111,8 +109,9 @@ export default {
     },
     getToken() {
       Loading.open('很快加载好了')
-      this.$http
-        .get(myUrl.token + '?deviceId=' + this.$route.query.deviceId)
+      token({
+        value: Store.fetch('wxDeviceId')
+      })
         .then(res => {
           if (res.code === 200) {
             put('time', this.getNowFormatDate(), 10 * 60)
@@ -132,9 +131,8 @@ export default {
         'Ticket'
       )}&deviceId=${this.$route.query.deviceId}&token=${get(
         'token'
-      )}&customerId=${Store.fetch('customerId')}&teamId=${Store.fetch(
-        'teamId'
-      )}`
+      )}&customerId=${Store.fetch('customerId')}`
+
       wxShare(
         '我分享了一个设备给你，赶紧看看吧',
         Store.fetch('deviceName'),

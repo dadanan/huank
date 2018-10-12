@@ -297,3 +297,12 @@ export function groupSendFunc(data) {
     headers: { Ticket: Store.fetch('Ticket') }
   })
 }
+
+export function updateDeviceLocation(deviceId, location) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/updateDeviceLocation?deviceId=${deviceId}&location=${location}`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}

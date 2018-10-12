@@ -55,7 +55,9 @@ export default {
         '&scope=' +
         params.scope +
         '&state=' +
-        params.state
+        params.state +
+        '&customerId=' +
+        getQueryString('customerId')
       window.location.href = redirectUrl
     }
   }
