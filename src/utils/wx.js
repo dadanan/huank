@@ -132,7 +132,7 @@ export function wxShare(title, desc, logo, link) {
       title: title, // 分享标题
       desc: desc, // 分享描述
       link: link, // 分享链接 默认以当前链接
-      imgUrl:logo, // 分享图标
+      imgUrl: '' + logo + '', // 分享图标
       success: function() {
         console.log('分享成功')
       },
