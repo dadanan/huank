@@ -127,12 +127,12 @@ export function wxShare(title, desc, logo, link) {
   wx.ready(() => {
     // 所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，
     // 则可以直接调用，不需要放在ready函数中。
-    wx.onMenuShareAppMessage({
+    wx.updateAppMessageShareData({
       // 分享给朋友
       title: title, // 分享标题
       desc: desc, // 分享描述
       link: link, // 分享链接 默认以当前链接
-      imgUrl: '' + logo + '', // 分享图标
+      imgUrl:logo, // 分享图标
       success: function() {
         console.log('分享成功')
       },
