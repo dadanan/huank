@@ -89,7 +89,7 @@
         </div>
       </div>
     </div>
-    <yd-cityselect v-model="show2" ref="cityselectDemo" :callback="result2" :items="district" :provance="province" :city="city" :area="area"></yd-cityselect>
+    <yd-cityselect v-model="show2" ref="cityselectDemo" :callback="updateLocation" :items="district" :provance="province" :city="city" :area="area"></yd-cityselect>
   </div>
 </template>
 
@@ -122,29 +122,41 @@ export default {
     }
   },
   methods: {
-    result2(ret) {
+    updateLocation(ret) {
       this.model2 = ret.itemName1 + ',' + ret.itemName2 + ',' + ret.itemName3
       // 发送服务端
-      Loading.open('很快加载好了')
-
-      this.$http
-        .get(
-          myUrl.updateDeviceLocation +
-            '?deviceId=' +
-            this.$route.query.deviceId +
-            '&location=' +
-            this.model2
-        )
+      // Loading.open('很快加载好了')
+      updateDeviceLocation({
+        deviceId: this.deviceId,
+        location: this.model2
+      })
         .then(res => {
-          if (res.code === 200) {
-            Loading.close()
-            sessionStorage.setItem('location', this.model2)
-          }
+          Loading.close()
+          sessionStorage.setItem('location', this.model2)
         })
         .catch(error => {
           Loading.close()
           this.$toast(error.msg, 'bottom')
         })
+
+      // this.$http
+      //   .get(
+      //     myUrl.updateDeviceLocation +
+      //       '?deviceId=' +
+      //       this.$route.query.deviceId +
+      //       '&location=' +
+      //       this.model2
+      //   )
+      //   .then(res => {
+      //     if (res.code === 200) {
+      //       Loading.close()
+      //       sessionStorage.setItem('location', this.model2)
+      //     }
+      //   })
+      //   .catch(error => {
+      //     Loading.close()
+      //     this.$toast(error.msg, 'bottom')
+      //   })
     },
     returnMethod() {
       this.$router.back(-1)

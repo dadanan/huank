@@ -263,6 +263,24 @@ export function share(data) {
   })
 }
 
+export function shareList(data) {
+  return http({
+    url: `${BASE_URL}/api//h5/api/shareList`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+
+export function clearRelation(data) {
+  return http({
+    url: `${BASE_URL}/api//h5/api/clearRelation`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+
 // 接触设备绑定？
 export function deleteDevice(data) {
   return http({
@@ -298,9 +316,9 @@ export function groupSendFunc(data) {
   })
 }
 
-export function updateDeviceLocation(deviceId, location) {
+export function updateDeviceLocation(data) {
   return http({
-    url: `${BASE_URL}/api/h5/api/updateDeviceLocation?deviceId=${deviceId}&location=${location}`,
+    url: `${BASE_URL}/api/h5/api/updateDeviceLocation`,
     method: 'post',
     data,
     headers: { Ticket: Store.fetch('Ticket') }

@@ -522,6 +522,8 @@ export default {
                 timeout: 1500,
                 icon: 'success'
               })
+              // 绑定成功后，删除“绑定相关”数据
+              Store.remove('obj')
             } else {
               Toast({
                 mes: '绑定失败！',

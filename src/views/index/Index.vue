@@ -178,31 +178,7 @@ export default {
   data() {
     return {
       specIndex: 0,
-      specTypeIndex: 0, // 默认内风扇
-      isFlag2: false,
-      address: '',
       pageIsShow: false,
-      slotsType: [
-        // 风扇类型
-        {
-          defaultIndex: null,
-          flex: 1,
-          values: ['内风扇', '外风扇'],
-          className: 'slot1',
-          textAlign: 'left'
-        }
-      ],
-      slotsDw: [
-        // 风扇挡位
-        {
-          defaultIndex: null,
-          flex: 1,
-          values: [],
-          className: 'slot2',
-          textAlign: 'right'
-        }
-      ],
-      isFlag: false,
       img: img4,
       currentBak: '',
       currentTime: 2,
@@ -440,6 +416,9 @@ export default {
       this.functionFlag = true
     },
     intoSet() {
+      if (!this.isOpen) {
+        return
+      }
       this.$router.push({
         path: '/set',
         query: {
@@ -612,6 +591,9 @@ export default {
     },
     getIndexFormatData(list) {
       // 获取H5控制页面功能项数据，带isSelect参数
+      if (!this.isOpen) {
+        return
+      }
 
       // 根据功能项id筛选功能项
       const findTheAbility = (data, id) => {

@@ -10,21 +10,6 @@
       <p class="time">有效期至：{{ time }}</p>
     </div>
     <div class="share-but" @click="shudeDialog = true">分享好友</div>
-    <div class="share-list" v-if="1==2">
-      <div class="box">
-        <div class="icon">
-          <img />
-          <div class="txt">
-            <p>kairry</p>
-            <p>2017-2-36</p>
-          </div>
-        </div>
-        <div class="delete">解除分享</div>
-      </div>
-      <div class="box"></div>
-      <div class="box"></div>
-      <div class="box"></div>
-    </div>
     <div class="share-shude" v-if="shudeDialog" @click="shudeDialog = false">
       <img src="../../assets/share.png" />
     </div>
@@ -139,6 +124,8 @@ export default {
         Store.fetch('icon'),
         url
       )
+
+      console.log('分享URL: ', url)
       var qrcode = new QRCode(code, {
         text: url,
         width: 200,
