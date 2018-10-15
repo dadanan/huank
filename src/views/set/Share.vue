@@ -117,7 +117,7 @@ export default {
       )}&deviceId=${this.$route.query.deviceId}&token=${get(
         'token'
       )}&customerId=${Store.fetch('customerId')}`
-
+      
       wxShare(
         '我分享了一个设备给你，赶紧看看吧',
         Store.fetch('deviceName'),
