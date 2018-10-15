@@ -210,6 +210,7 @@ export default {
       outerPm: '', // PM2.5
       deviceId: this.$route.query.deviceId,
       wxDeviceId: this.$route.query.wxDeviceId,
+      customerId: this.$route.query.customerId,
       setInter: undefined // 定时id
     }
   },
