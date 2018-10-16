@@ -3,7 +3,7 @@
     <div class="header">
       <span>{{ deviceName }}</span>
       <span class="edit" @click="intoSet"></span>
-      <span class="time" v-if="1===2">{{ currentTime }}s</span>
+      <span class="time" v-if="1===2"></span>
     </div>
     <div class="info">
       <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;
@@ -36,7 +36,7 @@
             PM2.5
             <span>优</span>
           </p>
-          <p v-if='formatItemsList[15]' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[15].abilityId).currValue}}</p>
+          <p v-if='formatItemsList[15] && getAbilityData(formatItemsList[15].abilityId)' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[15].abilityId).currValue}}</p>
           <p>ug/m3</p>
         </div>
       </div>
@@ -67,7 +67,7 @@
         <span v-if='formatItemsList[4] && formatItemsList[4].showStatus'>{{formatItemsList[4].showName}}
           <em>{{getAbilityData(formatItemsList[4].abilityId).currValue}}</em> PPM</span>
         <!-- TVOC -->
-        <span v-if='formatItemsList[5] && formatItemsList[5].showStatus'>{{formatItemsList[5].showName}}
+        <span v-if='formatItemsList[5] && formatItemsList[5].showStatus && getAbilityData(formatItemsList[5].abilityId)'>{{formatItemsList[5].showName}}
           <em>{{Number(getAbilityData(formatItemsList[5].abilityId).currValue) / 100}}</em> mg/m³</span>
         <span v-if='formatItemsList[6] && formatItemsList[6].showStatus'>{{formatItemsList[6].showName}}
           <!-- 甲醛 -->
@@ -101,7 +101,7 @@
         <div class="title">模式设定</div>
         <div class="list">
           <ul v-if='formatItemsList[1]'>
-            <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[1].abilityId)" :class="{ active: modeCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[1].abilityId),index,1)">
+            <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[1].abilityId)" :class="{ active: modeCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[1].abilityId),index)" :key='item.optionValue'>
               <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
             </li>
@@ -109,7 +109,22 @@
         </div>
       </div>
     </yd-popup>
-    <yd-popup v-model="speedFlag" position="bottom" width="90%">
+    <!-- 如果是单风机 -->
+    <yd-popup v-if='formatItemsList[2] && isSingleMachine(formatItemsList[2])' v-model="speedFlag" position="bottom" width="90%">
+      <div class="content">
+        <div class="title">{{windData.definedName}}</div>
+        <div class="list">
+          <ul>
+            <li v-if='item.status !== 2' v-for="(item,index) in windData.abilityOptionList" :key="index" :class="{ active: currentOptionForWind == index }" @click='nodeClicked(windData,index)'>
+              <span>{{ item.optionDefinedName }}</span>
+              <div class="icon"></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </yd-popup>
+    <!-- 双风机 -->
+    <yd-popup v-else v-model="speedFlag" position="bottom" width="90%">
       <div class="content">
         <div class="title">风速设定</div>
         <div class="list wind-speed-list" v-if='formatItemsList[2]'>
@@ -117,7 +132,7 @@
             <!-- 内风机的位置 -->
             <p>{{getListData(formatItemsList[2].abilityId,'left').definedName}}</p>
             <ul>
-              <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[2].abilityId,'left').abilityOptionList" :class="{ active: speedLeftCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[2].abilityId,'left'),index,2)">
+              <li v-if='item.status !== 2 && getListData(formatItemsList[2].abilityId,"left")' v-for="(item,index) in getListData(formatItemsList[2].abilityId,'left').abilityOptionList" :class="{ active: speedLeftCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[2].abilityId,'left'),index)" :key='item.optionValue'>
                 <span>{{ item.optionDefinedName || item.optionName }}</span>
                 <div class="icon"></div>
               </li>
@@ -125,9 +140,9 @@
           </div>
           <div>
             <!-- 外风机的位置 -->
-            <p>{{getListData(formatItemsList[2].abilityId,'right').definedName}}</p>
+            <p v-if='getListData(formatItemsList[2].abilityId, "right")'>{{getListData(formatItemsList[2].abilityId,'right').definedName}}</p>
             <ul>
-              <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[2].abilityId,'right').abilityOptionList" :class="{ active: speedRightCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[2].abilityId,'right'),index,2)">
+              <li v-if='item.status !== 2 && getListData(formatItemsList[2].abilityId,"right")' v-for="(item,index) in getListData(formatItemsList[2].abilityId,'right').abilityOptionList" :class="{ active: speedRightCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[2].abilityId,'right'),index)" :key='item.optionValue'>
                 <span>{{ item.optionDefinedName || item.optionName }}</span>
                 <div class="icon"></div>
               </li>
@@ -141,7 +156,7 @@
         <div class="title">其它功能设定</div>
         <div class="list">
           <ul v-if='formatItemsList[3]'>
-            <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[3].abilityId)" :key="item.dirValue" :class="{ active: item.isChecked}" @click="nodeClicked(item,index,3)">
+            <li v-if='item.status !== 2 &&  getListData(formatItemsList[3].abilityId)' v-for="(item,index) in getListData(formatItemsList[3].abilityId)" :key="item.dirValue" :class="{ active: item.isChecked}" @click="nodeClicked(item,index,3)">
               <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
             </li>
@@ -177,12 +192,9 @@ import {
 export default {
   data() {
     return {
-      specIndex: 0,
       pageIsShow: false,
       img: img4,
-      currentBak: '',
-      currentTime: 2,
-      timeSet: null,
+      windData: {},
       deviceName: '',
       customerName: '',
       cHeight: 200,
@@ -211,10 +223,32 @@ export default {
       deviceId: this.$route.query.deviceId,
       wxDeviceId: this.$route.query.wxDeviceId,
       customerId: this.$route.query.customerId,
-      setInter: undefined // 定时id
+      setInter: undefined, // 定时id
+      singleMachine: true // 是单风机吗？
     }
   },
   methods: {
+    isSingleMachine(data) {
+      debugger
+      // 是单风机的吗？
+      const id = data.abilityId
+      const ability = this.getListData(id)
+      if (!ability) {
+        return true
+      }
+      const firstAbilityOption =
+        this.getListData(id).abilityOptionList &&
+        this.getListData(id).abilityOptionList[0]
+      // 选项指令小于10的话，就是单风机。
+      if (Number(firstAbilityOption.optionValue) < 10) {
+        this.singleMachine = true
+        // 获取单风机功能项数据
+        this.windData = this.getAbilityData(id)
+        return true
+      }
+      this.singleMachine = false
+      return false
+    },
     getAbilityByDirValue(dirValue) {
       // 根据指令值找对应的功能项数据，双风机风速用到
       return this.abilitysList.filter(item => item.dirValue === dirValue)[0]
@@ -239,13 +273,17 @@ export default {
         return right
       }
       // 根据功能id获取功能项的数据
-      const result = this.abilitysList.filter(
+      let result = this.abilitysList.filter(
         item => item.abilityId === abilityId
-      )[0].abilityOptionList
+      )
+      if (result && result[0]) {
+        result = result[0].abilityOptionList
+      }
 
       return result
     },
     /**
+     * 找到对应的功能项数据
      * @param which left/right 表示内风机/外风机
      */
     getAbilityData(abilityId, which) {
@@ -261,7 +299,6 @@ export default {
       return result
     },
     changeSpeed(item, index) {
-      this.specIndex = index
       this.slots[0].values = item.choice
       this.slots[0].defaultIndex = parseInt(item.value) - 1
     },
@@ -292,18 +329,19 @@ export default {
       }
 
       // 根据isSelect的值，对相应选项执行默认选中行为
-      data.abilityOptionList.forEach((item, iIndex) => {
-        if (item.isSelect === 0) {
-          return
-        }
+      data.abilityOptionList &&
+        data.abilityOptionList.forEach((item, iIndex) => {
+          if (item.isSelect === 0) {
+            return
+          }
 
-        // “模式”
-        if (type === 1) {
-          this.modeCurrent = iIndex
-          return
-        }
-        this.speedCurrent = iIndex
-      })
+          // “模式”
+          if (type === 1) {
+            this.modeCurrent = iIndex
+            return
+          }
+          this.speedCurrent = iIndex
+        })
     },
     setPopDialogData() {
       // 实时设置下方模式、风速，功能等弹框内的数据
@@ -319,14 +357,15 @@ export default {
         }
 
         // 根据isSelect的值，对相应选项执行默认选中行为
-        data.abilityOptionList.forEach((item, iIndex) => {
-          if (item.isSelect === 0) {
-            return
-          }
+        data.abilityOptionList &&
+          data.abilityOptionList.forEach((item, iIndex) => {
+            if (item.isSelect === 0) {
+              return
+            }
 
-          // “模式选项”
-          this.modeCurrent = iIndex
-        })
+            // “模式选项”
+            this.modeCurrent = iIndex
+          })
       }
 
       const updateWindSpeed = () => {
@@ -340,14 +379,15 @@ export default {
         }
 
         // 根据isSelect的值，对相应选项执行默认选中行为
-        dataLeft.abilityOptionList.forEach((item, iIndex) => {
-          if (item.isSelect === 0) {
-            return
-          }
+        dataLeft.abilityOptionList &&
+          dataLeft.abilityOptionList.forEach((item, iIndex) => {
+            if (item.isSelect === 0) {
+              return
+            }
 
-          // “内风速选项”
-          this.speedLeftCurrent = iIndex
-        })
+            // “内风速选项”
+            this.speedLeftCurrent = iIndex
+          })
 
         // 外风速的功能数据
         const dataRight = this.abilitysList.filter(
@@ -358,14 +398,15 @@ export default {
         }
 
         // 根据isSelect的值，对相应选项执行默认选中行为
-        dataRight.abilityOptionList.forEach((item, iIndex) => {
-          if (item.isSelect === 0) {
-            return
-          }
+        dataRight.abilityOptionList &&
+          dataRight.abilityOptionList.forEach((item, iIndex) => {
+            if (item.isSelect === 0) {
+              return
+            }
 
-          // “外风速选项”
-          this.speedRightCurrent = iIndex
-        })
+            // “外风速选项”
+            this.speedRightCurrent = iIndex
+          })
       }
 
       // 功能多选项的初始化
@@ -398,7 +439,6 @@ export default {
         return false
       }
       this.speedFlag = true
-      // this.setModelData(2, id)
     },
     switchFunction() {
       if (!this.isOpen) {
@@ -439,7 +479,7 @@ export default {
       const tempArray = this.abilitysList.filter(
         item => item.abilityId === this.formatItemsList[10].abilityId
       )[0]
-      const tempList = tempArray.abilityOptionList
+      const tempList = tempArray && tempArray.abilityOptionList
       let index = 0
       if (this.isLock) {
         // 找“关”的项
@@ -473,7 +513,7 @@ export default {
       const tempArray = this.abilitysList.filter(
         item => item.abilityId === this.formatItemsList[11].abilityId
       )[0]
-      const tempList = tempArray.abilityOptionList
+      const tempList = tempArray && tempArray.abilityOptionList
       let index = 0
       if (this.isOpen) {
         // 找“关”的项
@@ -528,18 +568,13 @@ export default {
       sendFunc({
         deviceId: this.deviceId,
         funcId: item.dirValue,
-        value: type === 3 ? index : item.abilityOptionList[index].dirValue
+        value:
+          type === 3 ? index : item && item.abilityOptionList[index].dirValue
       })
         .then(res => {
           if (res.code === 200) {
             // Loading.close()
-            if (type === 1) {
-              this.modeCurrent = index
-            } else if (type === 2) {
-              this.speedCurrent = index
-            } else if (type === 3) {
-              item.isChecked = !item.isChecked
-            }
+
             Toast({
               mes: '发送成功',
               timeout: 1000,
@@ -549,7 +584,9 @@ export default {
               '指令发送成功:',
               item.dirValue,
               '-',
-              type === 3 ? index : item.abilityOptionList[index].dirValue
+              type === 3
+                ? index
+                : item && item.abilityOptionList[index].dirValue
             )
           }
         })
@@ -566,18 +603,26 @@ export default {
 
           // 将功能集里的内外风机的数据加到版式集合中。为了后面持续刷新两个风机的数据
           const windBoxId = data.formatItemsList[2].abilityId
-          const windOption = data.abilitysList
-            .filter(item => item.abilityId === windBoxId)[0]
-            .abilityOptionList.map(item => item.optionValue)
+          let windOption = data.abilitysList.filter(
+            item => item.abilityId === windBoxId
+          )[0]
+
+          if (windOption && windOption[0]) {
+            windOption.abilityOptionList.map(item => item.optionValue)
+          }
           // 根据内外风机指令 筛选内外风机功能数据
-          const windData = data.abilitysList.filter(item =>
-            windOption.includes(item.dirValue)
+          const theWindData = data.abilitysList.filter(
+            item =>
+              windOption &&
+              windOption.includes &&
+              windOption.includes(item.dirValue)
           )
-          this.formatItemsList = data.formatItemsList.concat(windData)
+          this.formatItemsList = data.formatItemsList.concat(theWindData)
 
           data.abilitysList.forEach(item => {
             item['currValue'] = ''
-            item.abilityOptionList &&
+            item &&
+              item.abilityOptionList &&
               item.abilityOptionList.forEach(iItem => {
                 iItem.isChecked = false
               })
@@ -592,9 +637,6 @@ export default {
     },
     getIndexFormatData(list) {
       // 获取H5控制页面功能项数据，带isSelect参数
-      if (!this.isOpen) {
-        return
-      }
 
       // 根据功能项id筛选功能项
       const findTheAbility = (data, id) => {
@@ -611,7 +653,8 @@ export default {
         // 将res.data中的isSelect和dirValue赋值过去
         this.abilitysList.forEach((item, index) => {
           // 如果有值，说明是温度这样的功能项，讲数值拿过来
-          if (data[index] && data[index].currValue) {
+          // 开机状态才更新数据
+          if (this.isOpen && data[index] && data[index].currValue) {
             // 找到对应的功能项对象
             const temp = this.abilitysList.filter(
               itemA => itemA.abilityId === data[index].id
@@ -621,12 +664,24 @@ export default {
               temp['currValue'] = data[index].currValue
             } catch (e) {}
           }
-          if (!item.abilityOptionList || item.abilityOptionList.length === 0) {
+          if (
+            !item ||
+            !item.abilityOptionList ||
+            item.abilityOptionList.length === 0
+          ) {
             return
           }
 
           item.abilityType !== 1 &&
+            item &&
             item.abilityOptionList.forEach((option, oIndex) => {
+              // 如果此时关机 且 不是开关机的数据，则不更新
+              if (
+                !this.isOpen &&
+                item.abilityId !== this.formatItemsList[11].abilityId
+              ) {
+                return
+              }
               const result = findTheAbility(data, item.abilityId)
               if (result) {
                 const temp = Object.assign(
@@ -638,7 +693,10 @@ export default {
         })
 
         this.switchHandler()
-        this.setPopDialogData()
+        if (this.isOpen) {
+          // 开机状态才刷新数据
+          this.setPopDialogData()
+        }
       })
     },
     getLocation() {
@@ -673,9 +731,13 @@ export default {
     },
     switchHandler() {
       // 开关机初始化
-      const tempArray = this.abilitysList.filter(
+      let tempArray = this.abilitysList.filter(
         item => item.abilityId === this.formatItemsList[11].abilityId
-      )[0].abilityOptionList
+      )
+
+      if (tempArray && tempArray[0]) {
+        tempArray = tempArray[0].abilityOptionList
+      }
 
       // 找到关机的对象
       const tempObj = tempArray[0].dirValue == 0 ? tempArray[0] : tempArray[1]
@@ -687,9 +749,12 @@ export default {
       }
 
       // 童锁初始化
-      const tempArray2 = this.abilitysList.filter(
+      let tempArray2 = this.abilitysList.filter(
         item => item.abilityId === this.formatItemsList[10].abilityId
-      )[0].abilityOptionList
+      )
+      if (tempArray2 && tempArray2[0]) {
+        tempArray2 = tempArray2[0].abilityOptionList
+      }
 
       const tempObj2 =
         tempArray2[0].dirValue == 0 ? tempArray2[0] : tempArray2[1]
