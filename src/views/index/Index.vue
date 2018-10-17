@@ -109,45 +109,12 @@
         </div>
       </div>
     </yd-popup>
-    <!-- 如果是单风机 -->
-    <yd-popup v-if='formatItemsList[2] && isSingleMachine(formatItemsList[2])' v-model="speedFlag" position="bottom" width="90%">
-      <div class="content">
-        <div class="title">{{windData.definedName}}</div>
-        <div class="list">
-          <ul>
-            <li v-if='item.status !== 2' v-for="(item,index) in windData.abilityOptionList" :key="index" :class="{ active: currentOptionForWind == index }" @click='nodeClicked(windData,index)'>
-              <span>{{ item.optionDefinedName }}</span>
-              <div class="icon"></div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </yd-popup>
-    <!-- 双风机 -->
-    <yd-popup v-else v-model="speedFlag" position="bottom" width="90%">
+    <!-- 单/双风机 -->
+    <yd-popup v-show='formatItemsList[2] && formatItemsList[2].showStatus' v-model="speedFlag" position="bottom" width="90%">
       <div class="content">
         <div class="title">风速设定</div>
-        <div class="list wind-speed-list" v-if='formatItemsList[2]'>
-          <div>
-            <!-- 内风机的位置 -->
-            <p>{{getListData(formatItemsList[2].abilityId,'left').definedName}}</p>
-            <ul>
-              <li v-if='item.status !== 2 && getListData(formatItemsList[2].abilityId,"left")' v-for="(item,index) in getListData(formatItemsList[2].abilityId,'left').abilityOptionList" :class="{ active: speedLeftCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[2].abilityId,'left'),index)" :key='item.optionValue'>
-                <span>{{ item.optionDefinedName || item.optionName }}</span>
-                <div class="icon"></div>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <!-- 外风机的位置 -->
-            <p v-if='getListData(formatItemsList[2].abilityId, "right")'>{{getListData(formatItemsList[2].abilityId,'right').definedName}}</p>
-            <ul>
-              <li v-if='item.status !== 2 && getListData(formatItemsList[2].abilityId,"right")' v-for="(item,index) in getListData(formatItemsList[2].abilityId,'right').abilityOptionList" :class="{ active: speedRightCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[2].abilityId,'right'),index)" :key='item.optionValue'>
-                <span>{{ item.optionDefinedName || item.optionName }}</span>
-                <div class="icon"></div>
-              </li>
-            </ul>
-          </div>
+        <div class="list">
+          <mt-picker ref='picker' :slots="slots" @change="onValuesChange"></mt-picker>
         </div>
       </div>
     </yd-popup>
@@ -189,6 +156,9 @@ import {
   sendFunc
 } from '../wenkong/api'
 
+let prevValues = '' //当一次用户选择的picker组件的第二个值，来判断。只有此值变化，才调用指令接口
+let currValues = '' // 当前用户所在的左侧滑杆的值
+
 export default {
   data() {
     return {
@@ -224,30 +194,210 @@ export default {
       wxDeviceId: this.$route.query.wxDeviceId,
       customerId: this.$route.query.customerId,
       setInter: undefined, // 定时id
-      singleMachine: true // 是单风机吗？
+      singleMachine: true, // 是单风机吗？
+      slots: [
+        {
+          flex: 1,
+          values: [],
+          className: 'slot1',
+          textAlign: 'right',
+          defaultIndex: 1
+        },
+        {
+          divider: true,
+          content: '-',
+          className: 'slot2'
+        },
+        {
+          flex: 1,
+          values: [],
+          className: 'slot3',
+          textAlign: 'left',
+          defaultIndex: 2
+        }
+      ],
+      thePicker: null, // picker的引用
+      twoSeconds: false
     }
   },
   methods: {
-    isSingleMachine(data) {
-      debugger
-      // 是单风机的吗？
-      const id = data.abilityId
-      const ability = this.getListData(id)
-      if (!ability) {
+    onValuesChange(picker, values) {
+      if (!this.twoSeconds) {
+        // 2秒后才能执行
+        return
+      }
+
+      if (this.singleMachine) {
+        // 如果单风机，直接发送指令
+        sendFunc({
+          deviceId: this.deviceId,
+          funcId: this.windData.dirValue,
+          value:
+            this.windData.abilityOptionList.filter(
+              item => item.optionDefinedName === values[1]
+            )[0] &&
+            this.windData.abilityOptionList.filter(
+              item => item.optionDefinedName === values[1]
+            )[0].optionValue
+        }).then(res => {
+          Toast({
+            mes: '指令发送成功！',
+            timeout: 1000,
+            icon: 'success'
+          })
+          console.info(
+            '指令发送成功:',
+            this.windData.dirValue,
+            '-',
+            this.windData.abilityOptionList.filter(
+              item => item.optionDefinedName === values[1]
+            )[0].optionValue
+          )
+        })
+
+        return
+      }
+      // 双风机的话，切换对应的档位显示
+      // 找到对应的功能项
+      const tempData = this.windData.filter(
+        item => item.definedName === values[0]
+      )[0]
+
+      this.thePicker.setSlotValues(
+        1,
+        tempData.abilityOptionList.map(
+          item => item.optionDefinedName || item.optionName
+        )
+      )
+
+      // 重新赋值，获取用户当前所在的滑杆（左边那个）
+      currValues = values[0]
+
+      // 如果用户没有滑动左侧的滑杆，不调用接口
+      if (prevValues === values[1]) {
+        return
+      }
+      prevValues = values[1]
+      sendFunc({
+        deviceId: this.deviceId,
+        funcId: tempData.dirValue,
+        value:
+          tempData.abilityOptionList.filter(
+            item => item.optionDefinedName === values[1]
+          )[0] &&
+          tempData.abilityOptionList.filter(
+            item => item.optionDefinedName === values[1]
+          )[0].optionValue
+      }).then(res => {
+        Toast({
+          mes: '指令发送成功！',
+          timeout: 1000,
+          icon: 'success'
+        })
+        console.info(
+          '指令发送成功:',
+          tempData.dirValue,
+          '-',
+          tempData.abilityOptionList.filter(
+            item => item.optionDefinedName === values[1]
+          )[0].optionValue
+        )
+      })
+    },
+    initWindMachine() {
+      // 单双风机分开处理，初始化Picker数据且初始化
+      const thePicker = this.thePicker
+      if (!this.formatItemsList[2]) {
+        return
+      }
+      const id = this.formatItemsList[2].abilityId
+      const abilityOption = this.getListData(id)
+      if (!abilityOption) {
         return true
       }
-      const firstAbilityOption =
-        this.getListData(id).abilityOptionList &&
-        this.getListData(id).abilityOptionList[0]
+
+      const firstAbilityOption = abilityOption[0]
+
+      // 找到设备选择的档位值，并且设置默认选择
+      let itemSelected = undefined
       // 选项指令小于10的话，就是单风机。
       if (Number(firstAbilityOption.optionValue) < 10) {
         this.singleMachine = true
         // 获取单风机功能项数据
-        this.windData = this.getAbilityData(id)
-        return true
+        const windData = this.getAbilityData(id)
+        windData.abilityOptionList.forEach((item, index) => {
+          if (item.isSelect) {
+            itemSelected = index
+          }
+        })
+
+        const temp = windData.abilityOptionList.map(
+          item => item.optionDefinedName || item.optionName
+        )
+        thePicker.setSlotValues(0, [windData.definedName])
+        thePicker.setSlotValues(1, temp)
+        this.windData = windData
+
+        thePicker.setSlotValue(1, temp[itemSelected])
+        return
       }
+
+      // 如果是双风机
+      // 获取风机数据，且重置picker组件
       this.singleMachine = false
-      return false
+      // 拿到数据，组成数组
+      const windArray = abilityOption.map(item =>
+        this.getAbilityByDirValue(item.dirValue)
+      )
+      this.windData = windArray
+
+      // 赋值第一个风机的名称位
+      if (!currValues) {
+        currValues = windArray[0].definedName
+      }
+
+      // 如果用户当前是在内风速：即风速数组的第一个元素
+      let temp = []
+      if (windArray[0].definedName === currValues) {
+        windArray[0].abilityOptionList.forEach((item, index) => {
+          if (item.isSelect) {
+            itemSelected = index
+          }
+        })
+
+        temp = windArray[0].abilityOptionList.map(
+          item => item.optionDefinedName || item.optionName
+        )
+        thePicker.setSlotValues(0, windArray.map(item => item.definedName))
+        thePicker.setSlotValues(
+          1,
+          windArray[0].abilityOptionList.map(
+            item => item.optionDefinedName || item.optionName
+          )
+        )
+
+        // 设置档位的下标
+      } else {
+        windArray[1].abilityOptionList.forEach((item, index) => {
+          if (item.isSelect) {
+            itemSelected = index
+          }
+        })
+
+        temp = windArray[1].abilityOptionList.map(
+          item => item.optionDefinedName || item.optionName
+        )
+        thePicker.setSlotValues(0, windArray.map(item => item.definedName))
+        thePicker.setSlotValues(
+          1,
+          windArray[1].abilityOptionList.map(
+            item => item.optionDefinedName || item.optionName
+          )
+        )
+      }
+
+      thePicker.setSlotValue(1, temp[itemSelected])
+      prevValues = temp[itemSelected]
     },
     getAbilityByDirValue(dirValue) {
       // 根据指令值找对应的功能项数据，双风机风速用到
@@ -301,12 +451,6 @@ export default {
     changeSpeed(item, index) {
       this.slots[0].values = item.choice
       this.slots[0].defaultIndex = parseInt(item.value) - 1
-    },
-    onValuesChange(picker, values) {
-      if (values[0] > values[1]) {
-        picker.setSlotValue(1, values[0])
-      }
-      this.currentSpeed = values
     },
     intiTime() {
       if (!this.isOpen) {
@@ -600,25 +744,6 @@ export default {
         if (res.code === 200 && res.data) {
           const data = res.data
           this.pageName = data.pageName
-
-          // 将功能集里的内外风机的数据加到版式集合中。为了后面持续刷新两个风机的数据
-          const windBoxId = data.formatItemsList[2].abilityId
-          let windOption = data.abilitysList.filter(
-            item => item.abilityId === windBoxId
-          )[0]
-
-          if (windOption && windOption[0]) {
-            windOption.abilityOptionList.map(item => item.optionValue)
-          }
-          // 根据内外风机指令 筛选内外风机功能数据
-          const theWindData = data.abilitysList.filter(
-            item =>
-              windOption &&
-              windOption.includes &&
-              windOption.includes(item.dirValue)
-          )
-          this.formatItemsList = data.formatItemsList.concat(theWindData)
-
           data.abilitysList.forEach(item => {
             item['currValue'] = ''
             item &&
@@ -628,6 +753,29 @@ export default {
               })
           })
           this.abilitysList = data.abilitysList
+
+          // 将功能集里的内外风机的数据加到版式集合中。为了后面持续刷新两个风机的数据
+          const windBoxId = data.formatItemsList[2].abilityId
+          let wind = data.abilitysList.filter(
+            item => item.abilityId === windBoxId
+          )[0]
+
+          let appendData = []
+          if (wind && wind.abilityOptionList) {
+            let windOption = wind.abilityOptionList
+            // 如果数据判断存在
+            if (Number(windOption[0].optionValue) > 10) {
+              // 如果是双风机
+              appendData = windOption.map(item => {
+                return {
+                  abilityId: this.getAbilityByDirValue(item.optionValue)
+                    .abilityId
+                }
+              })
+            }
+          }
+          this.formatItemsList = data.formatItemsList.concat(appendData)
+
           // 定时请求接口数据，更新页面数据
           this.setInter = setInterval(() => {
             this.getIndexFormatData()
@@ -696,6 +844,7 @@ export default {
         if (this.isOpen) {
           // 开机状态才刷新数据
           this.setPopDialogData()
+          this.initWindMachine()
         }
       })
     },
@@ -769,6 +918,9 @@ export default {
     setTimeout(() => {
       this.pageIsShow = true
     }, 1000)
+    setTimeout(() => {
+      this.twoSeconds = true
+    }, 2000)
     this.cHeight = window.innerWidth * 0.45
     if (window.innerWidth <= 340) {
       this.cHeight = window.innerWidth * 0.45
@@ -780,6 +932,9 @@ export default {
     this.getIndexAbilityData()
     this.getLocation()
     this.getWeather()
+  },
+  mounted() {
+    this.thePicker = this.$refs.picker
   },
   watch: {
     isOpen: function(val) {
@@ -1085,4 +1240,3 @@ export default {
   }
 }
 </style>
-

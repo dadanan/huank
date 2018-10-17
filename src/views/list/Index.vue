@@ -523,7 +523,6 @@ export default {
                 icon: 'success'
               })
               // 绑定成功后，删除“绑定相关”数据
-              Store.remove('obj')
             } else {
               Toast({
                 mes: '绑定失败！',
@@ -532,9 +531,11 @@ export default {
               console.log('绑定失败：', res)
             }
             this.obtainMyDevice()
+            Store.remove('obj')
           }
         })
         .catch(error => {
+          Store.remove('obj')
           this.$toast(error.msg, 'bottom')
         })
     }
@@ -542,11 +543,11 @@ export default {
   created() {
     if (JSON.parse(Store.fetch('obj'))) {
       // 分享人进来
-      console.log('从分享进来')
       this.shareBind(JSON.parse(Store.fetch('obj')))
     } else {
-      console.log('未从分享进来')
       this.obtainMyDevice()
+      // 这里调用次方法，是为了解决如果用户之前有obj数据，后面没有删除的话，会导致每次进入页面都执行绑定操作
+      Store.remove('obj')
     }
   },
   components: {
