@@ -2,6 +2,8 @@ import Vue from 'vue'
 import App from './App'
 import routes from 'router'
 import VueRouter from 'vue-router'
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
 import Toast from 'base/toast'
 import 'common/js/https'
 import 'common/scss/index.scss'
@@ -24,6 +26,7 @@ Vue.config.productionTip = false
 Vue.use(VueRouter)
 Vue.use(Toast)
 Vue.use(VueDraggable)
+Vue.use(ElementUI)
 Vue.prototype.GLOBAL = global_
 
 const router = new VueRouter({

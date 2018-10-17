@@ -265,10 +265,37 @@ export function share(data) {
 
 export function shareList(data) {
   return http({
-    url: `${BASE_URL}/api//h5/api/shareList`,
+    url: `${BASE_URL}/api/h5/api/shareList`,
     method: 'post',
     data,
     headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 修改人的权限
+export function updateRelation(data) {
+  return http({
+    url: `${BASE_URL}/api//h5/api/updateRelation`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 修改所有人的权限
+export function updateAllRelation(data) {
+  return http({
+    url: `${BASE_URL}/api//h5/api/updateAllRelation`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 获取历史数据
+export function getHistoryData(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/getHistoryData`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket')}
   })
 }
 

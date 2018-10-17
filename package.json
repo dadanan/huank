@@ -16,6 +16,7 @@
     "axios": "0.16.2",
     "better-scroll": "^0.1.8",
     "echarts": "3.8.5",
+    "element-ui": "^2.4.8",
     "fastclick": "^1.0.6",
     "jquery": "^2.2.3",
     "js-cookie": "2.1.4",

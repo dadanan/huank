@@ -27,6 +27,7 @@ import MyEcharts from '../../components/echart'
 import { Radio, RadioGroup } from 'vue-ydui/dist/lib.rem/radio'
 import myUrl from 'common/js/api'
 import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
+import { getHistoryData } from '../wenkong/api'
 
 export default {
   data() {
@@ -44,7 +45,8 @@ export default {
     }
   },
   created() {
-    this.getData()
+    // this.getData()
+    this.getHistoryData()
   },
   components: {
     'yd-radio-group': RadioGroup,
@@ -63,18 +65,21 @@ export default {
     returnMethod() {
       this.$router.back(-1)
     },
-    getData() {
+    getHistoryData() {
       Loading.open('很快加载好了')
-      this.$http
-        .get(myUrl.getHistoryData + '?deviceId=' + this.$route.query.deviceId)
+      getHistoryData({
+        deviceId: this.$route.query.deviceId,
+        type:1
+      })
         .then(res => {
-          if (res.code === 200) {
-            Loading.close()
-            this.dataList = res.data
-          }
-        })
-        .catch(function(error) {
+          this.dataList = res.data
+
           Loading.close()
+        })
+        .catch(error => {
+          Loading.close()
+          console.log(error)
+          this.$toast(error.msg, 'bottom')
         })
     },
     initChart() {

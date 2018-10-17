@@ -96,26 +96,26 @@
         <div class="text">{{formatItemsList[3].showName}}</div>
       </div>
     </div>
-    <yd-popup v-model="modeFlag" position="bottom" width="90%">
+    <!-- <yd-popup v-model="modeFlag" position="bottom" width="90%">
       <div class="content">
         <div class="title">模式设定</div>
         <div class="list">
           <ul v-if='formatItemsList[1]'>
             <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[1].abilityId)" :class="{ active: modeCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[1].abilityId),index,1)">
-              <span>{{ item.optionDefinedName || item.optionName }}</span>
-              <div class="icon"></div>
+            <span>{{ item.optionDefinedName || item.optionName }}</span>
+            <div class="icon"></div>
             </li>
           </ul>
         </div>
       </div>
-    </yd-popup>
-    <yd-popup v-model="speedFlag" position="bottom" width="90%">
+    </yd-popup> -->
+    <!-- <yd-popup v-model="speedFlag" position="bottom" width="90%">
       <div class="content">
         <div class="title">风速设定</div>
         <div class="list wind-speed-list" v-if='formatItemsList[2]'>
-          <div>
+          <div> -->
             <!-- 内风机的位置 -->
-            <p>{{getListData(formatItemsList[2].abilityId,'left').definedName}}</p>
+            <!-- <p>{{getListData(formatItemsList[2].abilityId,'left').definedName}}</p>
             <ul>
               <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[2].abilityId,'left').abilityOptionList" :class="{ active: speedLeftCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[2].abilityId,'left'),index,2)">
                 <span>{{ item.optionDefinedName || item.optionName }}</span>
@@ -123,9 +123,9 @@
               </li>
             </ul>
           </div>
-          <div>
+          <div> -->
             <!-- 外风机的位置 -->
-            <p>{{getListData(formatItemsList[2].abilityId,'right').definedName}}</p>
+            <!-- <p>{{getListData(formatItemsList[2].abilityId,'right').definedName}}</p>
             <ul>
               <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[2].abilityId,'right').abilityOptionList" :class="{ active: speedRightCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[2].abilityId,'right'),index,2)">
                 <span>{{ item.optionDefinedName || item.optionName }}</span>
@@ -135,7 +135,7 @@
           </div>
         </div>
       </div>
-    </yd-popup>
+    </yd-popup> -->
     <yd-popup v-model="functionFlag" position="bottom" width="90%">
       <div class="content">
         <div class="title">其它功能设定</div>

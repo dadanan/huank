@@ -69,8 +69,8 @@
         </div>
         <div class="cell-right"></div>
       </div>
-      <div class="cell-item white">
-        <a href="tel:88888888">
+      <div class="cell-item white" @click="customer = true">
+        <a >
           <div class="cell-left">
             <span>联系客服</span>
           </div>
@@ -78,10 +78,43 @@
         </a>
       </div>
     </div>
+    <!-- 联系客服 -->
+    <div class="create-dialog dialog" v-if="customer">
+      <div class="confirm">
+        <div class="confim-top">
+          <p>联系客服</p>
+        </div>
+        <div class="confim-content">
+          <p>有什么需求请拨打电话8888-8888-8888</p>
+        </div>
+        <div class="confim-bottom">
+          <div class="but1" @click="customer = false">确定</div>
+          <!-- <div class="but create">确定</div> -->
+        </div>
+    </div>
+    <div class="create-dialog dialog" v-if="setPwdFlag">
+      <div class="confirm">
+        <div class="confim-top">
+          <p>请输入设备密码</p>
+          <input type="number" name="" id="" value="" v-model="pwd" style="position: absolute; top:50px; left: 20px; right: 0; height: 40px; opacity: 0;" />
+          <div class="flex flex-pack-justify" style="margin: 0 20px;">
+            <span class="box">{{pwdList[0]}}</span>
+            <span class="box">{{pwdList[1]}}</span>
+            <span class="box">{{pwdList[2]}}</span>
+            <span class="box">{{pwdList[3]}}</span>
+          </div>
+        </div>
+        <div class="confim-bottom">
+          <div class="but" @click="cancel">取消</div>
+          <div class="but create" @click="getToken">确定</div>
+        </div>
+      </div>
+    </div>
+    </div>
     <div class="create-dialog dialog" v-if="editDevFlag">
       <div class="confirm">
         <div class="confim-top">
-          <textarea class="name" placeholder="输入新设备的名称" v-model="setDeviceName"></textarea>
+          <textarea class="name" v-model="setDeviceName" v-text="deviceName"></textarea>
         </div>
         <div class="confim-bottom">
           <div class="but" @click="editDevFlag = false">取消</div>
@@ -111,9 +144,11 @@ export default {
       switch1: false,
       switch2: false,
       editDevFlag: false,
+      customer: false,
       deviceName: '',
       setDeviceName: '',
       batteryList: [],
+      setPwdFlag: false,
       show2: false,
       model2: '',
       district: District,
@@ -319,6 +354,9 @@ export default {
           }
         }
       }
+      .confim-content{
+        padding: 20px 10px;
+      }
       .confim-bottom {
         background: #ffffff;
         padding: 20px 20px;
@@ -341,6 +379,15 @@ export default {
               color: #ffffff;
             }
           }
+        }
+        .but1{
+          width: 100%;
+          height: 40px;
+          line-height: 40px;
+          text-align: center;
+          border: 1px solid #2689ee;
+          color: #2689ee;
+          border-radius: 5px;
         }
       }
     }

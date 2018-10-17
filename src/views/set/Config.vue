@@ -94,7 +94,6 @@
             </div>
             <span style="float: right; color: #6fbff8; margin-left: 10px;" @click='delDev()' v-show='switch1'>删除</span>
             <span style="float: right; color: #6fbff8;" @click='addDev()' v-show='switch1'>+添加从设备</span>
-
           </div>
           <table class="table" style="margin-top: 5px;">
             <tr>
@@ -163,7 +162,7 @@
           </div>
         </div>
         <div class="confim-bottom">
-          <div class="but" @click="setPwdFlag = false">取消</div>
+          <div class="but" @click="goBack">取消</div>
           <div class="but create" @click="getToken">确定</div>
         </div>
       </div>
@@ -256,6 +255,9 @@ export default {
     }
   },
   methods: {
+    goBack() {
+      history.back()
+    },
     createChildDevice() {
       addChildDevice({
         hostDeviceId: this.deviceId,
