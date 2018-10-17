@@ -94,7 +94,6 @@
             </div>
             <span style="float: right; color: #6fbff8; margin-left: 10px;" @click='delDev()' v-show='switch1'>删除</span>
             <span style="float: right; color: #6fbff8;" @click='addDev()' v-show='switch1'>+添加从设备</span>
-
           </div>
           <table class="table" style="margin-top: 5px;">
             <tr>
@@ -150,6 +149,24 @@
       </yd-accordion-item>
     </yd-accordion>
 
+    <div class="create-dialog dialog" v-if="setPwdFlag">
+      <div class="confirm">
+        <div class="confim-top">
+          <p>请输入设备密码</p>
+          <input type="number" name="" id="" value="" v-model="pwd" style="position: absolute; top:50px; left: 20px; right: 0; height: 40px; opacity: 0;" />
+          <div class="flex flex-pack-justify" style="margin: 0 20px;">
+            <span class="box">{{pwdList[0]}}</span>
+            <span class="box">{{pwdList[1]}}</span>
+            <span class="box">{{pwdList[2]}}</span>
+            <span class="box">{{pwdList[3]}}</span>
+          </div>
+        </div>
+        <div class="confim-bottom">
+          <div class="but" @click="goBack">取消</div>
+          <div class="but create" @click="getToken">确定</div>
+        </div>
+      </div>
+    </div>
     <div class="create-dialog dialog" v-if="delDevFlag">
       <div class="confirm" style="padding: 0;">
         <div class="confim-top" style="text-align: left; color: #fff; padding: 0 10px 10px; ">
@@ -237,6 +254,9 @@ export default {
     }
   },
   methods: {
+    goBack() {
+      history.back()
+    },
     createChildDevice() {
       addChildDevice({
         hostDeviceId: this.deviceId,
