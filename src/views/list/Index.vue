@@ -486,7 +486,13 @@ export default {
           path: '/wenkongindex',
           query
         })
-      } else {
+      } else if (child.formatName === '智慧新风-单风机') {
+        // 智慧新风
+        this.$router.push({
+          path: '/indexsingle',
+          query
+        })
+      } else if (child.formatName === '智慧新风') {
         // 智慧新风
         this.$router.push({
           path: '/index',
@@ -522,8 +528,6 @@ export default {
                 timeout: 1500,
                 icon: 'success'
               })
-              // 绑定成功后，删除“绑定相关”数据
-              Store.remove('obj')
             } else {
               Toast({
                 mes: '绑定失败！',
@@ -532,9 +536,13 @@ export default {
               console.log('绑定失败：', res)
             }
             this.obtainMyDevice()
+            // 绑定成功后，删除“绑定相关”数据
+
+            Store.remove('obj')
           }
         })
         .catch(error => {
+          Store.remove('obj')
           this.$toast(error.msg, 'bottom')
         })
     }
@@ -547,6 +555,7 @@ export default {
     } else {
       console.log('未从分享进来')
       this.obtainMyDevice()
+      Store.remove('obj')
     }
   },
   components: {

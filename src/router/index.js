@@ -3,6 +3,7 @@
  * author by kairry 2017年11月20日
  */
 const Index = resolve => require(['@/views/index/Index'], resolve)
+const IndexSingle = resolve => require(['@/views/IndexSingle/Index'], resolve)
 
 const Auth = resolve => require(['@/views/auth/Auth'], resolve)
 const Init = resolve => require(['@/views/init/Init'], resolve)
@@ -68,6 +69,13 @@ let routes = [
   {
     path: '/index',
     component: Index,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/indexsingle',
+    component: IndexSingle,
     meta: {
       title: ''
     }
