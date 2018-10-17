@@ -122,6 +122,26 @@
         </div>
       </div>
     </div>
+
+    <div class="create-dialog dialog" v-if="setPwdFlag">
+      <div class="confirm">
+        <div class="confim-top">
+          <p>请输入设备密码</p>
+          <input type="number" name="" id="" value="" v-model="pwd" style="position: absolute; top:50px; left: 20px; right: 0; height: 40px; opacity: 0;" />
+          <div class="flex flex-pack-justify" style="margin: 0 20px;">
+            <span class="box">{{pwdList[0]}}</span>
+            <span class="box">{{pwdList[1]}}</span>
+            <span class="box">{{pwdList[2]}}</span>
+            <span class="box">{{pwdList[3]}}</span>
+          </div>
+        </div>
+        <div class="confim-bottom">
+          <div class="but" @click="setPwdFlag = false">取消</div>
+          <div class="but create" @click="getToken">确定</div>
+        </div>
+      </div>
+    </div>
+
     <yd-cityselect v-model="show2" ref="cityselectDemo" :callback="updateLocation" :items="district" :provance="province" :city="city" :area="area"></yd-cityselect>
   </div>
 </template>
@@ -133,7 +153,7 @@ import myUrl from 'common/js/api'
 import { editDevice } from '../wenkong/api'
 import { CitySelect } from 'vue-ydui/dist/lib.rem/cityselect'
 import Store from '../wenkong/store'
-import { updateDeviceLocation } from '../wenkong/api'
+import { updateDeviceLocation, getToken } from '../wenkong/api'
 
 export default {
   data() {
@@ -153,10 +173,39 @@ export default {
       model2: '',
       district: District,
       deviceId: this.$route.query.deviceId,
-      cusomterId: this.$route.query.cusomterId
+      customerId: this.$route.query.customerId,
+      pwd: '',
+      pwdList: []
     }
   },
   methods: {
+    getToken() {
+      // 高级设置Token
+      getToken({
+        customerId: this.customerId,
+        password: this.pwdList.join('')
+      })
+        .then(res => {
+          if (res.code === 200 && res.data) {
+            this.setPwdFlag = false
+            this.$router.push({
+              path: '/config',
+              query: {
+                deviceId: this.deviceId,
+                customerId: this.customerId
+              }
+            })
+            Store.save('Token', res.data)
+          }
+        })
+        .catch(err => {
+          Toast({
+            mes: '密码错误！',
+            timeout: 1500,
+            icon: 'success'
+          })
+        })
+    },
     updateLocation(ret) {
       this.model2 = ret.itemName1 + ',' + ret.itemName2 + ',' + ret.itemName3
       // 发送服务端
@@ -173,25 +222,6 @@ export default {
           Loading.close()
           this.$toast(error.msg, 'bottom')
         })
-
-      // this.$http
-      //   .get(
-      //     myUrl.updateDeviceLocation +
-      //       '?deviceId=' +
-      //       this.$route.query.deviceId +
-      //       '&location=' +
-      //       this.model2
-      //   )
-      //   .then(res => {
-      //     if (res.code === 200) {
-      //       Loading.close()
-      //       sessionStorage.setItem('location', this.model2)
-      //     }
-      //   })
-      //   .catch(error => {
-      //     Loading.close()
-      //     this.$toast(error.msg, 'bottom')
-      //   })
     },
     returnMethod() {
       this.$router.back(-1)
@@ -201,7 +231,7 @@ export default {
         path: '/share',
         query: {
           deviceId: this.deviceId,
-          cusomterId: this.cusomterId
+          customerId: this.customerId
         }
       })
     },
@@ -214,13 +244,7 @@ export default {
       })
     },
     intoConfig() {
-      this.$router.push({
-        path: '/config',
-        query: {
-          deviceId: this.deviceId,
-          cusomterId: this.cusomterId
-        }
-      })
+      this.setPwdFlag = true
     },
     intoBattery() {
       this.$router.push({
@@ -289,6 +313,18 @@ export default {
   },
   mounted() {
     this.deviceName = Store.fetch('deviceName')
+  },
+  watch: {
+    pwd: function() {
+      if (this.pwd && this.pwd.length > 0) {
+        if (this.pwd.length >= 4) {
+          this.pwd = this.pwd.slice(0, 4)
+        }
+        this.pwdList = this.pwd.split('')
+      } else {
+        this.pwdList = []
+      }
+    }
   }
 }
 </script>
@@ -296,6 +332,10 @@ export default {
 @import 'src/common/scss/variable.scss';
 @import 'src/common/scss/mixins.scss';
 .set-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
   .dialog {
     position: fixed;
     z-index: 2000;
@@ -470,6 +510,25 @@ export default {
         }
       }
     }
+  }
+  .box {
+    height: 40px;
+    width: 40px;
+    border: 1px solid #fff;
+    display: block;
+    line-height: 40px;
+  }
+  .flex {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+  }
+  .flex-pack-justify {
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
   }
 }
 </style>

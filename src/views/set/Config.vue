@@ -239,7 +239,6 @@ export default {
       checkbox2: [],
       radio1: 1,
       switch1: true,
-      setPwdFlag: true,
       delDevFlag: false,
       addDevFlag: false,
       pwd: '',
@@ -365,20 +364,6 @@ export default {
         this.childDeviceArray = res.data
       })
     },
-    getToken() {
-      // 高级设置Token
-      getToken({
-        customerId: this.customerId,
-        password: this.pwdList.join('')
-      }).then(res => {
-        if (res.code === 200 && res.data) {
-          Store.save('Token', res.data)
-          this.childDeviceList()
-          this.getModelList()
-          this.setPwdFlag = false
-        }
-      })
-    },
     getModelList() {
       modelList(this.customerId).then(res => {
         this.modelList = res.data
@@ -392,6 +377,8 @@ export default {
       Loading.close()
     }, 300)
     this.deviceId = this.$route.query.deviceId
+    this.childDeviceList()
+    this.getModelList()
   },
   components: {
     'yd-accordion': Accordion,

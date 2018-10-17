@@ -26,6 +26,18 @@ export function getModelVo(data) {
     }
   })
 }
+// 滤网时间
+export function getStrainerData(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/getStrainerData`,
+    method: 'post',
+    data,
+    headers: {
+      Ticket: Store.fetch('Ticket'),
+      Authorization: Store.fetch('Token')
+    }
+  })
+}
 
 export function editDevice(data) {
   return http({
