@@ -500,7 +500,7 @@ export default {
       sendFunc({
         deviceId: this.deviceId,
         funcId: item.dirValue,
-        value: type === 3 ? index : item.abilityOptionList[index].dirValue
+        value: type === 3 ? index : item.abilityOptionList[index].optionValue
       })
         .then(res => {
           if (res.code === 200) {
@@ -521,7 +521,7 @@ export default {
               '指令发送成功:',
               item.dirValue,
               '-',
-              type === 3 ? index : item.abilityOptionList[index].dirValue
+              type === 3 ? index : item.abilityOptionList[index].optionValue
             )
           }
         })
