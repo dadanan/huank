@@ -165,7 +165,8 @@ import {
   editDevice,
   updateDeviceTeam,
   share,
-  childDeviceList
+  childDeviceList,
+  deleteDevice
 } from '../wenkong/api'
 import Store from '../wenkong/store'
 
@@ -238,7 +239,6 @@ export default {
     swipeleft(s, e) {
       // 左滑动
       this.loopValue = true
-      console.log(2)
       this.groupFlag = false
     },
     swiperight(s, e) {
@@ -247,7 +247,6 @@ export default {
     },
     swipeTeamLeft(s, e) {
       this.groupFlag = true
-      console.log(1)
     },
     returnMethod() {
       this.$router.back(-1)
@@ -362,6 +361,7 @@ export default {
             })
             Loading.close()
             this.obtainMyDevice()
+            this.delDevFlag = false
           }
         })
         .catch(error => {
