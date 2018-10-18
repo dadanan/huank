@@ -56,7 +56,7 @@ export default {
         series: [
           {
             data: this.ydata,
-            type: 'bar',
+            type: 'line',
             smooth: true,
             itemStyle: {
               normal: {
