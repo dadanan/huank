@@ -37,6 +37,7 @@
             <span>优</span>
           </p>
           <p v-if='formatItemsList[15]' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[15].abilityId).currValue}}</p>
+          <p></p>
           <p>ug/m3</p>
         </div>
       </div>
@@ -59,7 +60,7 @@
         </div>
       </div>
       <div class="tip" v-show='formatItemsList[7] && formatItemsList[7].showStatus'>
-        <p>滤芯剩余寿命 1204 时</p>
+        <p>滤芯剩余寿命 {{batteryList3}} 时</p>
         <p v-if="1===2">设备租赁剩余时间 2 时</p>
       </div>
       <div class="b-data">
@@ -171,7 +172,8 @@ import {
   newQueryDetailByDeviceId,
   getLocation,
   getWeather,
-  sendFunc
+  sendFunc,
+  getStrainerData
 } from '../wenkong/api'
 
 export default {
@@ -211,6 +213,9 @@ export default {
       wxDeviceId: this.$route.query.wxDeviceId,
       customerId: this.$route.query.customerId,
       setInter: undefined, // 定时id
+      batteryList1 :[],
+      dirValueList:[],
+      batteryList3:'',
       setInter2: undefined
     }
   },
@@ -286,6 +291,7 @@ export default {
       })
     },
     setModelData(type, id) {
+      // console.log(type,id)
       const data = this.abilitysList.filter(item => item.abilityId === id)[0]
       if (!data) {
         return
@@ -296,7 +302,7 @@ export default {
         if (item.isSelect === 0) {
           return
         }
-
+      
         // “模式”
         if (type === 1) {
           this.modeCurrent = iIndex
@@ -521,6 +527,7 @@ export default {
         return
       }
       this.sendFunc(item, index, type)
+      // console.log(item,index, type)
     },
     sendFunc(item, index, type) {
       // 模式、风速、功能的指令发送函数
@@ -587,12 +594,38 @@ export default {
           this.setInter = setInterval(() => {
             this.getIndexFormatData()
           }, 1000)
+           //滤网检查
+          const windOption1 = data.abilitysList
+          // console.log(windOption1)
+          for (var i = 0; i < windOption1.length; i++) {
+              if (windOption1[i].dirValue == '-1') {
+                this.batteryList1 = windOption1[i].abilityOptionList
+                this.getStrainerData()
+              }
+            }
 
           this.setInter2 = setInterval(() => {
             this.getWeather()
           }, 60000)
         }
       })
+    },
+    getStrainerData() {
+      for (var i = 0;i< this.batteryList1.length; i++) {
+        this.dirValueList.push(this.batteryList1[i].optionValue)
+      }
+      getStrainerData({
+        deviceId: this.$route.query.deviceId,
+        dirValueList: this.dirValueList
+      }).then(res => {
+        if (res.code === 200 && res.data) {
+            var s =this.batteryList1[0].optionValue;
+            var d = (res.data)[s]
+            this.batteryList3= d
+        }
+      }).catch(error => {
+          console.log(error)
+        })
     },
     getIndexFormatData(list) {
       // 获取H5控制页面功能项数据，带isSelect参数
