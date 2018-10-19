@@ -326,7 +326,10 @@ export function deleteDevice(data) {
     url: `${BASE_URL}/api/h5/api/deleteDevice`,
     method: 'post',
     data,
-    headers: { Ticket: Store.fetch('Ticket') }
+    headers: { 
+      Ticket: Store.fetch('Ticket'),
+      Authorization: Store.fetch('Token')
+  }
   })
 }
 

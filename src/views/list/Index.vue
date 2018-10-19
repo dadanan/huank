@@ -28,7 +28,7 @@
                 </div>
                 <div class="img-text">
                   <p>
-                    <span>{{ child.deviceName }}</span>
+                    <span class="img-text1">{{ child.deviceName }}</span>
                     <i class="addr"></i>
                     <span>{{child.location && child.location.split(',')[1]}}</span>
                   </p>
@@ -348,11 +348,12 @@ export default {
     },
     confirmdeleteDev() {
       Loading.open('很快加载好了')
+      console.log(this.deleteTheDeviceId)
       deleteDevice({
-        deviceId: this.deleteTheDeviceId,
-        deviceName: this.deleteTheDeviceName
+        value: this.deleteTheDeviceId
       })
         .then(res => {
+          console.log(res)
           if (res.code === 200) {
             Toast({
               mes: '删除成功',
@@ -790,6 +791,9 @@ export default {
               overflow: hidden;
               text-overflow: ellipsis;
             }
+          }
+          .img-text1{
+             width: 90px;
           }
           & p:nth-child(2) {
             overflow: hidden;
