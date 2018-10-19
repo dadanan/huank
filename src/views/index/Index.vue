@@ -201,7 +201,6 @@ export default {
       functionFlag: false,
       functionCurrent: null,
       functionData: [],
-      weather: null,
       currentSpeed: [],
       formatItemsList: [],
       abilitysList: [],
@@ -216,7 +215,8 @@ export default {
       setInter: undefined, // 定时id
       batteryList1 :[],
       dirValueList:[],
-      batteryList3:''
+      batteryList3:'',
+      setInter2: undefined
     }
   },
   methods: {
@@ -535,7 +535,7 @@ export default {
       sendFunc({
         deviceId: this.deviceId,
         funcId: item.dirValue,
-        value: type === 3 ? index : item.abilityOptionList[index].dirValue
+        value: type === 3 ? index : item.abilityOptionList[index].optionValue
       })
         .then(res => {
           if (res.code === 200) {
@@ -556,7 +556,7 @@ export default {
               '指令发送成功:',
               item.dirValue,
               '-',
-              type === 3 ? index : item.abilityOptionList[index].dirValue
+              type === 3 ? index : item.abilityOptionList[index].optionValue
             )
           }
         })
@@ -603,6 +603,10 @@ export default {
                 this.getStrainerData()
               }
             }
+
+          this.setInter2 = setInterval(() => {
+            this.getWeather()
+          }, 60000)
         }
       })
     },
@@ -673,6 +677,53 @@ export default {
         }
       })
     },
+    setWether() {
+      var myDate = new Date()
+      let h = myDate.getHours() //获取当前小时
+      if (!this.weather) {
+        //未返回值
+        if (
+          (parseInt(h) < 6 && parseInt(h) >= 0) ||
+          (parseInt(h) < 24 && parseInt(h) > 18)
+        ) {
+          //夜晚
+          this.currentBak = img3
+        } else {
+          //白天
+          this.currentBak = img4
+        }
+      } else {
+        if (
+          this.weather.indexOf('雨') != -1 ||
+          this.weather.indexOf('阴') != -1
+        ) {
+          //阴天
+          if (
+            (parseInt(h) < 6 && parseInt(h) >= 0) ||
+            (parseInt(h) < 24 && parseInt(h) > 18)
+          ) {
+            //夜晚
+            this.currentBak = img2
+          } else {
+            //白天
+            this.currentBak = img1
+          }
+        } else {
+          if (
+            (parseInt(h) < 6 && parseInt(h) >= 0) ||
+            (parseInt(h) < 24 && parseInt(h) > 18)
+          ) {
+            //夜晚
+            this.currentBak = img3
+          } else {
+            //白天
+            this.currentBak = img4
+          }
+        }
+      }
+      console.log('this,', this.currentBak)
+      this.img = this.currentBak
+    },
     getLocation() {
       getLocation(this.deviceId).then(res => {
         const data = res.data
@@ -701,6 +752,8 @@ export default {
         this.outerTem = data.outerTem
         this.outerPm = data.outerPm
         this.outerHum = data.outerHum
+
+        this.setWether()
       })
     },
     switchHandler() {
@@ -763,6 +816,7 @@ export default {
   },
   destroyed() {
     clearInterval(this.setInter)
+    clearInterval(this.setInter2)
   }
 }
 </script>
