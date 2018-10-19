@@ -202,9 +202,9 @@ export default {
       wxDeviceId: this.$route.query.wxDeviceId,
       customerId: this.$route.query.customerId,
       setInter: undefined, // 定时id
-      batteryList1 :[],
-      dirValueList:[],
-      batteryList3:'',
+      batteryList1: [],
+      dirValueList: [],
+      batteryList3: '',
       setInter2: undefined
     }
   },
