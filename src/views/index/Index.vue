@@ -215,7 +215,8 @@ export default {
       setInter: undefined, // 定时id
       batteryList1 :[],
       dirValueList:[],
-      batteryList3:''
+      batteryList3:'',
+      setInter2: undefined
     }
   },
   methods: {
@@ -602,6 +603,10 @@ export default {
                 this.getStrainerData()
               }
             }
+
+          this.setInter2 = setInterval(() => {
+            this.getWeather()
+          }, 60000)
         }
       })
     },
