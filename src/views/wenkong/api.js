@@ -307,7 +307,7 @@ export function getHistoryData(data) {
     url: `${BASE_URL}/api/h5/api/getHistoryData`,
     method: 'post',
     data,
-    headers: { Ticket: Store.fetch('Ticket')}
+    headers: { Ticket: Store.fetch('Ticket') }
   })
 }
 

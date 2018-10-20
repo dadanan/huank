@@ -213,9 +213,9 @@ export default {
       wxDeviceId: this.$route.query.wxDeviceId,
       customerId: this.$route.query.customerId,
       setInter: undefined, // 定时id
-      batteryList1 :[],
-      dirValueList:[],
-      batteryList3:'',
+      batteryList1: [],
+      dirValueList: [],
+      batteryList3: '',
       setInter2: undefined
     }
   },
@@ -302,7 +302,7 @@ export default {
         if (item.isSelect === 0) {
           return
         }
-      
+
         // “模式”
         if (type === 1) {
           this.modeCurrent = iIndex
@@ -594,15 +594,15 @@ export default {
           this.setInter = setInterval(() => {
             this.getIndexFormatData()
           }, 1000)
-           //滤网检查
+          //滤网检查
           const windOption1 = data.abilitysList
           // console.log(windOption1)
           for (var i = 0; i < windOption1.length; i++) {
-              if (windOption1[i].dirValue == '-1') {
-                this.batteryList1 = windOption1[i].abilityOptionList
-                this.getStrainerData()
-              }
+            if (windOption1[i].dirValue == '-1') {
+              this.batteryList1 = windOption1[i].abilityOptionList
+              this.getStrainerData()
             }
+          }
 
           this.setInter2 = setInterval(() => {
             this.getWeather()
@@ -611,19 +611,21 @@ export default {
       })
     },
     getStrainerData() {
-      for (var i = 0;i< this.batteryList1.length; i++) {
+      for (var i = 0; i < this.batteryList1.length; i++) {
         this.dirValueList.push(this.batteryList1[i].optionValue)
       }
       getStrainerData({
         deviceId: this.$route.query.deviceId,
         dirValueList: this.dirValueList
-      }).then(res => {
-        if (res.code === 200 && res.data) {
-            var s =this.batteryList1[0].optionValue;
-            var d = (res.data)[s]
-            this.batteryList3= d
-        }
-      }).catch(error => {
+      })
+        .then(res => {
+          if (res.code === 200 && res.data) {
+            var s = this.batteryList1[0].optionValue
+            var d = res.data[s]
+            this.batteryList3 = d
+          }
+        })
+        .catch(error => {
           console.log(error)
         })
     },
@@ -677,7 +679,7 @@ export default {
         }
       })
     },
-    setWether() {
+    setWeather() {
       var myDate = new Date()
       let h = myDate.getHours() //获取当前小时
       if (!this.weather) {
@@ -753,7 +755,7 @@ export default {
         this.outerPm = data.outerPm
         this.outerHum = data.outerHum
 
-        this.setWether()
+        this.setWeather()
       })
     },
     switchHandler() {
