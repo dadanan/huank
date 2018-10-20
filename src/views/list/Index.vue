@@ -28,9 +28,9 @@
                 </div>
                 <div class="img-text">
                   <p>
-                    <span>{{ child.deviceName }}</span>
-                    <i class="addr"></i>
-                    <span>{{child.location && child.location.split(',')[1]}}</span>
+                    <span class="img-text1">{{ child.deviceName }}</span>
+                    <i class="addr" v-if="loopValue === false"></i>
+                    <span v-if="loopValue === false">{{child.location && child.location.split(' ').map(str => str.split(',')).reduce((a, b) => a.concat(b),[]) .filter(s => s !== '')[0]}}</span>
                   </p>
                   <template v-if='child.hasOwnProperty("childId")'>
                     <p>childId:{{ child.childId }}</p>
@@ -348,11 +348,12 @@ export default {
     },
     confirmdeleteDev() {
       Loading.open('很快加载好了')
+      console.log(this.deleteTheDeviceId)
       deleteDevice({
-        deviceId: this.deleteTheDeviceId,
-        deviceName: this.deleteTheDeviceName
+        value: this.deleteTheDeviceId
       })
         .then(res => {
+          console.log(res)
           if (res.code === 200) {
             Toast({
               mes: '删除成功',
@@ -790,6 +791,9 @@ export default {
               overflow: hidden;
               text-overflow: ellipsis;
             }
+          }
+          .img-text1{
+             width: 120px;
           }
           & p:nth-child(2) {
             overflow: hidden;

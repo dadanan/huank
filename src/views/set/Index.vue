@@ -85,11 +85,10 @@
           <p>联系客服</p>
         </div>
         <div class="confim-content">
-          <p>有什么需求请拨打电话8888-8888-8888</p>
+          <p>{{ customer1 }}</p>
         </div>
         <div class="confim-bottom">
           <div class="but1" @click="customer = false">确定</div>
-          <!-- <div class="but create">确定</div> -->
         </div>
     </div>
     <div class="create-dialog dialog" v-if="setPwdFlag">
@@ -153,7 +152,7 @@ import myUrl from 'common/js/api'
 import { editDevice } from '../wenkong/api'
 import { CitySelect } from 'vue-ydui/dist/lib.rem/cityselect'
 import Store from '../wenkong/store'
-import { updateDeviceLocation, getToken } from '../wenkong/api'
+import { updateDeviceLocation, getToken ,getServerUser} from '../wenkong/api'
 
 export default {
   data() {
@@ -175,7 +174,8 @@ export default {
       deviceId: this.$route.query.deviceId,
       customerId: this.$route.query.customerId,
       pwd: '',
-      pwdList: []
+      pwdList: [],
+      customer1:""
     }
   },
   methods: {
@@ -204,6 +204,14 @@ export default {
             timeout: 1500,
             icon: 'success'
           })
+        })
+    },
+    getServerUser() {
+      // 客服
+      getServerUser()
+        .then(res => {
+          console.log(res)
+          this.customer1 = res.data
         })
     },
     updateLocation(ret) {
@@ -291,6 +299,7 @@ export default {
     }
   },
   created() {
+    this.getServerUser()
     Loading.open('很快加载好了')
     if (Store.fetch('location')) {
       this.model2 = Store.fetch('location')
