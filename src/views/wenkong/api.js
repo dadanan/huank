@@ -366,3 +366,11 @@ export function updateDeviceLocation(data) {
     headers: { Ticket: Store.fetch('Ticket') }
   })
 }
+// 客服
+export function getServerUser() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/getServerUser`,
+    method: 'get',
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}

@@ -29,8 +29,8 @@
                 <div class="img-text">
                   <p>
                     <span class="img-text1">{{ child.deviceName }}</span>
-                    <i class="addr"></i>
-                    <span>{{child.location && child.location.split(',')[1]}}</span>
+                    <i class="addr" v-if="loopValue === false"></i>
+                    <span v-if="loopValue === false">{{child.location && child.location.split(' ').map(str => str.split(',')).reduce((a, b) => a.concat(b),[]) .filter(s => s !== '')[0]}}</span>
                   </p>
                   <template v-if='child.hasOwnProperty("childId")'>
                     <p>childId:{{ child.childId }}</p>
@@ -793,7 +793,7 @@ export default {
             }
           }
           .img-text1{
-             width: 90px;
+             width: 120px;
           }
           & p:nth-child(2) {
             overflow: hidden;
