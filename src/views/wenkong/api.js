@@ -307,7 +307,7 @@ export function getHistoryData(data) {
     url: `${BASE_URL}/api/h5/api/getHistoryData`,
     method: 'post',
     data,
-    headers: { Ticket: Store.fetch('Ticket')}
+    headers: { Ticket: Store.fetch('Ticket') }
   })
 }
 
@@ -326,7 +326,10 @@ export function deleteDevice(data) {
     url: `${BASE_URL}/api/h5/api/deleteDevice`,
     method: 'post',
     data,
-    headers: { Ticket: Store.fetch('Ticket') }
+    headers: { 
+      Ticket: Store.fetch('Ticket'),
+      Authorization: Store.fetch('Token')
+  }
   })
 }
 
@@ -360,6 +363,14 @@ export function updateDeviceLocation(data) {
     url: `${BASE_URL}/api/h5/api/updateDeviceLocation`,
     method: 'post',
     data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 客服
+export function getServerUser() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/getServerUser`,
+    method: 'get',
     headers: { Ticket: Store.fetch('Ticket') }
   })
 }
