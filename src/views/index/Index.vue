@@ -247,7 +247,6 @@ export default {
       const result = this.abilitysList.filter(
         item => item.abilityId === abilityId
       )[0].abilityOptionList
-
       return result
     },
     /**
@@ -475,7 +474,6 @@ export default {
     },
     onOffMethod() {
       // 开关机
-
       const tempArray = this.abilitysList.filter(
         item => item.abilityId === this.formatItemsList[11].abilityId
       )[0]
@@ -484,10 +482,12 @@ export default {
       if (this.isOpen) {
         // 找“关”的项
         index = tempList.findIndex(item => item.dirValue === '0')
+        this.setInter2 = null
       } else {
         index = tempList.findIndex(item => item.dirValue === '1')
+        this.getWeather()
       }
-
+      Loading.close()
       sendFunc({
         deviceId: this.deviceId,
         funcId: tempArray.dirValue,
@@ -603,10 +603,21 @@ export default {
                 this.getStrainerData()
               }
             }
-
-          this.setInter2 = setInterval(() => {
-            this.getWeather()
-          }, 60000)
+          const tempArray = this.abilitysList.filter(
+            item => item.abilityId === this.formatItemsList[11].abilityId
+          )[0]
+          const tempList = tempArray.abilityOptionList
+          let index = 0
+          if (this.isOpen) {
+              // 找“关”的项
+              index = tempList.findIndex(item => item.dirValue === '0')
+              this.setInter2 = null
+            } else {
+              index = tempList.findIndex(item => item.dirValue === '1')
+              this.setInter2 = setInterval(() => {
+                this.getWeather()
+              }, 1000)
+            }
         }
       })
     },
