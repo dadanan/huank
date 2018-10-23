@@ -46,7 +46,8 @@ export default {
       timeList: [],
       value: '',
       wxDeviceId: this.$route.query.wxDeviceId,
-      deviceId: this.$route.query.deviceId
+      deviceId: this.$route.query.deviceId,
+      etInter2:''
     }
   },
   methods: {
@@ -124,6 +125,7 @@ export default {
         .then(res => {
           if (res.code === 200) {
             Loading.close()
+            console.log(res.data)
             this.timeList = res.data
             this.timeList.forEach(v => {
               if (v.status === 1) {
@@ -211,13 +213,14 @@ export default {
   watch: {
     timeList: {
       handler: function(val) {
-        // console.log(val);
+        
       },
       deep: true
     }
   },
   mounted() {
     this.getTimeList()
+
   }
 }
 </script>

@@ -15,7 +15,7 @@
         <div style="padding:15px">
           <div class="list-item" v-swipeleft.stop="swipeleft" v-swiperight="swiperight" @click="intoIndex(child,item)" v-for="(child,cindex) in item.deviceItemPos" :key="cindex">
             <div class="item-left">
-              <div class="icon" :class="{ active : containIds(child.deviceId) }" v-if="loopValue === true" @click.stop="selectDev(child.deviceId)"></div>
+              <!-- <div class="icon" :class="{ active : containIds(child.deviceId) }" v-if="loopValue === true" @click.stop="selectDev(child.deviceId)"></div> -->
               <div class="img">
                 <div class="p-img">
                   <img :src="child.icon">
@@ -261,6 +261,7 @@ export default {
       })
         .then(res => {
           if (res.code === 200) {
+            console.log(res.data)
             Loading.close()
             this.teamNameFlag = false
             this.teamList.forEach(item => {
@@ -304,13 +305,14 @@ export default {
       if (this.selectId === '') {
         this.$toast('请选择组', 'bottom')
       } else {
-        const deviceId = this.devInfo.deviceId
+        const deviceId = this.devInfo.wxDeviceId
         updateDeviceTeam({
           teamId: this.selectId,
           deviceIds: [deviceId]
         })
           .then(res => {
             if (res.code === 200) {
+              console.log(res.data)
               Toast({
                 mes: '分组成功',
                 timeout: 1500,
@@ -321,7 +323,7 @@ export default {
               this.teamList.forEach(team => {
                 if (team.teamId === this.currentTeamId) {
                   team.deviceItemPos = team.deviceItemPos.filter(
-                    item => item.deviceId !== deviceId
+                    item => item.wxDeviceId !== deviceId
                   )
                   return
                 }
@@ -348,12 +350,10 @@ export default {
     },
     confirmdeleteDev() {
       Loading.open('很快加载好了')
-      console.log(this.deleteTheDeviceId)
       deleteDevice({
         value: this.deleteTheDeviceId
       })
         .then(res => {
-          console.log(res)
           if (res.code === 200) {
             Toast({
               mes: '删除成功',
