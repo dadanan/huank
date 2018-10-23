@@ -11,7 +11,7 @@
       <span v-show='formatItemsList[13] && formatItemsList[13].showStatus'>{{weather}} {{outerTem}}&nbsp;</span>
       <span v-show='formatItemsList[14] && formatItemsList[14].showStatus'>湿度: {{outerHum}}&nbsp;</span>
       <span v-show='formatItemsList[15] && formatItemsList[15].showStatus'>PM2.5: {{outerPm}}ug/m3&nbsp;</span>
-      <span>质量: 优</span>
+      <span>质量: {{AQI}}</span>
     </div>
     <div class="but-list">
       <!-- 童锁 -->
@@ -34,7 +34,7 @@
         <div class="circle-inner">
           <p>
             PM2.5
-            <span>优</span>
+            <span>{{AQI}}</span>
           </p>
           <p v-if='formatItemsList[15]' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[15].abilityId).currValue}}</p>
           <p>ug/m3</p>
@@ -204,7 +204,8 @@ export default {
       batteryList1: [],
       dirValueList: [],
       batteryList3: '',
-      setInter2: undefined
+      setInter2: undefined,
+      AQI: '优'
     }
   },
   methods: {
@@ -633,6 +634,11 @@ export default {
         this.switchHandler()
         if (this.isOpen) {
           this.setPopDialogData()
+        }
+        // 获取列表最后一项：空气质量，的值
+        const lastItem = data[data.length - 1]
+        if (lastItem.abilityName === '空气质量') {
+          this.AQI = lastItem.currValue
         }
       })
     },
