@@ -217,15 +217,15 @@ export default {
       this.isSleep = !this.isSleep
       sendFunc({
         deviceId: this.deviceId,
-        funcId: '280',
-        value: '2'
+        funcId: '210',
+        value: '3'
       }).then(() => {
         Toast({
           mes: '指令发送成功！',
           timeout: 1000,
           icon: 'success'
         })
-        console.info('指令发送成功:', '280', '-', '2')
+        console.info('指令发送成功:', '210', '-', '3')
       })
     },
     getAbilityByDirValue(dirValue) {
@@ -790,11 +790,17 @@ export default {
     this.getWeather()
   },
   watch: {
-    isOpen: function(val) {
+    isOpen(val) {
       if (val) {
         this.img = img4
       } else {
         this.img = ''
+      }
+    },
+    isSleep(val) {
+      // 如果睡眠模式打开，隐藏掉模式弹框
+      if (val) {
+        this.modeFlag = false
       }
     }
   },
