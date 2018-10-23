@@ -118,7 +118,7 @@
             <!-- 内风机的位置 -->
             <p>{{getListData(formatItemsList[2].abilityId,'left').definedName}}</p>
             <ul>
-              <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[2].abilityId,'left').abilityOptionList" :class="{ active: speedLeftCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[2].abilityId,'left'),index,2)">
+              <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[2].abilityId,'left').abilityOptionList" :class="{ active: speedLeftCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[2].abilityId,'left'),index,2,'left')">
                 <span>{{ item.optionDefinedName || item.optionName }}</span>
                 <div class="icon"></div>
               </li>
@@ -128,7 +128,7 @@
             <!-- 外风机的位置 -->
             <p>{{getListData(formatItemsList[2].abilityId,'right').definedName}}</p>
             <ul>
-              <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[2].abilityId,'right').abilityOptionList" :class="{ active: speedRightCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[2].abilityId,'right'),index,2)">
+              <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[2].abilityId,'right').abilityOptionList" :class="{ active: speedRightCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[2].abilityId,'right'),index,2,'right')">
                 <span>{{ item.optionDefinedName || item.optionName }}</span>
                 <div class="icon"></div>
               </li>
@@ -142,7 +142,7 @@
         <div class="title">其它功能设定</div>
         <div class="list">
           <ul v-if='formatItemsList[3]'>
-            <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[3].abilityId)" :key="item.dirValue" :class="{ active: item.isChecked}" @click="nodeClicked(item,index,3)">
+            <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[3].abilityId)" :class="{ active: item.isChecked}" @click="nodeClicked(item,index,3)">
               <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
             </li>
@@ -290,27 +290,6 @@ export default {
         }
       })
     },
-    setModelData(type, id) {
-      // console.log(type,id)
-      const data = this.abilitysList.filter(item => item.abilityId === id)[0]
-      if (!data) {
-        return
-      }
-
-      // 根据isSelect的值，对相应选项执行默认选中行为
-      data.abilityOptionList.forEach((item, iIndex) => {
-        if (item.isSelect === 0) {
-          return
-        }
-
-        // “模式”
-        if (type === 1) {
-          this.modeCurrent = iIndex
-          return
-        }
-        this.speedCurrent = iIndex
-      })
-    },
     setPopDialogData() {
       // 实时设置下方模式、风速，功能等弹框内的数据
       // 为了解决：弹框打开的情况下，设备状态变化时，弹框内选项数据却没有变更的问题。
@@ -395,7 +374,6 @@ export default {
         return false
       }
       this.modeFlag = true
-      // this.setModelData(1, id)
     },
     switchSpeed(id) {
       if (!this.isOpen) {
@@ -403,7 +381,6 @@ export default {
         return false
       }
       this.speedFlag = true
-      // this.setModelData(2, id)
     },
     switchFunction() {
       if (!this.isOpen) {
@@ -504,10 +481,10 @@ export default {
     selectMode(index) {
       // this.modeCurrent = index
     },
-    selectSpeed(index) {
-      this.speedCurrent = index
-    },
-    nodeClicked(item, index, type) {
+    /**
+     * @param which 表示左边的风机或者右边的
+     */
+    nodeClicked(item, index, type, which) {
       // 如果是功能，index表示将要发送的指令value： 0/1 不选中/选中
       if (type === 3) {
         index = item.isChecked ? 0 : 1
@@ -525,11 +502,18 @@ export default {
         })
         return
       }
-      this.sendFunc(item, index, type)
-      // console.log(item,index, type)
+      // 发送指令前先设置对应的选项，为了解决张亮说的：切换档位慢的问题
+      const changeStall = () => {
+        if (which === 'left') {
+          this.speedLeftCurrent = index
+        }
+        if (which === 'right') {
+          this.speedRightCurrent = index
+        }
+      }
+      this.sendFunc(item, index, type, changeStall)
     },
-    sendFunc(item, index, type) {
-      this.speedLeftCurrent = index
+    sendFunc(item, index, type, cb) {
       // 模式、风速、功能的指令发送函数
       // Loading.open('发送中...')
       sendFunc({
@@ -541,7 +525,7 @@ export default {
           if (type === 1) {
             this.modeCurrent = index
           } else if (type === 2) {
-            this.speedCurrent = index
+            cb()
           } else if (type === 3) {
             item.isChecked = !item.isChecked
           }
@@ -753,7 +737,9 @@ export default {
         this.outerPm = data.outerPm
         this.outerHum = data.outerHum
 
-        this.setWether() //
+        if (this.isOpen) {
+          this.setWether()
+        }
       })
     },
     switchHandler() {
