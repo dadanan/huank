@@ -207,10 +207,14 @@ export default {
   computed: {
     puriEffic() {
       const data = this.formatItemsList[9]
-      if (data) {
-        return this.getAbilityData(data.abilityId).currValue
+      if (!data) {
+        return 50
       }
-      return 62
+      const ability = this.getAbilityData(data.abilityId)
+      if (!ability) {
+        return 51
+      }
+      return ability.currValue
     }
   },
   methods: {
