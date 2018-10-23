@@ -143,6 +143,9 @@
       <img src="../../assets/ts.png" />
       <span @click="childMethod(true)">点此解除锁屏</span>
     </div>
+    <div class='sleep-mask' v-if='isSleep'>
+      <span @click='changeSleepStatus'>点此取消睡眠</span>
+    </div>
   </div>
 </template>
 
@@ -181,6 +184,7 @@ export default {
       cHeight: 200,
       isOpen: true, // 开关
       isLock: false, // 童锁
+      isSleep: false, // 睡眠
       modeFlag: false, // 模式设置
       deviceObj: {},
       modeCurrent: undefined,
@@ -210,6 +214,21 @@ export default {
     }
   },
   methods: {
+    changeSleepStatus() {
+      this.isSleep = false
+      sendFunc({
+        deviceId: this.deviceId,
+        funcId: '210',
+        value: '3'
+      }).then(() => {
+        Toast({
+          mes: '指令发送成功！',
+          timeout: 1000,
+          icon: 'success'
+        })
+        console.info('指令发送成功:', '210', '-', '3')
+      })
+    },
     getAbilityByDirValue(dirValue) {
       // 根据指令值找对应的功能项数据，双风机风速用到
       return this.abilitysList.filter(item => item.dirValue === dirValue)[0]
@@ -306,6 +325,11 @@ export default {
 
           // “模式选项”
           this.modeCurrent = iIndex
+
+          // 如果当前选中对模式是睡眠，那么开启睡眠弹框
+          if (item.optionValue === '2') {
+            this.isSleep = true
+          }
         })
       }
 
@@ -770,11 +794,17 @@ export default {
     this.getWeather()
   },
   watch: {
-    isOpen: function(val) {
+    isOpen(val) {
       if (val) {
         this.img = img4
       } else {
         this.img = ''
+      }
+    },
+    isSleep(val) {
+      // 如果睡眠模式打开，隐藏掉模式弹框
+      if (val) {
+        this.modeFlag = false
       }
     }
   },
@@ -804,6 +834,7 @@ export default {
   transition-duration: 0.3s;
   transition-timing-function: linear;
   .child-suo {
+    z-index: 10;
     position: absolute;
     top: 0;
     left: 0;
@@ -818,8 +849,7 @@ export default {
     & span {
       position: absolute;
       bottom: 100px;
-      left: 50%;
-      margin-left: -42px;
+      left: calc(50% - 55px);
       font-size: 14px;
       border: 1px solid #fff;
       border-radius: 20px;
@@ -827,9 +857,27 @@ export default {
       width: 110px;
     }
   }
-  &.active {
-    //background-color:-webkit-gradient(linear, 0 0, 0 top, from(#2689ed), to(rgba(30, 79, 251, 0.8)));
-    //background-color: #21a6f7;
+  .sleep-mask {
+    position: absolute;
+    z-index: 11;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    & span {
+      font-size: 14px;
+      border: 1px solid #fff;
+      border-radius: 20px;
+      line-height: 32px;
+      height: 32px;
+      width: 110px;
+      margin-bottom: 100px;
+    }
   }
   .info {
     margin: 0 auto tvw(34) auto;
