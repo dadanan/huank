@@ -634,7 +634,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   span {
     margin-right: 0.25rem;
   }
