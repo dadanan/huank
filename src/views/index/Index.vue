@@ -228,6 +228,7 @@ export default {
       if (which) {
         // 说明是风速的abilityId，那么特殊情况，特殊处理
         const windOption = this.getListData(abilityId)
+        // console.log(windOption)
         let left = {}
         let right = {}
         if (windOption[0].optionValue === '280') {
@@ -367,7 +368,6 @@ export default {
           if (item.isSelect === 0) {
             return
           }
-
           // “外风速选项”
           this.speedRightCurrent = iIndex
         })
@@ -503,7 +503,7 @@ export default {
       })
     },
     selectMode(index) {
-      this.modeCurrent = index
+      // this.modeCurrent = index
     },
     selectSpeed(index) {
       this.speedCurrent = index
@@ -530,6 +530,7 @@ export default {
       // console.log(item,index, type)
     },
     sendFunc(item, index, type) {
+      this.speedLeftCurrent = index
       // 模式、风速、功能的指令发送函数
       // Loading.open('发送中...')
       sendFunc({
@@ -538,15 +539,15 @@ export default {
         value: type === 3 ? index : item.abilityOptionList[index].optionValue
       })
         .then(res => {
+          if (type === 1) {
+            this.modeCurrent = index
+          } else if (type === 2) {
+            this.speedCurrent = index
+          } else if (type === 3) {
+            item.isChecked = !item.isChecked
+          }
           if (res.code === 200) {
             // Loading.close()
-            if (type === 1) {
-              this.modeCurrent = index
-            } else if (type === 2) {
-              this.speedCurrent = index
-            } else if (type === 3) {
-              item.isChecked = !item.isChecked
-            }
             Toast({
               mes: '发送成功',
               timeout: 1000,
@@ -603,6 +604,7 @@ export default {
                 this.getStrainerData()
               }
             }
+<<<<<<< HEAD
           const tempArray = this.abilitysList.filter(
             item => item.abilityId === this.formatItemsList[11].abilityId
           )[0]
@@ -618,6 +620,12 @@ export default {
                 this.getWeather()
               }, 1000)
             }
+=======
+
+          // this.setInter2 = setInterval(() => {
+          //   this.getWeather()
+          // }, 1000)
+>>>>>>> temp-develop
         }
       })
     },
@@ -652,6 +660,7 @@ export default {
           .filter(item => item.abilityId)
           .map(item => item.abilityId)
       }).then(res => {
+        // console.log(res.data)
         const data = res.data
         // 将res.data中的isSelect和dirValue赋值过去
         this.abilitysList.forEach((item, index) => {
@@ -682,7 +691,7 @@ export default {
             })
         })
 
-        this.switchHandler()
+        this.switchHandler() //天气调用
         if (this.isOpen) {
           this.setPopDialogData()
         }
@@ -764,7 +773,7 @@ export default {
         this.outerPm = data.outerPm
         this.outerHum = data.outerHum
 
-        this.setWether()
+        this.setWether() //
       })
     },
     switchHandler() {
@@ -780,6 +789,7 @@ export default {
         this.isOpen = false
       } else {
         this.isOpen = true
+        this.getWeather()
       }
 
       // 童锁初始化
