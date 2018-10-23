@@ -154,8 +154,8 @@
       <img src="../../assets/ts.png" />
       <span @click="childMethod(true)">点此解除锁屏</span>
     </div>
-    <div class='sleep-mask' @click='changeSleepStatus' v-if='isSleep'>
-      <span>点此取消睡眠</span>
+    <div class='sleep-mask' v-if='isSleep'>
+      <span @click='changeSleepStatus'>点此取消睡眠</span>
     </div>
   </div>
 </template>
@@ -226,7 +226,7 @@ export default {
   },
   methods: {
     changeSleepStatus() {
-      this.isSleep = !this.isSleep
+      this.isSleep = false
       sendFunc({
         deviceId: this.deviceId,
         funcId: '210',

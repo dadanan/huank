@@ -38,7 +38,7 @@
                   </template>
                   <template v-else>
                     <p>ID:{{ child.deviceId }}</p>
-                    <p>型号：{{ child.deviceTypeName }}</p>
+                    <p>型号：{{ child.deviceModelName }}</p>
                   </template>
                 </div>
               </div>
