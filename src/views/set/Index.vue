@@ -210,7 +210,6 @@ export default {
       // 客服
       getServerUser()
         .then(res => {
-          console.log(res)
           this.customer1 = res.data
         })
     },
