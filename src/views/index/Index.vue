@@ -606,7 +606,7 @@ export default {
 
           this.setInter2 = setInterval(() => {
             this.getWeather()
-          }, 60000)
+          }, 2000)
         }
       })
     },
@@ -723,7 +723,6 @@ export default {
           }
         }
       }
-      console.log('this,', this.currentBak)
       this.img = this.currentBak
     },
     getLocation() {

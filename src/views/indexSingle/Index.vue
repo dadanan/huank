@@ -183,8 +183,7 @@ export default {
       modeFlag: false, // 模式设置
       deviceObj: {},
       modeCurrent: undefined,
-      speedLeftCurrent: undefined,
-      speedRightCurrent: undefined,
+      currentOptionForWind: undefined,
       modeData: [],
       speedData: [],
       functionFlag: false,
@@ -321,7 +320,7 @@ export default {
             return
           }
           // “风速选项”
-          this.speedCurrent = iIndex
+          this.currentOptionForWind = iIndex
         })
       }
 
@@ -342,17 +341,22 @@ export default {
       updateAbility()
     },
     modelClicked(index, data) {
-      this.currentOptionForWind = index
-      this.sendFunc2(data.dirValue, data.abilityOptionList[index].dirValue)
+      this.sendFunc2(index, data)
     },
-    sendFunc2(funcId, value) {
+    sendFunc2(index, data) {
       // 发送指令
       sendFunc({
         deviceId: this.deviceId,
-        funcId: funcId,
-        value: value
+        funcId: data.dirValue,
+        value: data.abilityOptionList[index].dirValue
       }).then(res => {
-        console.info('指令发送成功:', funcId, '-', value)
+        console.info(
+          '指令发送成功:',
+          data.dirValue,
+          '-',
+          data.abilityOptionList[index].dirValue
+        )
+        this.currentOptionForWind = index
         Toast({
           mes: '指令发送成功！',
           timeout: 1000,
@@ -366,7 +370,6 @@ export default {
         return false
       }
       this.modeFlag = true
-      // this.setModelData(1, id)
     },
     switchSpeed(id) {
       if (!this.isOpen) {
@@ -472,12 +475,6 @@ export default {
         )
       })
     },
-    selectMode(index) {
-      this.modeCurrent = index
-    },
-    selectSpeed(index) {
-      this.speedCurrent = index
-    },
     nodeClicked(item, index, type) {
       // 如果是功能，index表示将要发送的指令value： 0/1 不选中/选中
       if (type === 3) {
@@ -512,7 +509,7 @@ export default {
             if (type === 1) {
               this.modeCurrent = index
             } else if (type === 2) {
-              this.speedCurrent = index
+              this.currentOptionForWind = index
             } else if (type === 3) {
               item.isChecked = !item.isChecked
             }
@@ -683,7 +680,6 @@ export default {
           }
         }
       }
-      console.log('this,', this.currentBak)
       this.img = this.currentBak
     },
     getLocation() {

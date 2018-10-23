@@ -348,7 +348,6 @@ export default {
     },
     confirmdeleteDev() {
       Loading.open('很快加载好了')
-      console.log(this.deleteTheDeviceId)
       deleteDevice({
         value: this.deleteTheDeviceId
       })
@@ -530,10 +529,10 @@ export default {
                 icon: 'success'
               })
             } else {
-              Toast({
-                mes: '绑定失败！',
-                timeout: 1500
-              })
+              // Toast({
+              //   mes: '绑定失败！',
+              //   timeout: 1500
+              // })
               console.log('绑定失败：', res)
             }
             this.obtainMyDevice()
@@ -792,8 +791,8 @@ export default {
               text-overflow: ellipsis;
             }
           }
-          .img-text1{
-             width: 120px;
+          .img-text1 {
+            width: 120px;
           }
           & p:nth-child(2) {
             overflow: hidden;
