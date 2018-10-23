@@ -11,14 +11,15 @@
         <div class="box-left" :ref="'boxref'+(index)">
           <div class="del" style="float:left" @click="delTimer(item.id)">删除</div>
           <div class="c-text">
-            <p v-if="item.remainTime">{{ MillisecondToDate(item.remainTime) }}后关闭</p>
-            <p v-else>{{ item.hour }}:{{ item.minute}} 关闭</p>
+            <p v-if="item.remainTime">
+              <yd-countdown :callback='finishTime' :time="item.remainTime / 1000" timetype="second"></yd-countdown>
+            </p>
+            <p v-else>{{ item.hour }}:{{ item.minute}} </p>
             <p>{{ item.name }}</p>
           </div>
         </div>
         <div class="box-right" v-if="!isEdit">
           <div class="switch-box">
-            <span>定时{{ item.timerType === 1 ? '开': '关' }}</span>
             <yd-switch v-model="item.switch" @click.native="switchMethod(item)"></yd-switch>
           </div>
         </div>
@@ -34,6 +35,7 @@
 
 <script type="text/ecmascript-6">
 import { Switch } from 'vue-ydui/dist/lib.rem/switch'
+import { CountDown } from 'vue-ydui/dist/lib.rem/countdown'
 import { addClass, removeClass } from 'utils/dom'
 import { Loading, Toast, Confirm } from 'vue-ydui/dist/lib.rem/dialog'
 import { queryTimerList, cancelTimer, deleteTimer } from '../wenkong/api'
@@ -50,6 +52,13 @@ export default {
     }
   },
   methods: {
+    finishTime() {
+      Toast({
+        mes: `定时已生效`,
+        timeout: 1500,
+        icon: 'success'
+      })
+    },
     delTimer(id) {
       Confirm({
         title: '删除组',
@@ -206,7 +215,8 @@ export default {
     }
   },
   components: {
-    'yd-switch': Switch
+    'yd-switch': Switch,
+    'yd-countdown': CountDown
   },
   watch: {
     timeList: {
