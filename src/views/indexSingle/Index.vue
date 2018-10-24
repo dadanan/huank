@@ -101,7 +101,7 @@
       <div class="content">
         <div class="title">模式设定</div>
         <div class="list">
-          <ul v-if='formatItemsList[1]'>
+          <ul v-if='formatItemsList[1] && formatItemsList[1].abilityId'>formatItemsList[2]
             <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[1].abilityId)" :class="{ active: modeCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[1].abilityId),index,1)" :key='item.optionValue'>
               <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
@@ -130,7 +130,7 @@
       <div class="content">
         <div class="title">其它功能设定</div>
         <div class="list">
-          <ul v-if='formatItemsList[3]'>
+          <ul v-if='formatItemsList[3] && formatItemsList[3].abilityId'>
             <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[3].abilityId)" :key="item.dirValue" :class="{ active: item.isChecked}" @click="nodeClicked(item,index,3)">
               <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
@@ -362,9 +362,15 @@ export default {
         })
       }
 
-      updateModel()
-      updateWindSpeed()
-      updateAbility()
+      if (this.formatItemsList[1].abilityId) {
+        updateModel()
+      }
+      if (this.formatItemsList[2].abilityId) {
+        updateWindSpeed()
+      }
+      if (this.formatItemsList[3].abilityId) {
+        updateAbility()
+      }
     },
     modelClicked(index, data) {
       this.currentOptionForWind = index
