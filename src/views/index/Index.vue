@@ -693,7 +693,7 @@ export default {
         }
       })
     },
-    setWether() {
+    setWeather() {
       var myDate = new Date()
       let h = myDate.getHours() //获取当前小时
       if (!this.weather) {
@@ -769,7 +769,7 @@ export default {
         this.outerHum = data.outerHum
 
         if (this.isOpen) {
-          this.setWether()
+          this.setWeather()
         }
       })
     },
