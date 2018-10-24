@@ -207,10 +207,14 @@ export default {
   computed: {
     puriEffic() {
       const data = this.formatItemsList[9]
-      if (data) {
-        return this.getAbilityData(data.abilityId).currValue
+      if (!data) {
+        return 50
       }
-      return 62
+      const ability = this.getAbilityData(data.abilityId)
+      if (!ability) {
+        return 51
+      }
+      return ability.currValue
     }
   },
   methods: {
@@ -630,7 +634,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   span {
     margin-right: 0.25rem;
   }
