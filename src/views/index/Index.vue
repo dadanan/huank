@@ -335,6 +335,8 @@ export default {
           // 如果当前选中对模式是睡眠，那么开启睡眠弹框
           if (item.optionValue === '2') {
             this.isSleep = true
+          }else{
+            this.isSleep = false
           }
         })
       }
