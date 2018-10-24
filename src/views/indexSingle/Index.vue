@@ -476,7 +476,6 @@ export default {
     },
     onOffMethod() {
       // 开关机
-
       const tempArray = this.abilitysList.filter(
         item => item.abilityId === this.formatItemsList[11].abilityId
       )[0]
@@ -488,7 +487,7 @@ export default {
       } else {
         index = tempList.findIndex(item => item.dirValue === '1')
       }
-
+      
       sendFunc({
         deviceId: this.deviceId,
         funcId: tempArray.dirValue,
