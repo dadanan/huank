@@ -40,17 +40,23 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: this.xdata
+          data: this.xdata,
+          splitLine:{  
+            show:true,
+             lineStyle:{
+              color:'#969696',
+              width: 1
+              }
+           }
         },
         calculable: true,
-        yAxis: [
-          {
-            type: 'value'
-          }
-        ],
+        yAxis:{
+            type: 'value',
+            
+        },
         grid: {
           x: 5,
-          y: 20,
+          y: 10,
           y2: 20
         },
         series: [

@@ -73,7 +73,6 @@ export default {
       })
         .then(res => {
           this.dataList = res.data
-
           Loading.close()
         })
         .catch(error => {
