@@ -744,7 +744,7 @@ export default {
 
         // this.setWeather()
         if (this.isOpen) {
-          this.setWether()
+          this.setWeather()
         }
       })
     },
