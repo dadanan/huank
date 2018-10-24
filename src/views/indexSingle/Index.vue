@@ -37,6 +37,7 @@
             <span>{{AQI}}</span>
           </p>
           <p v-if='formatItemsList[15]' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[15].abilityId).currValue}}</p>
+          <p></p>
           <p>ug/m3</p>
         </div>
       </div>
@@ -366,6 +367,7 @@ export default {
       updateAbility()
     },
     modelClicked(index, data) {
+      this.currentOptionForWind = index
       this.sendFunc2(index, data)
     },
     sendFunc2(index, data) {
@@ -381,7 +383,6 @@ export default {
           '-',
           data.abilityOptionList[index].dirValue
         )
-        this.currentOptionForWind = index
         Toast({
           mes: '指令发送成功！',
           timeout: 1000,
@@ -588,7 +589,7 @@ export default {
 
           this.setInter2 = setInterval(() => {
             this.getWeather()
-          }, 60000)
+          }, 2000)
         }
       })
     },
@@ -741,7 +742,10 @@ export default {
         this.outerPm = data.outerPm
         this.outerHum = data.outerHum
 
-        this.setWeather()
+        // this.setWeather()
+        if (this.isOpen) {
+          this.setWether()
+        }
       })
     },
     switchHandler() {

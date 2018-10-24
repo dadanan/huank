@@ -125,14 +125,19 @@ export default {
     },
     recove() {
       // 获取H5控制页面功能项数据，带isSelect参数
+    Loading.open('很快加载好了')
       sendFunc({ deviceId: this.$route.query.deviceId, funcId: this.selectType ,value:this.selectIndex}).then(
         res => {
-          if (res.code === 200 && res.data) {
-            console.log(res)
+          if (res.code === 200) {
+              Loading.close()
+            // console.log(res)
+            this.getIndexAbilityData()
             this.recoveFlag = false
           }
         }
-      )
+      ).catch(error => {
+          Loading.close()
+        })
     },
     // 显示小时还是100%
     switchMethod: function() {
