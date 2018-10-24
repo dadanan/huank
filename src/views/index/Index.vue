@@ -101,7 +101,7 @@
       <div class="content">
         <div class="title">模式设定</div>
         <div class="list">
-          <ul v-if='formatItemsList[1]'>
+          <ul v-if='formatItemsList[1] && formatItemsList[1].abilityId'>
             <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[1].abilityId)" :class="{ active: modeCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[1].abilityId),index,1)">
               <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
@@ -113,7 +113,7 @@
     <yd-popup v-model="speedFlag" position="bottom" width="90%">
       <div class="content">
         <div class="title">风速设定</div>
-        <div class="list wind-speed-list" v-if='formatItemsList[2]'>
+        <div class="list wind-speed-list" v-if='formatItemsList[2] && formatItemsList[2].abilityId'>
           <div>
             <!-- 内风机的位置 -->
             <p>{{getListData(formatItemsList[2].abilityId,'left').definedName}}</p>
@@ -141,7 +141,7 @@
       <div class="content">
         <div class="title">其它功能设定</div>
         <div class="list">
-          <ul v-if='formatItemsList[3]'>
+          <ul v-if='formatItemsList[3] && formatItemsList[3].abilityId'>
             <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[3].abilityId)" :class="{ active: item.isChecked}" @click="nodeClicked(item,index,3)">
               <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
@@ -391,9 +391,15 @@ export default {
         })
       }
 
-      updateModel()
-      updateWindSpeed()
-      updateAbility()
+      if (this.formatItemsList[1].abilityId) {
+        updateModel()
+      }
+      if (this.formatItemsList[2].abilityId) {
+        updateWindSpeed()
+      }
+      if (this.formatItemsList[3].abilityId) {
+        updateAbility()
+      }
     },
     switchModel(id) {
       if (!this.isOpen) {
@@ -584,13 +590,17 @@ export default {
 
           // 将功能集里的内外风机的数据加到版式集合中。为了后面持续刷新两个风机的数据
           const windBoxId = data.formatItemsList[2].abilityId
-          const windOption = data.abilitysList
-            .filter(item => item.abilityId === windBoxId)[0]
-            .abilityOptionList.map(item => item.optionValue)
-          // 根据内外风机指令 筛选内外风机功能数据
-          const windData = data.abilitysList.filter(item =>
-            windOption.includes(item.dirValue)
-          )
+          let windData = []
+          if (windBoxId) {
+            const windOption = data.abilitysList
+              .filter(item => item.abilityId === windBoxId)[0]
+              .abilityOptionList.map(item => item.optionValue)
+            // 根据内外风机指令 筛选内外风机功能数据
+            windData = data.abilitysList.filter(item =>
+              windOption.includes(item.dirValue)
+            )
+          }
+
           this.formatItemsList = data.formatItemsList.concat(windData)
 
           data.abilitysList.forEach(item => {
