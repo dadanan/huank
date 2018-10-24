@@ -738,6 +738,8 @@ export default {
     span:nth-child(1) {
       font-size: 0.92rem;
       color: #ffff00;
+      display: flex;
+      justify-content: center;
       span {
         font-size: 0.23rem;
         color: #e6e6e6;
