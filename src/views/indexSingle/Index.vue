@@ -481,9 +481,11 @@ export default {
       )[0]
       const tempList = tempArray.abilityOptionList
       let index = 0
+      let tempd = tempArray.dirValue
       if (this.isOpen) {
         // 找“关”的项
         index = tempList.findIndex(item => item.dirValue === '0')
+        this.offopen(tempd,tempList[index].dirValue)
       } else {
         index = tempList.findIndex(item => item.dirValue === '1')
       }
@@ -499,6 +501,20 @@ export default {
           tempArray.dirValue,
           '-',
           tempList[index].dirValue
+        )
+      })
+    },
+    offopen(DirValue,Dirindex){
+      console.log(DirValue,Dirindex)
+      sendFunc({
+        deviceId: this.deviceId,
+        funcId: DirValue,
+        value: Dirindex
+      }).then(res => {
+        console.info(
+          '指令发送成功:',
+          '-',
+          Dirindex
         )
       })
     },
