@@ -30,7 +30,7 @@
         <div class="data1">
           <div class="data-template1" v-if='formatItemsList[7] && formatItemsList[7].showStatus'>
             <span>PM2.5</span>
-            <span>{{ outerPm }}</span>
+            <span>{{ getOuterPM }}</span>
             <span>μg/m³</span>
           </div>
         </div>
@@ -58,11 +58,11 @@
         <div class="data6">
           <div class="data-template5">
             <span v-if='formatItemsList[3] && formatItemsList[3].showStatus'>
-              <i class="iconfont icon-wendu"></i> {{ outerTem.replace('℃', '') }}
+              <i class="iconfont icon-wendu"></i> {{ getOuterTem }}
               <span>℃</span>
             </span>
             <span v-if='formatItemsList[4] && formatItemsList[4].showStatus'>
-              <i class="iconfont icon-shidu"></i> {{ outerHum.replace('%', '') }}
+              <i class="iconfont icon-shidu"></i> {{ getOuterHum }}
               <span>%</span>
             </span>
           </div>
@@ -184,17 +184,14 @@ export default {
       preHumSpinner: 0,
       bg: img,
       isOpen: true,
-      pm: '0',
-      tem: '0',
-      hum: '0',
       loopLoadTimeSet: null,
       once: true,
       pageName: '',
       formatItemsList: [],
       abilitysList: [],
       location: '',
-      weather: '',
-      outerTem: '',
+      weather: '', // 天气
+      outerTem: '', // 温度
       outerHum: '', // 湿度
       outerPm: '', // PM2.5
       deviceId: this.$route.query.deviceId,
@@ -206,15 +203,54 @@ export default {
   },
   computed: {
     puriEffic() {
-      const data = this.formatItemsList[9]
-      if (!data) {
-        return 50
+      /**
+       * 计算净化效率
+       * (室内PM2.5 - 室外PM2.5)/室外PM2.5
+       */
+      const interId =
+        this.formatItemsList[8] && this.formatItemsList[8].abilityId
+      if (!interId) {
+        return 0
       }
-      const ability = this.getAbilityData(data.abilityId)
-      if (!ability) {
-        return 51
+
+      const interPM = Number(
+        this.getAbilityData(this.formatItemsList[8].abilityId).currValue
+      )
+      const outerPM = Number(this.getOuterPM)
+      const result = Math.floor(((outerPM - interPM) / outerPM) * 100)
+      if (Number.isNaN(result) || result < 0) {
+        // 如果净化效率不是数字，说明上面某个数据里有字符串
+        // 或者是负数的话，也0
+        return 0
       }
-      return ability.currValue
+      return result
+    },
+    getOuterPM() {
+      // 获取室外PM2.5 湿度 数据，如果室外传感器有值，就用。否则用第三方接口的
+      const currValue = this.getAbilityData(this.formatItemsList[7].abilityId)
+        .currValue
+      if (currValue && currValue !== '0') {
+        return currValue
+      }
+      return this.outerPm
+    },
+    getOuterHum() {
+      // 室外湿度
+      const currValue = this.getAbilityData(this.formatItemsList[3].abilityId)
+        .currValue
+      if (currValue && currValue !== '0') {
+        return currValue
+      }
+      return this.outerHum.replace('%', '')
+    },
+    getOuterTem() {
+      // 室外温度
+      const currValue = this.getAbilityData(this.formatItemsList[4].abilityId)
+        .currValue
+      if (currValue && currValue !== '0') {
+        return currValue
+      }
+      return this.outerTem.replace('℃', '')
     }
   },
   methods: {
@@ -610,7 +646,7 @@ export default {
 }
 
 .we-content {
-  padding: 0.3rem 0.5rem;
+  padding: 0 0.5rem;
   flex: 1;
   overflow: auto;
 }
@@ -702,6 +738,8 @@ export default {
     span:nth-child(1) {
       font-size: 0.92rem;
       color: #ffff00;
+      display: flex;
+      justify-content: center;
       span {
         font-size: 0.23rem;
         color: #e6e6e6;

@@ -210,7 +210,7 @@ export default {
       abilitysList: [],
       location: '',
       weather: '',
-      outerTem: '',
+      outerTem: '', // 天气
       outerHum: '', // 湿度
       outerPm: '', // PM2.5
       deviceId: this.$route.query.deviceId,
