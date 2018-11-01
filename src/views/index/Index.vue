@@ -79,7 +79,7 @@
       <div class="but-group" @click="intiTime" v-if='formatItemsList[0] && formatItemsList[0].showStatus'>
         <div class="icon time"></div>
         <!-- 定时 -->
-        <div class="text">{{formatItemsList[0].showName}}</div>
+        <div class="text">11 {{formatItemsList[0].showName}}</div>
       </div>
       <div class="but-group" @click="switchModel(formatItemsList[1].abilityId)" v-if='formatItemsList[1] && formatItemsList[1].showStatus'>
         <div class="icon model"></div>
@@ -654,8 +654,10 @@ export default {
       })
         .then(res => {
           if (res.code === 200 && res.data) {
+            console.log(res.data)
             var s = this.batteryList1[0].optionValue
             var d = res.data[s]
+            console.log(d)
             this.batteryList3 = d
           }
         })
