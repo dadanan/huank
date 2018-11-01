@@ -101,7 +101,7 @@
       <div class="content">
         <div class="title">模式设定</div>
         <div class="list">
-          <ul v-if='formatItemsList[1] && formatItemsList[1].abilityId'>formatItemsList[2]
+          <ul v-if='formatItemsList[1] && formatItemsList[1].abilityId'>
             <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[1].abilityId)" :class="{ active: modeCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[1].abilityId),index,1)" :key='item.optionValue'>
               <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
