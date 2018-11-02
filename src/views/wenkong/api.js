@@ -375,3 +375,31 @@ export function getServerUser() {
     headers: { Ticket: Store.fetch('Ticket') }
   })
 }
+// 设备参数修改
+export function sendParamFunc(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/params/sendParamFunc`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 获取转数值
+export function paramList(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/params/paramList`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 判断传参给设备是否成功
+export function queryDeviceBack(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/params/queryDeviceBack`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+

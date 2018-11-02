@@ -33,20 +33,26 @@
     </div>-->
     <yd-accordion style="background: none;">
       <yd-accordion-item title="转速配置">
-        <div slot="txt" style="color:#20aaf8; position: absolute; right: 30px;">保存</div>
-        <div style="padding: .24rem; background: #f2f2f2; ">
-          <table class="table">
-            <tr>
-              <th>档位</th>
-              <th>转数</th>
-              <th>默认值</th>
-            </tr>
-            <tr>
-              <td>1挡</td>
-              <td>450</td>
-              <td>400</td>
-            </tr>
-          </table>
+        <div class="ipt" slot="txt" style="color:#20aaf8; position: absolute; right: 30px;" @click="sendParamFunc(1)">保存</div>
+        <div slot="txt" style="color:#20aaf8; position: absolute; right: 70px;" @click="sendParamFunc(2)">恢复默认</div>
+        <div v-for="item in dirValueList1">
+          <div style="padding: .24rem; background: #f2f2f2;">
+            <p>{{item.abilityName}}</p>
+            <div>
+              <table class="table">
+                <tr>
+                  <th>档位</th>
+                  <th>转数</th>
+                  <th>默认值</th>
+                </tr>
+                <tr v-for="ls in item.configValuesList">
+                  <td>{{ls.definedName}}</td>
+                  <td><input type="number" placeholder="请输入档位" v-model="ls.currentValue"></td>
+                  <td>{{ls.defaultValue}}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
         </div>
       </yd-accordion-item>
       <yd-accordion-item title="智能逻辑设置">
@@ -149,7 +155,7 @@
       </yd-accordion-item>
     </yd-accordion>
 
-    <div class="create-dialog dialog" v-if="setPwdFlag">
+    <!-- <div class="create-dialog dialog" v-if="setPwdFlag">
       <div class="confirm">
         <div class="confim-top">
           <p>请输入设备密码</p>
@@ -166,7 +172,7 @@
           <div class="but create" @click="getToken">确定</div>
         </div>
       </div>
-    </div>
+    </div> -->
     <div class="create-dialog dialog" v-if="delDevFlag">
       <div class="confirm" style="padding: 0;">
         <div class="confim-top" style="text-align: left; color: #fff; padding: 0 10px 10px; ">
@@ -226,7 +232,11 @@ import {
   getToken,
   addChildDevice,
   delChildDevice,
-  modelList
+  modelList,
+  getModelVo,
+  sendParamFunc,
+  paramList,
+  queryDeviceBack
 } from '../wenkong/api'
 import Store from '../wenkong/store'
 export default {
@@ -250,7 +260,10 @@ export default {
       deviceId: '',
       customerId: Store.fetch('customerId') || this.$route.query.customerId,
       deviceName: '',
-      deleteTheDevice: ''
+      deleteTheDevice: '',
+      dirValueList: [],
+      dirValueList1: []
+
     }
   },
   methods: {
@@ -369,16 +382,135 @@ export default {
         this.modelList = res.data
         this.modelSelected = res.data[0].id
       })
+    },
+    //获取转速值
+    paramList() {
+      Loading.open('很快加载好了')
+      paramList({ deviceId: this.deviceId, typeName:"C10"}).then(res => {
+        Loading.close()
+        this.dirValueList1 = res.data
+        for(var i = 0; i<this.dirValueList.length;i++){
+          this.dirValueList1[i].abilityName = this.dirValueList[i].abilityName
+        }
+      })
+    },
+    //设备参数修改
+    sendParamFunc(id) {
+      let paramConfigList=[]
+      if(id == 1){
+        for(var i = 0;i<this.dirValueList1.length;i++){
+          var valuesList = {}
+          const list = this.dirValueList1[i].configValuesList
+          var defaultValue = []
+          for(var j = 0; j<list.length;j++){
+              defaultValue.push(list[j].currentValue)
+          }
+          valuesList.sort = i
+          valuesList.valuesList = defaultValue
+          paramConfigList.push(valuesList)
+          console.log(paramConfigList)
+        }
+      }else{
+        for(var i = 0;i<this.dirValueList1.length;i++){
+          var valuesList = {}
+          const list = this.dirValueList1[i].configValuesList
+          var defaultValue = []
+          for(var j = 0; j<list.length;j++){
+            defaultValue.push(list[j].defaultValue)
+          }
+          valuesList.sort = i
+          valuesList.valuesList = defaultValue
+          paramConfigList.push(valuesList)
+          console.log(paramConfigList)
+        }
+      }
+      sendParamFunc({ 
+          deviceId: this.deviceId, 
+          abilityTypeName: "C10" ,
+          paramConfigList:paramConfigList
+          }).then(res => {
+            this.queryDeviceBack()
+        })
+    },
+    // 判断设备是否接收参数
+    queryDeviceBack(){
+      Loading.open('很快加载好了')
+      queryDeviceBack({ 
+            deviceId: this.deviceId, 
+            typeName: "C10" 
+            }).then(res => {
+              Loading.close()
+              // this.paramList()
+              console.log(res)
+              if(res.data){
+                Toast({
+                  mes: '指令发送成功！',
+                  timeout: 1000,
+                  icon: 'success'
+                })
+                this.paramList()
+              }else{
+                Toast({
+                  mes: '指令发送失败！',
+                  timeout: 1000,
+                  icon: 'error'
+                })
+              }
+      })
+    },
+    // 获取总数据
+    getModelVo() {
+      // 获取H5控制页面功能项数据，带isSelect参数
+      getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
+        if (res.code === 200 && res.data) {
+          const data = res.data
+          this.pageName = data.pageName
+
+          // 将功能集里的内外风机的数据加到版式集合中。为了后面持续刷新两个风机的数据
+          const windBoxId = data.formatItemsList[2].abilityId
+          let windData = []
+          if (windBoxId) {
+            const windOption = data.abilitysList
+              .filter(item => item.abilityId === windBoxId)[0]
+              .abilityOptionList.map(item => item.optionValue)
+            // 根据内外风机指令 筛选内外风机功能数据
+            windData = data.abilitysList.filter(item =>
+              windOption.includes(item.dirValue)
+            )
+          }
+
+          this.formatItemsList = data.formatItemsList.concat(windData)
+
+          data.abilitysList.forEach(item => {
+            item['currValue'] = ''
+            item.abilityOptionList &&
+              item.abilityOptionList.forEach(iItem => {
+                iItem.isChecked = false
+              })
+          })
+          this.abilitysList = data.abilitysList
+          // console.log(this.abilitysList)
+          for (var i = 0; i < this.abilitysList.length; i++) {
+            const dirValue = this.abilitysList[i].dirValue.substring(0, 3)
+            if (dirValue === 'C10') {
+              this.dirValueList.push(this.abilitysList[i])
+            }
+          }
+          this.paramList() 
+        }
+      })
     }
   },
+
   created() {
     Loading.open('很快加载好了')
     setTimeout(() => {
       Loading.close()
     }, 300)
     this.deviceId = this.$route.query.deviceId
-    this.childDeviceList()
-    this.getModelList()
+    // this.childDeviceList()
+    // this.getModelList()
+    this.getModelVo()
   },
   components: {
     'yd-accordion': Accordion,
@@ -412,6 +544,10 @@ export default {
 @import 'src/common/scss/variable.scss';
 @import 'src/common/scss/mixins.scss';
 .set-wrapper {
+  input {
+    border: none;
+    text-indent: 4em;
+  }
   position: absolute;
   width: 100%;
   height: 100%;
