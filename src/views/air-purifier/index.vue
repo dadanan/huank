@@ -13,7 +13,7 @@
       <div class="base-info-text">
         <span v-if='formatItemsList[12] && formatItemsList[12].showStatus'>
           <i class="iconfont icon-weizhi vam"></i> {{ location }}</span>
-        <span v-if='formatItemsList[13] && formatItemsList[13].showStatus'>{{ weather }} {{ outerTem }}</span>
+        <span v-if='formatItemsList[13] && formatItemsList[13].showStatus'>{{ weather }} {{ getOuterTem }}</span>
       </div>
       <div class="control-btn-group">
         <div class="btn" @click="show1 = true" v-if='formatItemsList[10] && formatItemsList[10].showStatus'>
@@ -226,6 +226,9 @@ export default {
       return result
     },
     getOuterPM() {
+      if (!this.formatItemsList[7] || !this.formatItemsList[7].abilityId) {
+        return this.outerPm
+      }
       // 获取室外PM2.5 湿度 数据，如果室外传感器有值，就用。否则用第三方接口的
       const currValue = this.getAbilityData(this.formatItemsList[7].abilityId)
         .currValue
@@ -236,6 +239,9 @@ export default {
     },
     getOuterHum() {
       // 室外湿度
+      if (!this.formatItemsList[3] || !this.formatItemsList[3].abilityId) {
+        return this.outerHum.replace('%', '')
+      }
       const currValue = this.getAbilityData(this.formatItemsList[3].abilityId)
         .currValue
       if (currValue && currValue !== '0') {
@@ -245,6 +251,9 @@ export default {
     },
     getOuterTem() {
       // 室外温度
+      if (!this.formatItemsList[4] || !this.formatItemsList[4].abilityId) {
+        return this.outerTem.replace('℃', '')
+      }
       const currValue = this.getAbilityData(this.formatItemsList[4].abilityId)
         .currValue
       if (currValue && currValue !== '0') {

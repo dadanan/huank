@@ -286,7 +286,7 @@ export function shareList(data) {
 // 修改人的权限
 export function updateRelation(data) {
   return http({
-    url: `${BASE_URL}/api//h5/api/updateRelation`,
+    url: `${BASE_URL}/api/h5/api/updateRelation`,
     method: 'post',
     data,
     headers: { Ticket: Store.fetch('Ticket') }
@@ -295,7 +295,7 @@ export function updateRelation(data) {
 // 修改所有人的权限
 export function updateAllRelation(data) {
   return http({
-    url: `${BASE_URL}/api//h5/api/updateAllRelation`,
+    url: `${BASE_URL}/api/h5/api/updateAllRelation`,
     method: 'post',
     data,
     headers: { Ticket: Store.fetch('Ticket') }
@@ -311,9 +311,10 @@ export function getHistoryData(data) {
   })
 }
 
+// 删除某人权限
 export function clearRelation(data) {
   return http({
-    url: `${BASE_URL}/api//h5/api/clearRelation`,
+    url: `${BASE_URL}/api/h5/api/clearRelation`,
     method: 'post',
     data,
     headers: { Ticket: Store.fetch('Ticket') }
@@ -326,10 +327,10 @@ export function deleteDevice(data) {
     url: `${BASE_URL}/api/h5/api/deleteDevice`,
     method: 'post',
     data,
-    headers: { 
+    headers: {
       Ticket: Store.fetch('Ticket'),
       Authorization: Store.fetch('Token')
-  }
+    }
   })
 }
 

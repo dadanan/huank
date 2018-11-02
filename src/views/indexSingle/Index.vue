@@ -8,9 +8,9 @@
     <div class="info">
       <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;
       <span v-show='formatItemsList[12] && formatItemsList[2].showStatus'>{{location}}&nbsp;</span>
-      <span v-show='formatItemsList[13] && formatItemsList[13].showStatus'>{{weather}} {{outerTem}}&nbsp;</span>
-      <span v-show='formatItemsList[14] && formatItemsList[14].showStatus'>湿度: {{outerHum}}&nbsp;</span>
-      <span v-show='formatItemsList[15] && formatItemsList[15].showStatus'>PM2.5: {{outerPm}}ug/m3&nbsp;</span>
+      <span v-show='formatItemsList[13] && formatItemsList[13].showStatus'>{{weather}} {{getOuterTem}}℃&nbsp;</span>
+      <span v-show='formatItemsList[14] && formatItemsList[14].showStatus'>湿度: {{getOuterHum}}%&nbsp;</span>
+      <span v-show='formatItemsList[15] && formatItemsList[15].showStatus'>PM2.5: {{getOuterPM}}ug/m3&nbsp;</span>
       <span>质量: {{AQI}}</span>
     </div>
     <div class="but-list">
@@ -213,6 +213,47 @@ export default {
       AQI: '优'
     }
   },
+  computed: {
+    getOuterPM() {
+      // 获取室外PM2.5数据，优先使用室外传感器数据
+      if (!this.formatItemsList[15] || !this.formatItemsList[15].abilityId) {
+        // 如果没有传感器功能项
+        return this.outerPm
+      }
+      const currValue = this.getAbilityData(this.formatItemsList[15].abilityId)
+        .currValue
+      if (currValue && currValue !== '0') {
+        return currValue
+      }
+      return this.outerPm
+    },
+    getOuterHum() {
+      console.log(11)
+      // 室外湿度
+      if (!this.formatItemsList[14] || !this.formatItemsList[14].abilityId) {
+        return this.outerHum.replace('%', '')
+      }
+      const currValue = this.getAbilityData(this.formatItemsList[14].abilityId)
+        .currValue
+      console.log('室外湿度', currValue)
+      if (currValue && currValue !== '0') {
+        return currValue
+      }
+      return this.outerHum.replace('%', '')
+    },
+    getOuterTem() {
+      // 室外温度
+      if (!this.formatItemsList[13] || !this.formatItemsList[13].abilityId) {
+        return this.outerTem.replace('℃', '')
+      }
+      const currValue = this.getAbilityData(this.formatItemsList[13].abilityId)
+        .currValue
+      if (currValue && currValue !== '0') {
+        return currValue
+      }
+      return this.outerTem.replace('℃', '')
+    }
+  },
   methods: {
     changeSleepStatus() {
       this.isSleep = false
@@ -329,7 +370,7 @@ export default {
           // 如果当前选中对模式是睡眠，那么开启睡眠弹框
           if (item.optionValue === '2') {
             this.isSleep = true
-          }else{
+          } else {
             this.isSleep = false
           }
         })
@@ -491,11 +532,11 @@ export default {
       if (this.isOpen) {
         // 找“关”的项
         index = tempList.findIndex(item => item.dirValue === '0')
-        this.offopen(tempd,tempList[index].dirValue)
+        this.offopen(tempd, tempList[index].dirValue)
       } else {
         index = tempList.findIndex(item => item.dirValue === '1')
       }
-      
+
       sendFunc({
         deviceId: this.deviceId,
         funcId: tempArray.dirValue,
@@ -510,18 +551,14 @@ export default {
         )
       })
     },
-    offopen(DirValue,Dirindex){
-      console.log(DirValue,Dirindex)
+    offopen(DirValue, Dirindex) {
+      console.log(DirValue, Dirindex)
       sendFunc({
         deviceId: this.deviceId,
         funcId: DirValue,
         value: Dirindex
       }).then(res => {
-        console.info(
-          '指令发送成功:',
-          '-',
-          Dirindex
-        )
+        console.info('指令发送成功:', '-', Dirindex)
       })
     },
     nodeClicked(item, index, type) {
@@ -602,7 +639,6 @@ export default {
           }, 1000)
           //滤网检查
           const windOption1 = data.abilitysList
-          // console.log(windOption1)
           for (var i = 0; i < windOption1.length; i++) {
             if (windOption1[i].dirValue == '-1') {
               this.batteryList1 = windOption1[i].abilityOptionList
@@ -636,6 +672,7 @@ export default {
         })
     },
     getIndexFormatData(list) {
+      console.log(234)
       // 获取H5控制页面功能项数据，带isSelect参数
 
       // 根据功能项id筛选功能项
