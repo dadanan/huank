@@ -36,7 +36,7 @@
             PM2.5
             <span>{{AQI}}</span>
           </p>
-          <p v-if='formatItemsList[15]' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[15].abilityId).currValue}}</p>
+          <p v-if='formatItemsList[15]' :class="{ active:  isOpen === true}">{{getOuterPM}}</p>
           <p></p>
           <p>ug/m3</p>
         </div>
@@ -220,22 +220,29 @@ export default {
         // 如果没有传感器功能项
         return this.outerPm
       }
-      const currValue = this.getAbilityData(this.formatItemsList[15].abilityId)
-        .currValue
+      const currData = this.getAbilityData(this.formatItemsList[15].abilityId)
+      if (!currData) {
+        return this.outerPm
+      }
+
+      const currValue = currData.currValue
+
       if (currValue && currValue !== '0') {
         return currValue
       }
       return this.outerPm
     },
     getOuterHum() {
-      console.log(11)
       // 室外湿度
       if (!this.formatItemsList[14] || !this.formatItemsList[14].abilityId) {
         return this.outerHum.replace('%', '')
       }
-      const currValue = this.getAbilityData(this.formatItemsList[14].abilityId)
-        .currValue
-      console.log('室外湿度', currValue)
+      const currData = this.getAbilityData(this.formatItemsList[14].abilityId)
+      if (!currData) {
+        return this.outerHum.replace('%', '')
+      }
+      const currValue = currData.currValue
+
       if (currValue && currValue !== '0') {
         return currValue
       }
@@ -246,8 +253,12 @@ export default {
       if (!this.formatItemsList[13] || !this.formatItemsList[13].abilityId) {
         return this.outerTem.replace('℃', '')
       }
-      const currValue = this.getAbilityData(this.formatItemsList[13].abilityId)
-        .currValue
+      const currData = this.getAbilityData(this.formatItemsList[13].abilityId)
+      if (!currData) {
+        return this.outerTem.replace('℃', '')
+      }
+      const currValue = currData.currValue
+
       if (currValue && currValue !== '0') {
         return currValue
       }
