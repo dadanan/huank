@@ -683,7 +683,6 @@ export default {
         })
     },
     getIndexFormatData(list) {
-      console.log(234)
       // 获取H5控制页面功能项数据，带isSelect参数
 
       // 根据功能项id筛选功能项
@@ -700,31 +699,27 @@ export default {
         const data = res.data
         // 将res.data中的isSelect和dirValue赋值过去
         this.abilitysList.forEach((item, index) => {
-          // 如果有值，说明是温度这样的功能项，讲数值拿过来
-          if (data[index] && data[index].currValue) {
-            // 找到对应的功能项对象
-            const temp = this.abilitysList.filter(
-              itemA => itemA.abilityId === data[index].id
-            )[0]
-
-            try {
-              temp['currValue'] = data[index].currValue
-            } catch (e) {}
-          }
-          if (!item.abilityOptionList || item.abilityOptionList.length === 0) {
+          const realAbilityData = findTheAbility(data, item.abilityId)
+          if (!realAbilityData) {
             return
           }
 
-          item.abilityType !== 1 &&
-            item.abilityOptionList.forEach((option, oIndex) => {
-              const result = findTheAbility(data, item.abilityId)
-              if (result) {
-                const temp = Object.assign(
-                  option,
-                  result.abilityOptionList[oIndex]
-                )
-              }
-            })
+          // 如果有值，说明是传感器型功能项，讲数值拿过来
+          if (realAbilityData.currValue) {
+            item['currValue'] = realAbilityData.currValue
+          }
+
+          if (
+            !item.abilityOptionList ||
+            item.abilityOptionList.length === 0 ||
+            item.abilityType === 1
+          ) {
+            return
+          }
+
+          item.abilityOptionList.forEach((option, oIndex) => {
+            Object.assign(option, realAbilityData.abilityOptionList[oIndex])
+          })
         })
 
         this.switchHandler()
