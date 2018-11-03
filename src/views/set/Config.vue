@@ -263,7 +263,6 @@ export default {
       deleteTheDevice: '',
       dirValueList: [],
       dirValueList1: []
-
     }
   },
   methods: {
@@ -386,36 +385,40 @@ export default {
     //获取转速值
     paramList() {
       Loading.open('很快加载好了')
-      paramList({ deviceId: this.deviceId, typeName:"C10"}).then(res => {
-        Loading.close()
-        this.dirValueList1 = res.data
-        for(var i = 0; i<this.dirValueList.length;i++){
-          this.dirValueList1[i].abilityName = this.dirValueList[i].abilityName
-        }
-      })
+      paramList({ deviceId: this.deviceId, typeName: 'C10' })
+        .then(res => {
+          Loading.close()
+          this.dirValueList1 = res.data
+          for (var i = 0; i < this.dirValueList.length; i++) {
+            this.dirValueList1[i].abilityName = this.dirValueList[i].abilityName
+          }
+        })
+        .catch(() => {
+          Loading.close()
+        })
     },
     //设备参数修改
     sendParamFunc(id) {
-      let paramConfigList=[]
-      if(id == 1){
-        for(var i = 0;i<this.dirValueList1.length;i++){
+      let paramConfigList = []
+      if (id == 1) {
+        for (var i = 0; i < this.dirValueList1.length; i++) {
           var valuesList = {}
           const list = this.dirValueList1[i].configValuesList
           var defaultValue = []
-          for(var j = 0; j<list.length;j++){
-              defaultValue.push(list[j].currentValue)
+          for (var j = 0; j < list.length; j++) {
+            defaultValue.push(list[j].currentValue)
           }
           valuesList.sort = i
           valuesList.valuesList = defaultValue
           paramConfigList.push(valuesList)
           console.log(paramConfigList)
         }
-      }else{
-        for(var i = 0;i<this.dirValueList1.length;i++){
+      } else {
+        for (var i = 0; i < this.dirValueList1.length; i++) {
           var valuesList = {}
           const list = this.dirValueList1[i].configValuesList
           var defaultValue = []
-          for(var j = 0; j<list.length;j++){
+          for (var j = 0; j < list.length; j++) {
             defaultValue.push(list[j].defaultValue)
           }
           valuesList.sort = i
@@ -424,39 +427,43 @@ export default {
           console.log(paramConfigList)
         }
       }
-      sendParamFunc({ 
-          deviceId: this.deviceId, 
-          abilityTypeName: "C10" ,
-          paramConfigList:paramConfigList
-          }).then(res => {
-            this.queryDeviceBack()
-        })
+      sendParamFunc({
+        deviceId: this.deviceId,
+        abilityTypeName: 'C10',
+        paramConfigList: paramConfigList
+      }).then(res => {
+        this.queryDeviceBack()
+      })
     },
     // 判断设备是否接收参数
-    queryDeviceBack(){
+    queryDeviceBack() {
       Loading.open('很快加载好了')
-      queryDeviceBack({ 
-            deviceId: this.deviceId, 
-            typeName: "C10" 
-            }).then(res => {
-              Loading.close()
-              // this.paramList()
-              console.log(res)
-              if(res.data){
-                Toast({
-                  mes: '指令发送成功！',
-                  timeout: 1000,
-                  icon: 'success'
-                })
-                this.paramList()
-              }else{
-                Toast({
-                  mes: '指令发送失败！',
-                  timeout: 1000,
-                  icon: 'error'
-                })
-              }
+      queryDeviceBack({
+        deviceId: this.deviceId,
+        typeName: 'C10'
       })
+        .then(res => {
+          Loading.close()
+          // this.paramList()
+          console.log(res)
+          if (res.data) {
+            Toast({
+              mes: '指令发送成功！',
+              timeout: 1000,
+              icon: 'success'
+            })
+            this.paramList()
+          } else {
+            Toast({
+              mes: '指令发送失败！',
+              timeout: 1000,
+              icon: 'error'
+            })
+          }
+        })
+        .catch(() => {
+          Loading.close()
+        })
     },
     // 获取总数据
     getModelVo() {
@@ -496,7 +503,7 @@ export default {
               this.dirValueList.push(this.abilitysList[i])
             }
           }
-          this.paramList() 
+          this.paramList()
         }
       })
     }
