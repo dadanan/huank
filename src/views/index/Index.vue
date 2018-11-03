@@ -36,7 +36,7 @@
             PM2.5
             <span>{{AQI}}</span>
           </p>
-          <p v-if='formatItemsList[15]' :class="{ active:  isOpen === true}">{{getOuterPM}}</p>
+          <p v-if='formatItemsList[15] && formatItemsList[15].abilityId' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[15].abilityId).currValue}}</p>
           <p></p>
           <p>ug/m3</p>
         </div>
@@ -79,7 +79,7 @@
       <div class="but-group" @click="intiTime" v-if='formatItemsList[0] && formatItemsList[0].showStatus'>
         <div class="icon time"></div>
         <!-- 定时 -->
-        <div class="text">11 {{formatItemsList[0].showName}}</div>
+        <div class="text">{{formatItemsList[0].showName}}</div>
       </div>
       <div class="but-group" @click="switchModel(formatItemsList[1].abilityId)" v-if='formatItemsList[1] && formatItemsList[1].showStatus'>
         <div class="icon model"></div>
@@ -226,6 +226,8 @@ export default {
   },
   computed: {
     getOuterPM() {
+      // 对应配置项被用作室内PM2.5，所以室外PM2.5直接返回第三方数据
+      return this.outerPm
       // 获取室外PM2.5数据，优先使用室外传感器数据
       if (!this.formatItemsList[15] || !this.formatItemsList[15].abilityId) {
         // 如果没有传感器功能项
