@@ -262,7 +262,8 @@ export default {
       deviceName: '',
       deleteTheDevice: '',
       dirValueList: [],
-      dirValueList1: []
+      dirValueList1: [],
+      status:true
     }
   },
   methods: {
@@ -399,6 +400,7 @@ export default {
     },
     //设备参数修改
     sendParamFunc(id) {
+      this.status = true
       let paramConfigList = []
       if (id == 1) {
         for (var i = 0; i < this.dirValueList1.length; i++) {
@@ -409,7 +411,17 @@ export default {
             if(list[j].currentValue == ''){
               defaultValue.push(Number(list[j].defaultValue))
             }else{
-              defaultValue.push(Number(list[j].currentValue))
+              var s = list[j].currentValue
+              if(s < list[j].maxValue && s > list[j].minValue){
+                defaultValue.push(Number(list[j].currentValue))
+              }else{
+                Toast({
+                  mes: this.dirValueList1[i].abilityName+' '+list[j].definedName+'最小值为'+list[j].minValue+'最大值为'+list[j].maxValue,
+                  timeout: 2000,
+                  icon: 'error'
+                })
+                this.status = false
+              }
             }
           }
           valuesList.sort = i
@@ -431,13 +443,17 @@ export default {
           // console.log(paramConfigList)
         }
       }
-      sendParamFunc({
-        deviceId: this.deviceId,
-        abilityTypeName: 'C10',
-        paramConfigList: paramConfigList
-      }).then(res => {
-        this.queryDeviceBack()
-      })
+      if(this.status){
+        sendParamFunc({
+            deviceId: this.deviceId,
+            abilityTypeName: 'C10',
+            paramConfigList: paramConfigList
+          }).then(res => {
+            console.log(res)
+            this.queryDeviceBack()
+        })
+      }
+      
     },
     // 判断设备是否接收参数
     queryDeviceBack() {
