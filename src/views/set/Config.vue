@@ -406,12 +406,16 @@ export default {
           const list = this.dirValueList1[i].configValuesList
           var defaultValue = []
           for (var j = 0; j < list.length; j++) {
-            defaultValue.push(list[j].currentValue)
+            if(list[j].currentValue == ''){
+              defaultValue.push(Number(list[j].defaultValue))
+            }else{
+              defaultValue.push(Number(list[j].currentValue))
+            }
           }
           valuesList.sort = i
           valuesList.valuesList = defaultValue
           paramConfigList.push(valuesList)
-          console.log(paramConfigList)
+          // console.log(paramConfigList)
         }
       } else {
         for (var i = 0; i < this.dirValueList1.length; i++) {
@@ -419,12 +423,12 @@ export default {
           const list = this.dirValueList1[i].configValuesList
           var defaultValue = []
           for (var j = 0; j < list.length; j++) {
-            defaultValue.push(list[j].defaultValue)
+            defaultValue.push(Number(list[j].defaultValue))
           }
           valuesList.sort = i
           valuesList.valuesList = defaultValue
           paramConfigList.push(valuesList)
-          console.log(paramConfigList)
+          // console.log(paramConfigList)
         }
       }
       sendParamFunc({
