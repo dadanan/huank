@@ -378,6 +378,8 @@ export default {
           this.setInter = setInterval(() => {
             this.getIndexFormatData(res.data)
           }, 2000)
+
+          this.pageIsShow = true
         }
       })
     },
@@ -511,10 +513,6 @@ export default {
     }
   },
   created() {
-    setTimeout(() => {
-      this.pageIsShow = true
-    }, 1000)
-
     this.customerName = Store.fetch('customerName')
     setWechatTitle(this.customerName, '')
 

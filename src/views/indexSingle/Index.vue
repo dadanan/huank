@@ -662,6 +662,9 @@ export default {
           this.setInter2 = setInterval(() => {
             this.getWeather()
           }, 2000)
+
+          // 显示页面内容
+          this.pageIsShow = true
         }
       })
     },
@@ -846,9 +849,6 @@ export default {
     }
   },
   created() {
-    setTimeout(() => {
-      this.pageIsShow = true
-    }, 1000)
     this.cHeight = window.innerWidth * 0.45
     if (window.innerWidth <= 340) {
       this.cHeight = window.innerWidth * 0.45
