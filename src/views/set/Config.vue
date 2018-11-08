@@ -7,10 +7,10 @@
     <div class="set-cell">
       <div class="cell-item border-bottom" @click="editDevFlag = true">
         <div class="cell-left">
-          <span>设备名称</span>
+          <span>设备管理名称</span>
         </div>
         <div class="cell-right">
-          <span>{{ deviceName }}</span>
+          <span>{{ manageName }}</span>
         </div>
       </div>
     </div>  
@@ -160,10 +160,11 @@
         </div>
       </div>
     </div>
+    <!-- 修改名称 -->
     <div class="create-dialog dialog" v-if="editDevFlag">
       <div class="confirm">
         <div class="confim-top">
-          <textarea class="name" v-model="setDeviceName" v-text="deviceName"></textarea>
+          <textarea class="name" v-model="manageName" v-text="manageName"></textarea>
         </div>
         <div class="confim-bottom">
           <div class="but" @click="editDevFlag = false">取消</div>
@@ -216,13 +217,15 @@ import {
   getModelVo,
   sendParamFunc,
   paramList,
-  queryDeviceBack
+  queryDeviceBack,
+  editManageName
 } from '../wenkong/api'
 import Store from '../wenkong/store'
 export default {
   data() {
     return {
       editDevFlag:false,
+      manageName:'',
       inItems: [],
       outItems: [],
       isEdit: false,
@@ -332,12 +335,26 @@ export default {
         this.modelSelected = res.data[0].id
       })
     },
+    // 修改设备名称
+    editDev(){
+      editManageName({deviceId: this.deviceId,deviceName: this.manageName})
+      .then(res=>{
+        this.editDevFlag = false
+      })
+      .catch(() => {
+        Toast({
+            mes: '名称修改失败',
+            timeout: 1000,
+            icon: 'error'
+          })
+        this.editDevFlag = false
+        })
+    },
     //获取转速值
     paramList() {
       Loading.open('很快加载好了')
       paramList({ deviceId: this.deviceId, typeName: 'C10' })
         .then(res => {
-          console.log(res)
           Loading.close()
           this.dirValueList1 = res.data
           for (var i = 0; i < this.dirValueList.length; i++) {
@@ -406,7 +423,7 @@ export default {
             abilityTypeName: 'C10',
             paramConfigList: paramConfigList
           }).then(res => {
-            console.log(res)
+            // console.log(res)
             // this.queryDeviceBack()
              this.paramList()
             Toast({
@@ -427,7 +444,7 @@ export default {
         .then(res => {
           Loading.close()
           // this.paramList()
-          console.log(res)
+          // console.log(res)
           if (res.data) {
             Toast({
               mes: '设备收到配置',
@@ -452,6 +469,7 @@ export default {
       // 获取H5控制页面功能项数据，带isSelect参数
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
         if (res.code === 200 && res.data) {
+          this.manageName = res.data.manageName
           const data = res.data
           this.pageName = data.pageName
           // 将功能集里的内外风机的数据加到版式集合中。为了后面持续刷新两个风机的数据

@@ -402,4 +402,14 @@ export function queryDeviceBack(data) {
     headers: { Ticket: Store.fetch('Ticket') }
   })
 }
+// 设备名称修改
+export function editManageName(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/high/editManageName`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket'),
+    Authorization: Store.fetch('Token') }
+  })
+}
 
