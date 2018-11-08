@@ -28,8 +28,23 @@
         <div class="cell-txt"></div>
       </div>
       </div>
-    </div>-->
+    </div> -->
+    <div class="set-cell">
+      <div class="cell-item border-bottom" @click="editDevFlag = true">
+        <div class="cell-left">
+          <span>设备名称</span>
+        </div>
+        <div class="cell-right">
+          <span>{{ deviceName }}</span>
+        </div>
+      </div>
+    </div>  
     <yd-accordion style="background: none;">
+      <!-- <yd-accordion-item title="管理设备名">
+        <div class="">
+          <input type="text" placeholder="请输入用户名">
+        </div>
+      </yd-accordion-item> -->
       <yd-accordion-item title="转速配置">
         <div class="ipt" slot="txt" style="color:#20aaf8; position: absolute; right: 30px;" @click="sendParamFunc(1)">保存</div>
         <div slot="txt" style="color:#20aaf8; position: absolute; right: 70px;" @click="sendParamFunc(2)">恢复默认</div>
@@ -152,25 +167,6 @@
         </div>
       </yd-accordion-item>
     </yd-accordion>
-
-    <!-- <div class="create-dialog dialog" v-if="setPwdFlag">
-      <div class="confirm">
-        <div class="confim-top">
-          <p>请输入设备密码</p>
-          <input type="number" name="" id="" value="" v-model="pwd" style="position: absolute; top:50px; left: 20px; right: 0; height: 40px; opacity: 0;" />
-          <div class="flex flex-pack-justify" style="margin: 0 20px;">
-            <span class="box">{{pwdList[0]}}</span>
-            <span class="box">{{pwdList[1]}}</span>
-            <span class="box">{{pwdList[2]}}</span>
-            <span class="box">{{pwdList[3]}}</span>
-          </div>
-        </div>
-        <div class="confim-bottom">
-          <div class="but" @click="goBack">取消</div>
-          <div class="but create" @click="getToken">确定</div>
-        </div>
-      </div>
-    </div> -->
     <div class="create-dialog dialog" v-if="delDevFlag">
       <div class="confirm" style="padding: 0;">
         <div class="confim-top" style="text-align: left; color: #fff; padding: 0 10px 10px; ">
@@ -186,6 +182,17 @@
         <div class="confim-bottom">
           <div class="but" @click="delDevFlag = false">取消</div>
           <div class="but create" @click="deleteChildDevice">确定</div>
+        </div>
+      </div>
+    </div>
+    <div class="create-dialog dialog" v-if="editDevFlag">
+      <div class="confirm">
+        <div class="confim-top">
+          <textarea class="name" v-model="setDeviceName" v-text="deviceName"></textarea>
+        </div>
+        <div class="confim-bottom">
+          <div class="but" @click="editDevFlag = false">取消</div>
+          <div class="but create" @click="editDev">确定</div>
         </div>
       </div>
     </div>
@@ -240,6 +247,7 @@ import Store from '../wenkong/store'
 export default {
   data() {
     return {
+      editDevFlag:false,
       inItems: [],
       outItems: [],
       isEdit: false,
@@ -261,7 +269,8 @@ export default {
       deleteTheDevice: '',
       dirValueList: [],
       dirValueList1: [],
-      status: true
+      status:true,
+      deviceName:''
     }
   },
   methods: {
@@ -353,6 +362,7 @@ export default {
       Loading.open('很快加载好了')
       paramList({ deviceId: this.deviceId, typeName: 'C10' })
         .then(res => {
+          console.log(res)
           Loading.close()
           this.dirValueList1 = res.data
           for (var i = 0; i < this.dirValueList.length; i++) {
@@ -417,12 +427,18 @@ export default {
       }
       if (this.status) {
         sendParamFunc({
-          deviceId: this.deviceId,
-          abilityTypeName: 'C10',
-          paramConfigList: paramConfigList
-        }).then(res => {
-          console.log(res)
-          this.queryDeviceBack()
+            deviceId: this.deviceId,
+            abilityTypeName: 'C10',
+            paramConfigList: paramConfigList
+          }).then(res => {
+            console.log(res)
+            // this.queryDeviceBack()
+             this.paramList()
+            Toast({
+              mes: '指令发送成功！',
+              timeout: 1000,
+              icon: 'success'
+            })
         })
       }
     },
@@ -439,14 +455,14 @@ export default {
           console.log(res)
           if (res.data) {
             Toast({
-              mes: '指令发送成功！',
+              mes: '设备收到配置',
               timeout: 1000,
               icon: 'success'
             })
             this.paramList()
           } else {
             Toast({
-              mes: '指令发送失败！',
+              mes: '设备未收到配置',
               timeout: 1000,
               icon: 'error'
             })
@@ -463,7 +479,6 @@ export default {
         if (res.code === 200 && res.data) {
           const data = res.data
           this.pageName = data.pageName
-
           // 将功能集里的内外风机的数据加到版式集合中。为了后面持续刷新两个风机的数据
           const windBoxId = data.formatItemsList[2].abilityId
           let windData = []
@@ -542,6 +557,69 @@ export default {
 @import 'src/common/scss/variable.scss';
 @import 'src/common/scss/mixins.scss';
 .set-wrapper {
+    .set-cell {
+    padding-top: 10px;
+    background: #fff;
+    .cell-item {
+      position: relative;
+      display: flex;
+      overflow: hidden;
+      margin-bottom: 10px;
+      font-size: 14px;
+      &.white {
+        background: #ffffff;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+        .cell-right {
+          &::after {
+            top: 16px;
+          }
+        }
+      }
+      &.border-bottom {
+        padding-bottom: 15px;
+        &::after {
+          content: '';
+          margin-left: 15px;
+          position: absolute;
+          z-index: 0;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          border-bottom: 1px solid #d9d9d9;
+          transform: scaleY(0.5);
+          transform-origin: 0 0;
+        }
+      }
+      .cell-left {
+        padding-left: 15px;
+        display: flex;
+        align-items: center;
+      }
+      .cell-right {
+        flex: 1;
+        justify-content: flex-end;
+        text-align: right;
+        padding-right: 40px;
+        &::after {
+          display: block;
+          color: #c9c9c9;
+          content: '';
+          width: 8px;
+          height: 15px;
+          background: url('../../assets/arr-right.png') no-repeat center center;
+          background-size: 8px 15px;
+          position: absolute;
+          right: 20px;
+          top: 3px;
+        }
+        & span {
+          color: #999999;
+        }
+      }
+    }
+  }
   input {
     border: none;
     text-indent: 4em;
