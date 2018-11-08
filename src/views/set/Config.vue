@@ -4,31 +4,6 @@
       <div class="return" @click="returnMethod"></div>
       <span>设备配置</span>
     </div>
-    <!--<div class="config-wrapper">
-      <div class="cell-header">
-        <div class="cell-value"><b>配置信息</b></div>
-        <div class="cell-value"><b>配置值</b></div>
-        <div class="cell-value"><b>默认值</b></div>
-      </div>
-      <div>
-      <div class="cell-content" v-for="(item,index) in inItems">
-        <div class="cell-txt">(内)风速{{ item.level }}档</div>
-        <div class="cell-txt">
-          <span v-if="!isEdit">{{ item.speed }}</span>
-          <input v-else v-model="item.speed" style="width:50px;"/> RPM
-        </div>
-        <div class="cell-txt"></div>
-      </div>
-      <div class="cell-content" v-for="(item,index) in outItems">
-        <div class="cell-txt">(外)风速{{ item.level }}档</div>
-        <div class="cell-txt">
-          <span v-if="!isEdit">{{ item.speed }}</span>
-          <input v-else v-model="item.speed" style="width:50px;"/> RPM
-        </div>
-        <div class="cell-txt"></div>
-      </div>
-      </div>
-    </div> -->
     <div class="set-cell">
       <div class="cell-item border-bottom" @click="editDevFlag = true">
         <div class="cell-left">

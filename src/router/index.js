@@ -15,6 +15,7 @@ const DevInfo = resolve => require(['@/views/set/DevInfo'], resolve)
 const Share = resolve => require(['@/views/set/Share'], resolve)
 const WKShare = resolve => require(['@/views/wenongSet/Share'], resolve)
 const Data = resolve => require(['@/views/set/Data'], resolve)
+const AMap = resolve => require(['@/views/set/Map'], resolve)
 const Battery = resolve => require(['@/views/set/Battery'], resolve)
 const Config = resolve => require(['@/views/set/Config'], resolve)
 const WKConfig = resolve => require(['@/views/wenongSet/Config'], resolve)
@@ -132,6 +133,13 @@ let routes = [
   {
     path: '/data',
     component: Data,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/map',
+    component: AMap,
     meta: {
       title: ''
     }

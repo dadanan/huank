@@ -39,14 +39,11 @@
         </div>
         <div class="cell-right"></div>
       </div>
-      <div class="cell-item white" @click.stop="show2 = true">
+      <div class="cell-item white" @click="intoMap">
         <div class="cell-left">
           <span>手动设置位置</span>
         </div>
         <div class="cell-right">
-          <span style="color:rgb(63, 169, 245)">{{ model2 }}
-            <!--{{ (batteryList[0].value/3600).toFixed(2) }}h-->
-          </span>
         </div>
       </div>
       <div class="cell-item white" @click="intoBattery">
@@ -70,7 +67,7 @@
         <div class="cell-right"></div>
       </div>
       <div class="cell-item white" @click="customer = true">
-        <a >
+        <a>
           <div class="cell-left">
             <span>联系客服</span>
           </div>
@@ -90,25 +87,25 @@
         <div class="confim-bottom">
           <div class="but1" @click="customer = false">确定</div>
         </div>
-    </div>
-    <div class="create-dialog dialog" v-if="setPwdFlag">
-      <div class="confirm">
-        <div class="confim-top">
-          <p>请输入设备密码</p>
-          <input type="number" name="" id="" value="" v-model="pwd" style="position: absolute; top:50px; left: 20px; right: 0; height: 40px; opacity: 0;" />
-          <div class="flex flex-pack-justify" style="margin: 0 20px;">
-            <span class="box">{{pwdList[0]}}</span>
-            <span class="box">{{pwdList[1]}}</span>
-            <span class="box">{{pwdList[2]}}</span>
-            <span class="box">{{pwdList[3]}}</span>
+      </div>
+      <div class="create-dialog dialog" v-if="setPwdFlag">
+        <div class="confirm">
+          <div class="confim-top">
+            <p>请输入设备密码</p>
+            <input type="number" name="" id="" value="" v-model="pwd" style="position: absolute; top:50px; left: 20px; right: 0; height: 40px; opacity: 0;" />
+            <div class="flex flex-pack-justify" style="margin: 0 20px;">
+              <span class="box">{{pwdList[0]}}</span>
+              <span class="box">{{pwdList[1]}}</span>
+              <span class="box">{{pwdList[2]}}</span>
+              <span class="box">{{pwdList[3]}}</span>
+            </div>
+          </div>
+          <div class="confim-bottom">
+            <div class="but" @click="cancel">取消</div>
+            <div class="but create" @click="getToken">确定</div>
           </div>
         </div>
-        <div class="confim-bottom">
-          <div class="but" @click="cancel">取消</div>
-          <div class="but create" @click="getToken">确定</div>
-        </div>
       </div>
-    </div>
     </div>
     <div class="create-dialog dialog" v-if="editDevFlag">
       <div class="confirm">
@@ -140,26 +137,19 @@
         </div>
       </div>
     </div>
-
-    <yd-cityselect v-model="show2" ref="cityselectDemo" :callback="updateLocation" :items="district" :provance="province" :city="city" :area="area"></yd-cityselect>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
-import District from 'ydui-district/dist/jd_province_city_area_id'
 import myUrl from 'common/js/api'
 import { editDevice } from '../wenkong/api'
-import { CitySelect } from 'vue-ydui/dist/lib.rem/cityselect'
 import Store from '../wenkong/store'
-import { updateDeviceLocation, getToken ,getServerUser} from '../wenkong/api'
+import { getToken, getServerUser } from '../wenkong/api'
 
 export default {
   data() {
     return {
-      province: '',
-      city: '',
-      area: '',
       switch1: false,
       switch2: false,
       editDevFlag: false,
@@ -168,14 +158,11 @@ export default {
       setDeviceName: '',
       batteryList: [],
       setPwdFlag: false,
-      show2: false,
-      model2: '',
-      district: District,
       deviceId: this.$route.query.deviceId,
       customerId: this.$route.query.customerId,
       pwd: '',
       pwdList: [],
-      customer1:""
+      customer1: ''
     }
   },
   methods: {
@@ -208,27 +195,9 @@ export default {
     },
     getServerUser() {
       // 客服
-      getServerUser()
-        .then(res => {
-          this.customer1 = res.data
-        })
-    },
-    updateLocation(ret) {
-      this.model2 = ret.itemName1 + ',' + ret.itemName2 + ',' + ret.itemName3
-      // 发送服务端
-      // Loading.open('很快加载好了')
-      updateDeviceLocation({
-        deviceId: this.deviceId,
-        location: this.model2
+      getServerUser().then(res => {
+        this.customer1 = res.data
       })
-        .then(res => {
-          Loading.close()
-          sessionStorage.setItem('location', this.model2)
-        })
-        .catch(error => {
-          Loading.close()
-          this.$toast(error.msg, 'bottom')
-        })
     },
     returnMethod() {
       this.$router.back(-1)
@@ -236,6 +205,15 @@ export default {
     intoShare() {
       this.$router.push({
         path: '/share',
+        query: {
+          deviceId: this.deviceId,
+          customerId: this.customerId
+        }
+      })
+    },
+    intoMap() {
+      this.$router.push({
+        path: '/map',
         query: {
           deviceId: this.deviceId,
           customerId: this.customerId
@@ -301,13 +279,6 @@ export default {
     this.getServerUser()
     Loading.open('很快加载好了')
     if (Store.fetch('location')) {
-      this.model2 = Store.fetch('location')
-      let arr = this.model2.split(',')
-      if (arr.length === 3) {
-        this.province = arr[0]
-        this.city = arr[1]
-        this.area = arr[2]
-      }
     }
     if (Store.fetch('screens')) {
       this.batteryList = JSON.parse(Store.fetch('screens'))
@@ -315,9 +286,6 @@ export default {
     setTimeout(() => {
       Loading.close()
     }, 300)
-  },
-  components: {
-    'yd-cityselect': CitySelect
   },
   mounted() {
     this.deviceName = Store.fetch('deviceName')
@@ -402,7 +370,7 @@ export default {
           }
         }
       }
-      .confim-content{
+      .confim-content {
         padding: 20px 10px;
       }
       .confim-bottom {
@@ -428,7 +396,7 @@ export default {
             }
           }
         }
-        .but1{
+        .but1 {
           width: 100%;
           height: 40px;
           line-height: 40px;
