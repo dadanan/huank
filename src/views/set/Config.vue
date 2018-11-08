@@ -32,7 +32,7 @@
     <div class="set-cell">
       <div class="cell-item border-bottom" @click="editDevFlag = true">
         <div class="cell-left">
-          <span>设备名称</span>
+          <span>设备管理名称</span>
         </div>
         <div class="cell-right">
           <span>{{ manageName }}</span>
@@ -380,7 +380,6 @@ export default {
       Loading.open('很快加载好了')
       paramList({ deviceId: this.deviceId, typeName: 'C10' })
         .then(res => {
-          console.log(res)
           Loading.close()
           this.dirValueList1 = res.data
           for (var i = 0; i < this.dirValueList.length; i++) {
@@ -470,7 +469,7 @@ export default {
         .then(res => {
           Loading.close()
           // this.paramList()
-          console.log(res)
+          // console.log(res)
           if (res.data) {
             Toast({
               mes: '设备收到配置',
@@ -495,7 +494,6 @@ export default {
       // 获取H5控制页面功能项数据，带isSelect参数
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
         if (res.code === 200 && res.data) {
-          console.log(res.data)
           this.manageName = res.data.manageName
           const data = res.data
           this.pageName = data.pageName
