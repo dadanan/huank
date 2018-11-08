@@ -3,8 +3,6 @@
     <div class="header">
       <div class="return" @click="returnMethod"></div>
       <span>设备配置</span>
-      <span class="edit" @click="save" v-if="isEdit">保存</span>
-      <span class="edit" @click="edit" v-else>编辑</span>
     </div>
     <!--<div class="config-wrapper">
       <div class="cell-header">
@@ -263,7 +261,7 @@ export default {
       deleteTheDevice: '',
       dirValueList: [],
       dirValueList1: [],
-      status:true
+      status: true
     }
   },
   methods: {
@@ -333,39 +331,6 @@ export default {
           Loading.close()
         })
     },
-    save() {
-      Loading.open('很快加载好了')
-      let data = {}
-      data.deviceId = this.deviceId
-      data.inSpeed = []
-      this.inItems.forEach(v => {
-        data.inSpeed.push(v.speed)
-      })
-      data.outSpeed = []
-      this.outItems.forEach(v => {
-        data.outSpeed.push(v.speed)
-      })
-      this.$http
-        .post(myUrl.setSpeedConfig, data)
-        .then(res => {
-          if (res.code === 200) {
-            this.isEdit = false
-            Loading.close()
-            this.getConfigInfo()
-            Toast({
-              mes: '设置成功',
-              timeout: 1500,
-              icon: 'success'
-            })
-          }
-        })
-        .catch(error => {
-          Loading.close()
-        })
-    },
-    edit() {
-      this.isEdit = true
-    },
     addDev() {
       this.addDevFlag = true
     },
@@ -408,15 +373,22 @@ export default {
           const list = this.dirValueList1[i].configValuesList
           var defaultValue = []
           for (var j = 0; j < list.length; j++) {
-            if(list[j].currentValue == ''){
+            if (list[j].currentValue == '') {
               defaultValue.push(Number(list[j].defaultValue))
-            }else{
+            } else {
               var s = list[j].currentValue
-              if(s < list[j].maxValue && s > list[j].minValue){
+              if (s < list[j].maxValue && s > list[j].minValue) {
                 defaultValue.push(Number(list[j].currentValue))
-              }else{
+              } else {
                 Toast({
-                  mes: this.dirValueList1[i].abilityName+' '+list[j].definedName+'最小值为'+list[j].minValue+'最大值为'+list[j].maxValue,
+                  mes:
+                    this.dirValueList1[i].abilityName +
+                    ' ' +
+                    list[j].definedName +
+                    '最小值为' +
+                    list[j].minValue +
+                    '最大值为' +
+                    list[j].maxValue,
                   timeout: 2000,
                   icon: 'error'
                 })
@@ -443,17 +415,16 @@ export default {
           // console.log(paramConfigList)
         }
       }
-      if(this.status){
+      if (this.status) {
         sendParamFunc({
-            deviceId: this.deviceId,
-            abilityTypeName: 'C10',
-            paramConfigList: paramConfigList
-          }).then(res => {
-            console.log(res)
-            this.queryDeviceBack()
+          deviceId: this.deviceId,
+          abilityTypeName: 'C10',
+          paramConfigList: paramConfigList
+        }).then(res => {
+          console.log(res)
+          this.queryDeviceBack()
         })
       }
-      
     },
     // 判断设备是否接收参数
     queryDeviceBack() {
