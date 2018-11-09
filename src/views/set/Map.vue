@@ -15,16 +15,16 @@
 </template>
 
 <script>
-// import { queryDevicePosition } from '../wenkong/api'
+import { updateDeviceLocation } from '../wenkong/api'
+import Store from '../wenkong/store'
 import { Toast } from 'vue-ydui/dist/lib.rem/dialog'
 
 export default {
-  props: ['id'],
   data() {
     const self = this
     return {
       searchOption: {
-        city: '上海',
+        city: '',
         citylimit: true
       },
       zoom: 12,
@@ -37,24 +37,22 @@ export default {
           self.center = position
           self.marker.position = position
 
-          // // 这里通过高德 SDK 完成。
-          var geocoder = new AMap.Geocoder({
-            radius: 1000,
-            extensions: 'all'
-          })
-          geocoder.getAddress([lng, lat], function(status, result) {
-            if (status === 'complete' && result.info === 'OK') {
-              if (result && result.regeocode) {
-                self.address = result.regeocode.formattedAddress
-                self.$nextTick()
-              }
-            }
-          })
-
-          Toast({
-            mes: '位置设置成功！',
-            timeout: 1500,
-            icon: 'success'
+          self.getDetailLocation(lng, lat, addr => {
+            const component = addr.addressComponent
+            updateDeviceLocation({
+              deviceId: self.$route.query.deviceId,
+              location: `${component.province},${component.city},${
+                component.district
+              },${addr.formattedAddress}`, // 去除可能存在的多个逗号,
+              mapGps: position.join(',')
+            }).then(() => {
+              Store.save('mapGps', position.join(','))
+              Toast({
+                mes: '位置设置成功！',
+                timeout: 1500,
+                icon: 'success'
+              })
+            })
           })
         }
       },
@@ -73,6 +71,30 @@ export default {
     }
   },
   methods: {
+    /**
+     * @param cb 回调函数，将高德地图接口结果当成参数
+     */
+    getDetailLocation(lng, lat, cb) {
+      const self = this
+      // // 这里通过高德 SDK 完成。
+      const geocoder = new AMap.Geocoder({
+        radius: 1000,
+        extensions: 'all'
+      })
+      geocoder.getAddress([lng, lat], function(status, result) {
+        if (status === 'complete' && result.info === 'OK') {
+          const regeocode = result.regeocode
+          if (result && regeocode) {
+            self.address = regeocode.formattedAddress
+            // 将位置信息传出去
+            if (cb) {
+              cb(regeocode)
+            }
+            self.$nextTick()
+          }
+        }
+      })
+    },
     queryDevicePosition(id) {
       queryDevicePosition(id).then(res => {
         const data = res.data
@@ -103,12 +125,14 @@ export default {
       this.$router.back(-1)
     }
   },
-  watch: {
-    id(val) {
-      // this.queryDevicePosition(val)
-    }
-  },
   created() {
+    const mapGps = Store.fetch('mapGps')
+    if (mapGps) {
+      const position = mapGps.split(',')
+      this.center = position
+      this.marker.position = position
+      this.getDetailLocation(position[0], position[1])
+    }
     // this.queryDevicePosition(this.id)
   }
 }

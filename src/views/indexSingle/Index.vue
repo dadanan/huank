@@ -787,21 +787,14 @@ export default {
     getLocation() {
       getLocation(this.deviceId).then(res => {
         const data = res.data
-        // 直辖市
-        const area = [
-          '北京市',
-          '天津市',
-          '上海市',
-          '重庆市',
-          '北京',
-          '天津',
-          '上海',
-          '重庆'
-        ]
-        if (area.includes(data.city)) {
-          data.location = data.city
-        }
-        this.location = res.data.location
+
+        // 取地址的省市区信息
+        let location = data.location.split(',')
+        location.pop()
+        location = location.filter(item => item).join(',')
+        this.location = location
+
+        Store.save('mapGps', data.mapGps)
       })
     },
     getWeather() {

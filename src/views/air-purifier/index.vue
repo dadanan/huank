@@ -436,7 +436,15 @@ export default {
     },
     getLocation() {
       getLocation(this.deviceId).then(res => {
-        this.location = res.data.location
+        const data = res.data
+
+        // 取地址的省市区信息
+        let location = data.location.split(',')
+        location.pop()
+        location = location.filter(item => item).join(',')
+        this.location = location
+
+        Store.save('mapGps', data.mapGps)
       })
     },
     getWeather() {

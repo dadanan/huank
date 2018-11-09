@@ -278,8 +278,6 @@ export default {
   created() {
     this.getServerUser()
     Loading.open('很快加载好了')
-    if (Store.fetch('location')) {
-    }
     if (Store.fetch('screens')) {
       this.batteryList = JSON.parse(Store.fetch('screens'))
     }
