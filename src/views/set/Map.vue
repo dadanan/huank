@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { queryDevicePosition } from '../wenkong/api'
+// import { queryDevicePosition } from '../wenkong/api'
 import { Toast } from 'vue-ydui/dist/lib.rem/dialog'
 
 export default {

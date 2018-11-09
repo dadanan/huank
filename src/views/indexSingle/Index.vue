@@ -1,9 +1,9 @@
 <template>
-  <div class="main-wrapper" v-show='pageIsShow' :class="{ active: isOpen === true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')','background-repeat':'no-repeat','background-size':'cover' }">
+  <div class="main-wrapper" v-show='pageIsShow' :class="{ active: isOpen == true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')','background-repeat':'no-repeat','background-size':'cover' }">
     <div class="header">
       <span>{{ deviceName }}</span>
       <span class="edit" @click="intoSet"></span>
-      <span class="time" v-if="1===2">{{ currentTime }}s</span>
+      <span class="time" v-if="1==2">{{ currentTime }}s</span>
     </div>
     <div class="info">
       <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;
@@ -19,13 +19,13 @@
         <div class="icon suo" @click="childMethod"></div>
         <div class="text" @click="childMethod">{{formatItemsList[10].showName}}</div>
       </div>
-      <div class="but-group" v-if="1===2">
+      <div class="but-group" v-if="1==2">
         <div class="icon shop"></div>
         <div class="text">商城</div>
       </div>
       <!-- 开关 -->
       <div class="but-group" v-if='formatItemsList[11] && formatItemsList[11].showStatus'>
-        <div class="icon close" :class="{ active:isOpen === true  }" @click="onOffMethod"></div>
+        <div class="icon close" :class="{ active:isOpen == true  }" @click="onOffMethod"></div>
         <div class="text" @click="onOffMethod">{{formatItemsList[11].showName}}</div>
       </div>
     </div>
@@ -36,7 +36,7 @@
             PM2.5
             <span>{{AQI}}</span>
           </p>
-          <p v-if='formatItemsList[15]' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[15].abilityId).currValue}}</p>
+          <p v-if='formatItemsList[15] &&  getAbilityData(formatItemsList[15].abilityId)' :class="{ active:  isOpen == true}">{{getAbilityData(formatItemsList[15].abilityId).currValue}}</p>
           <p></p>
           <p>ug/m3</p>
         </div>
@@ -61,7 +61,7 @@
       </div>
       <div class="tip" v-show='formatItemsList[7] && formatItemsList[7].showStatus'>
         <p>滤芯剩余寿命 {{batteryList3}} 时</p>
-        <p v-if="1===2">设备租赁剩余时间 2 时</p>
+        <p v-if="1==2">设备租赁剩余时间 2 时</p>
       </div>
       <div class="b-data">
         <!-- CO2 -->
@@ -285,12 +285,12 @@ export default {
     },
     getAbilityByDirValue(dirValue) {
       // 根据指令值找对应的功能项数据，双风机风速用到
-      return this.abilitysList.filter(item => item.dirValue === dirValue)[0]
+      return this.abilitysList.filter(item => item.dirValue == dirValue)[0]
     },
     getListData(abilityId) {
       // 根据功能id获取功能项的数据
       const result = this.abilitysList.filter(
-        item => item.abilityId === abilityId
+        item => item.abilityId == abilityId
       )[0].abilityOptionList
 
       return result
@@ -299,14 +299,14 @@ export default {
      * @param which left/right 表示内风机/外风机
      */
     getAbilityData(abilityId, which) {
-      if (which === 'left') {
-        return this.abilitysList.filter(item => item.dirValue === '280')[0]
+      if (which == 'left') {
+        return this.abilitysList.filter(item => item.dirValue == '280')[0]
       }
-      if (which === 'right') {
-        return this.abilitysList.filter(item => item.dirValue === '281')[0]
+      if (which == 'right') {
+        return this.abilitysList.filter(item => item.dirValue == '281')[0]
       }
       const result = this.abilitysList.filter(
-        item => item.abilityId === abilityId
+        item => item.abilityId == abilityId
       )[0]
       return result
     },
@@ -336,22 +336,22 @@ export default {
       })
     },
     setModelData(index, id) {
-      const data = this.abilitysList.filter(item => item.abilityId === id)[0]
+      const data = this.abilitysList.filter(item => item.abilityId == id)[0]
       if (!data) {
         return
       }
 
       // 如何用户点击的是“模式”
-      index === 1 ? (this.modelData = data) : (this.windData = data)
+      index == 1 ? (this.modelData = data) : (this.windData = data)
 
       // 根据isSelect的值，对相应选项执行默认选中行为
       data.abilityOptionList.forEach((item, iIndex) => {
-        if (item.isSelect === 0) {
+        if (item.isSelect == 0) {
           return
         }
 
         // “模式”
-        if (index === 1) {
+        if (index == 1) {
           this.currentOption = iIndex
           return
         }
@@ -365,7 +365,7 @@ export default {
       // 更新模式选项
       const updateModel = () => {
         const data = this.abilitysList.filter(
-          item => item.abilityId === this.formatItemsList[1].abilityId
+          item => item.abilityId == this.formatItemsList[1].abilityId
         )[0]
         if (!data) {
           return
@@ -373,7 +373,7 @@ export default {
 
         // 根据isSelect的值，对相应选项执行默认选中行为
         data.abilityOptionList.forEach((item, iIndex) => {
-          if (item.isSelect === 0) {
+          if (item.isSelect == 0) {
             return
           }
 
@@ -381,7 +381,7 @@ export default {
           this.modeCurrent = iIndex
 
           // 如果当前选中对模式是睡眠，那么开启睡眠弹框
-          if (item.optionValue === '2') {
+          if (item.optionValue == '2') {
             this.isSleep = true
           } else {
             this.isSleep = false
@@ -391,14 +391,14 @@ export default {
 
       const updateWindSpeed = () => {
         const data = this.abilitysList.filter(
-          item => item.abilityId === this.formatItemsList[2].abilityId
+          item => item.abilityId == this.formatItemsList[2].abilityId
         )[0]
         if (!data) {
           return
         }
         // 根据isSelect的值，对相应选项执行默认选中行为
         data.abilityOptionList.forEach((item, iIndex) => {
-          if (item.isSelect === 0) {
+          if (item.isSelect == 0) {
             return
           }
           // “风速选项”
@@ -504,15 +504,15 @@ export default {
 
       // 童锁开关
       const tempArray = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[10].abilityId
+        item => item.abilityId == this.formatItemsList[10].abilityId
       )[0]
       const tempList = tempArray.abilityOptionList
       let index = 0
       if (this.isLock) {
         // 找“关”的项
-        index = tempList.findIndex(item => item.dirValue === '0')
+        index = tempList.findIndex(item => item.dirValue == '0')
       } else {
-        index = tempList.findIndex(item => item.dirValue === '1')
+        index = tempList.findIndex(item => item.dirValue == '1')
       }
 
       sendFunc({
@@ -537,17 +537,17 @@ export default {
     onOffMethod() {
       // 开关机
       const tempArray = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[11].abilityId
+        item => item.abilityId == this.formatItemsList[11].abilityId
       )[0]
       const tempList = tempArray.abilityOptionList
       let index = 0
       let tempd = tempArray.dirValue
       if (this.isOpen) {
         // 找“关”的项
-        index = tempList.findIndex(item => item.dirValue === '0')
+        index = tempList.findIndex(item => item.dirValue == '0')
         this.offopen(tempd, tempList[index].dirValue)
       } else {
-        index = tempList.findIndex(item => item.dirValue === '1')
+        index = tempList.findIndex(item => item.dirValue == '1')
       }
 
       sendFunc({
@@ -576,15 +576,15 @@ export default {
     },
     nodeClicked(item, index, type) {
       // 如果是功能，index表示将要发送的指令value： 0/1 不选中/选中
-      if (type === 3) {
+      if (type == 3) {
         index = item.isChecked ? 0 : 1
       }
 
       // 如果当前指令是外风机的，判断是否循环阀是否打开，没有的话。禁止发送指令
       const modelData = this.getListData(this.formatItemsList[3].abilityId)
-      const circleSwitch = modelData.filter(item => item.dirValue === '290')[0]
+      const circleSwitch = modelData.filter(item => item.dirValue == '290')[0]
 
-      if (item.dirValue === '281' && circleSwitch.isSelect === 0) {
+      if (item.dirValue == '281' && circleSwitch.isSelect == 0) {
         Toast({
           mes: '循环阀未打开，禁止操作外风机',
           timeout: 1000,
@@ -600,16 +600,16 @@ export default {
       sendFunc({
         deviceId: this.deviceId,
         funcId: item.dirValue,
-        value: type === 3 ? index : item.abilityOptionList[index].optionValue
+        value: type == 3 ? index : item.abilityOptionList[index].optionValue
       })
         .then(res => {
-          if (res.code === 200) {
+          if (res.code == 200) {
             // Loading.close()
-            if (type === 1) {
+            if (type == 1) {
               this.modeCurrent = index
-            } else if (type === 2) {
+            } else if (type == 2) {
               this.currentOptionForWind = index
-            } else if (type === 3) {
+            } else if (type == 3) {
               item.isChecked = !item.isChecked
             }
             Toast({
@@ -621,7 +621,7 @@ export default {
               '指令发送成功:',
               item.dirValue,
               '-',
-              type === 3 ? index : item.abilityOptionList[index].optionValue
+              type == 3 ? index : item.abilityOptionList[index].optionValue
             )
           }
         })
@@ -633,7 +633,7 @@ export default {
       // 获取H5控制页面功能项数据，带isSelect参数
 
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
-        if (res.code === 200 && res.data) {
+        if (res.code == 200 && res.data) {
           const data = res.data
           this.pageName = data.pageName
           this.formatItemsList = data.formatItemsList
@@ -677,7 +677,7 @@ export default {
         dirValueList: this.dirValueList
       })
         .then(res => {
-          if (res.code === 200 && res.data) {
+          if (res.code == 200 && res.data) {
             var s = this.batteryList1[0].optionValue
             var d = res.data[s]
             this.batteryList3 = d
@@ -692,7 +692,7 @@ export default {
 
       // 根据功能项id筛选功能项
       const findTheAbility = (data, id) => {
-        return data.filter(item => item.id === id)[0]
+        return data.filter(item => item.id == id)[0]
       }
 
       newQueryDetailByDeviceId({
@@ -716,8 +716,8 @@ export default {
 
           if (
             !item.abilityOptionList ||
-            item.abilityOptionList.length === 0 ||
-            item.abilityType === 1
+            item.abilityOptionList.length == 0 ||
+            item.abilityType == 1
           ) {
             return
           }
@@ -733,7 +733,7 @@ export default {
         }
         // 获取列表最后一项：空气质量，的值
         const lastItem = data[data.length - 1]
-        if (lastItem.abilityName === '空气质量') {
+        if (lastItem.abilityName == '空气质量') {
           this.AQI = lastItem.currValue
         }
       })
@@ -822,12 +822,12 @@ export default {
     switchHandler() {
       // 开关机初始化
       const tempArray = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[11].abilityId
+        item => item.abilityId == this.formatItemsList[11].abilityId
       )[0].abilityOptionList
 
       // 找到关机的对象
       const tempObj = tempArray[0].dirValue == 0 ? tempArray[0] : tempArray[1]
-      if (tempObj.isSelect === 1) {
+      if (tempObj.isSelect == 1) {
         // 说明是关机
         this.isOpen = false
       } else {
@@ -836,12 +836,12 @@ export default {
 
       // 童锁初始化
       const tempArray2 = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[10].abilityId
+        item => item.abilityId == this.formatItemsList[10].abilityId
       )[0].abilityOptionList
 
       const tempObj2 =
         tempArray2[0].dirValue == 0 ? tempArray2[0] : tempArray2[1]
-      if (tempObj2.isSelect === 1) {
+      if (tempObj2.isSelect == 1) {
         this.isLock = false
       } else {
         this.isLock = true

@@ -320,7 +320,7 @@ export default {
       }
       // 根据功能id获取功能项的数据
       const result = this.abilitysList.filter(
-        item => item.abilityId === abilityId
+        item => item.abilityId == abilityId
       )[0].abilityOptionList
       return result
     },
@@ -335,7 +335,7 @@ export default {
         return this.abilitysList.filter(item => item.dirValue === '281')[0]
       }
       const result = this.abilitysList.filter(
-        item => item.abilityId === abilityId
+        item => item.abilityId == abilityId
       )[0]
       return result
     },
@@ -371,7 +371,7 @@ export default {
       // 更新模式选项
       const updateModel = () => {
         const data = this.abilitysList.filter(
-          item => item.abilityId === this.formatItemsList[1].abilityId
+          item => item.abilityId == this.formatItemsList[1].abilityId
         )[0]
         if (!data) {
           return
@@ -506,7 +506,7 @@ export default {
 
       // 童锁开关
       const tempArray = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[10].abilityId
+        item => item.abilityId == this.formatItemsList[10].abilityId
       )[0]
       const tempList = tempArray.abilityOptionList
       let index = 0
@@ -539,7 +539,7 @@ export default {
     onOffMethod() {
       // 开关机
       const tempArray = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[11].abilityId
+        item => item.abilityId == this.formatItemsList[11].abilityId
       )[0]
       const tempList = tempArray.abilityOptionList
       let index = 0
@@ -658,7 +658,7 @@ export default {
           let windData = []
           if (windBoxId) {
             const windOption = data.abilitysList
-              .filter(item => item.abilityId === windBoxId)[0]
+              .filter(item => item.abilityId == windBoxId)[0]
               .abilityOptionList.map(item => item.optionValue)
             // 根据内外风机指令 筛选内外风机功能数据
             windData = data.abilitysList.filter(item =>
@@ -721,7 +721,7 @@ export default {
 
       // 根据功能项id筛选功能项
       const findTheAbility = (data, id) => {
-        return data.filter(item => item.id === id)[0]
+        return data.filter(item => item.id == id)[0]
       }
 
       newQueryDetailByDeviceId({
@@ -850,7 +850,7 @@ export default {
     switchHandler() {
       // 开关机初始化
       const tempArray = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[11].abilityId
+        item => item.abilityId == this.formatItemsList[11].abilityId
       )[0].abilityOptionList
 
       // 找到关机的对象
@@ -865,7 +865,7 @@ export default {
 
       // 童锁初始化
       const tempArray2 = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[10].abilityId
+        item => item.abilityId == this.formatItemsList[10].abilityId
       )[0].abilityOptionList
 
       const tempObj2 =

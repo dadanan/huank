@@ -290,7 +290,7 @@ export default {
       })
     },
     handleSwitch(code, value) {
-      this.sendFunc(code, value === '0' ? '1' : '0')
+      this.sendFunc(code, value == '0' ? '1' : '0')
     },
     sendFunc(funcId, value, cb) {
       Loading.open('发送中...')
@@ -300,7 +300,7 @@ export default {
         value
       })
         .then(res => {
-          if (res.code === 200) {
+          if (res.code == 200) {
             Loading.close()
             Toast({
               mes: '发送成功',
@@ -330,7 +330,7 @@ export default {
           value: value
         })
           .then(res => {
-            if (res.code === 200) {
+            if (res.code == 200) {
               resolve()
             }
           })
@@ -365,7 +365,7 @@ export default {
     getIndexAbilityData() {
       // 获取H5控制页面功能项数据，带isSelect参数
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
-        if (res.code === 200 && res.data) {
+        if (res.code == 200 && res.data) {
           const data = res.data
           this.pageName = data.pageName
           this.formatItemsList = data.formatItemsList
@@ -388,7 +388,7 @@ export default {
 
       // 根据功能项id筛选功能项
       const findTheAbility = (data, id) => {
-        return data.filter(item => item.id === id)[0]
+        return data.filter(item => item.id == id)[0]
       }
 
       newQueryDetailByDeviceId({
@@ -404,7 +404,7 @@ export default {
           if (data[index] && data[index].currValue) {
             // 找到对应的温度功能项对象
             const temp = this.abilitysList.filter(
-              itemA => itemA.abilityId === data[index].id
+              itemA => itemA.abilityId == data[index].id
             )[0]
             if (!data[index]) {
               return
@@ -415,7 +415,7 @@ export default {
               // 怪异的错误，就算判断data[index]不为空，也会出现currValue of undefined错误～
             }
           }
-          if (!item.abilityOptionList || item.abilityOptionList.length === 0) {
+          if (!item.abilityOptionList || item.abilityOptionList.length == 0) {
             return
           }
           item.abilityType !== 1 &&
@@ -451,7 +451,7 @@ export default {
     },
     getAbilityData(abilityId) {
       const result = this.abilitysList.filter(
-        item => item.abilityId === abilityId
+        item => item.abilityId == abilityId
       )[0]
       return result
     },
@@ -462,7 +462,7 @@ export default {
           .abilityOptionList
 
         const tempObj = temp[0].dirValue == 0 ? temp[0] : temp[1]
-        if (tempObj.isSelect === 1) {
+        if (tempObj.isSelect == 1) {
           // 说明是关
           this.jrSwitch = '0'
         } else {
@@ -475,7 +475,7 @@ export default {
           .abilityOptionList
 
         const tempObj = temp[0].dirValue == 0 ? temp[0] : temp[1]
-        if (tempObj.isSelect === 1) {
+        if (tempObj.isSelect == 1) {
           // 说明是关
           this.jsSwitch = '0'
         } else {
@@ -488,7 +488,7 @@ export default {
           .abilityOptionList
 
         const tempObj = temp[0].dirValue == 0 ? temp[0] : temp[1]
-        if (tempObj.isSelect === 1) {
+        if (tempObj.isSelect == 1) {
           // 说明是关
           this.jhSwitch = '0'
         } else {
@@ -499,12 +499,12 @@ export default {
     initSwitch() {
       // 初始化开关的状态
       const tempArray = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[11].abilityId
+        item => item.abilityId == this.formatItemsList[11].abilityId
       )[0].abilityOptionList
 
       // 找到关机的对象
       const tempObj = tempArray[0].dirValue == 0 ? tempArray[0] : tempArray[1]
-      if (tempObj.isSelect === 1) {
+      if (tempObj.isSelect == 1) {
         // 说明是关机
         this.isOpen = false
       } else {
