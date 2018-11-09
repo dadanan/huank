@@ -13,7 +13,7 @@
           <span>{{ manageName }}</span>
         </div>
       </div>
-    </div>  
+    </div>
     <yd-accordion style="background: none;">
       <!-- <yd-accordion-item title="管理设备名">
         <div class="">
@@ -80,7 +80,7 @@
           <div>
             <span>组网设置:</span>
             <div class="switch-box" style="display: inline-block; margin-left: 20px; vertical-align: middle;">
-              <span style="vertical-align: middle;">{{switch1 === true ? '主设备': '从设备' }}</span>
+              <span style="vertical-align: middle;">{{switch1 == true ? '主设备': '从设备' }}</span>
               <span style="vertical-align: middle;" @click="switch1=!switch1">
                 <img src="../../assets/switch.png" style="height: 20px;vertical-align: middle" v-if="!switch1" />
                 <img src="../../assets/switch2.png" style="height: 20px;vertical-align: middle" v-if="switch1" />
@@ -224,8 +224,8 @@ import Store from '../wenkong/store'
 export default {
   data() {
     return {
-      editDevFlag:false,
-      manageName:'',
+      editDevFlag: false,
+      manageName: '',
       inItems: [],
       outItems: [],
       isEdit: false,
@@ -247,8 +247,8 @@ export default {
       deleteTheDevice: '',
       dirValueList: [],
       dirValueList1: [],
-      status:true,
-      deviceName:''
+      status: true,
+      deviceName: ''
     }
   },
   methods: {
@@ -308,7 +308,7 @@ export default {
       this.$http
         .post(myUrl.getSpeedConfig + '?deviceId=' + this.deviceId)
         .then(res => {
-          if (res.code === 200) {
+          if (res.code == 200) {
             Loading.close()
             this.inItems = res.data.inItems
             this.outItems = res.data.outItems
@@ -336,18 +336,18 @@ export default {
       })
     },
     // 修改设备名称
-    editDev(){
-      editManageName({deviceId: this.deviceId,deviceName: this.manageName})
-      .then(res=>{
-        this.editDevFlag = false
-      })
-      .catch(() => {
-        Toast({
+    editDev() {
+      editManageName({ deviceId: this.deviceId, deviceName: this.manageName })
+        .then(res => {
+          this.editDevFlag = false
+        })
+        .catch(() => {
+          Toast({
             mes: '名称修改失败',
             timeout: 1000,
             icon: 'error'
           })
-        this.editDevFlag = false
+          this.editDevFlag = false
         })
     },
     //获取转速值
@@ -419,18 +419,18 @@ export default {
       }
       if (this.status) {
         sendParamFunc({
-            deviceId: this.deviceId,
-            abilityTypeName: 'C10',
-            paramConfigList: paramConfigList
-          }).then(res => {
-            // console.log(res)
-            // this.queryDeviceBack()
-             this.paramList()
-            Toast({
-              mes: '指令发送成功！',
-              timeout: 1000,
-              icon: 'success'
-            })
+          deviceId: this.deviceId,
+          abilityTypeName: 'C10',
+          paramConfigList: paramConfigList
+        }).then(res => {
+          // console.log(res)
+          // this.queryDeviceBack()
+          this.paramList()
+          Toast({
+            mes: '指令发送成功！',
+            timeout: 1000,
+            icon: 'success'
+          })
         })
       }
     },
@@ -468,7 +468,7 @@ export default {
     getModelVo() {
       // 获取H5控制页面功能项数据，带isSelect参数
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
-        if (res.code === 200 && res.data) {
+        if (res.code == 200 && res.data) {
           this.manageName = res.data.manageName
           const data = res.data
           this.pageName = data.pageName
@@ -477,7 +477,7 @@ export default {
           let windData = []
           if (windBoxId) {
             const windOption = data.abilitysList
-              .filter(item => item.abilityId === windBoxId)[0]
+              .filter(item => item.abilityId == windBoxId)[0]
               .abilityOptionList.map(item => item.optionValue)
             // 根据内外风机指令 筛选内外风机功能数据
             windData = data.abilitysList.filter(item =>
@@ -498,7 +498,7 @@ export default {
           // console.log(this.abilitysList)
           for (var i = 0; i < this.abilitysList.length; i++) {
             const dirValue = this.abilitysList[i].dirValue.substring(0, 3)
-            if (dirValue === 'C10') {
+            if (dirValue == 'C10') {
               this.dirValueList.push(this.abilitysList[i])
             }
           }
@@ -550,7 +550,7 @@ export default {
 @import 'src/common/scss/variable.scss';
 @import 'src/common/scss/mixins.scss';
 .set-wrapper {
-    .set-cell {
+  .set-cell {
     padding-top: 10px;
     background: #fff;
     .cell-item {
