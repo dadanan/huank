@@ -237,32 +237,50 @@ export default {
     getOuterHum() {
       // 室外湿度
       if (!this.formatItemsList[14] || !this.formatItemsList[14].abilityId) {
+        if (!this.outerHum) {
+          return ''
+        }
         return this.outerHum.replace('%', '')
       }
       const currData = this.getAbilityData(this.formatItemsList[14].abilityId)
       if (!currData) {
+        if (!this.outerHum) {
+          return ''
+        }
         return this.outerHum.replace('%', '')
       }
       const currValue = currData.currValue
 
       if (currValue && currValue !== '0') {
         return currValue
+      }
+      if (!this.outerHum) {
+        return ''
       }
       return this.outerHum.replace('%', '')
     },
     getOuterTem() {
       // 室外温度
       if (!this.formatItemsList[13] || !this.formatItemsList[13].abilityId) {
+        if (!this.outerTem) {
+          return ''
+        }
         return this.outerTem.replace('℃', '')
       }
       const currData = this.getAbilityData(this.formatItemsList[13].abilityId)
       if (!currData) {
+        if (!this.outerTem) {
+          return ''
+        }
         return this.outerTem.replace('℃', '')
       }
       const currValue = currData.currValue
 
       if (currValue && currValue !== '0') {
         return currValue
+      }
+      if (!this.outerTem) {
+        return ''
       }
       return this.outerTem.replace('℃', '')
     }
@@ -789,12 +807,15 @@ export default {
         const data = res.data
 
         // 取地址的省市区信息
-        let location = data.location.split(',')
-        location.pop()
-        location = location.filter(item => item).join(',')
-        this.location = location
-
-        Store.save('mapGps', data.mapGps)
+        if (data.location) {
+          let location = data.location.split(',')
+          location.pop()
+          location = location.filter(item => item).join(',')
+          this.location = location
+        }
+        if (data.mapGps) {
+          Store.save('mapGps', data.mapGps)
+        }
       })
     },
     getWeather() {
