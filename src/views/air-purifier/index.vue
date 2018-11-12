@@ -26,7 +26,7 @@
         </div>
       </div>
       <div class="data-show-container">
-        <div class="data-show"></div>
+        <div @click='changeMode' :class='{"data-show": true,"data-show-auto": isAutoMode, "data-show-manual": !isAutoMode}'></div>
         <div class="data1">
           <div class="data-template1" v-if='formatItemsList[7] && formatItemsList[7].showStatus'>
             <span>PM2.5</span>
@@ -90,19 +90,19 @@
         <i class="iconfont icon-jiare"></i>
         <div @click="handleSwitch('2B0', jrSwitch)">
           <!-- :disabled="!isOpen" -->
-          <yd-switch v-model="jrSwitch" true-value="1" false-value="0"></yd-switch>
+          <yd-switch v-model="jrSwitch" true-value="1" false-value="0" :disabled='isAutoMode'></yd-switch>
         </div>
       </div>
       <div class="func-sw" v-if='formatItemsList[1] && formatItemsList[1].showStatus'>
         <i class="iconfont icon-jiashi"></i>
         <div @click="handleSwitch('250', jsSwitch)">
-          <yd-switch v-model="jsSwitch" true-value="1" false-value="0"></yd-switch>
+          <yd-switch v-model="jsSwitch" true-value="1" false-value="0" :disabled='isAutoMode'></yd-switch>
         </div>
       </div>
       <div class="func-sw" v-if='formatItemsList[2] && formatItemsList[2].showStatus'>
         <i class="iconfont icon-dianzijinghua"></i>
         <div @click="handleSwitch('2A0', jhSwitch)">
-          <yd-switch v-model="jhSwitch" true-value="1" false-value="0"></yd-switch>
+          <yd-switch v-model="jhSwitch" true-value="1" false-value="0" :disabled='isAutoMode'></yd-switch>
         </div>
       </div>
     </div>
@@ -164,6 +164,7 @@ import {
   getWeather,
   sendFunc
 } from '../wenkong/api'
+import { debug } from '@/utils/log'
 
 export default {
   components: {
@@ -198,7 +199,8 @@ export default {
       wxDeviceId: this.$route.query.wxDeviceId,
       setInter: undefined, // 定时器的id
       isOpen: false, // 开机状态？
-      status: false // 主机状态
+      status: false, // 主机状态
+      isAutoMode: true
     }
   },
   computed: {
@@ -207,17 +209,23 @@ export default {
        * 计算净化效率
        * (室内PM2.5 - 室外PM2.5)/室外PM2.5
        */
+      if (!this.formatItemsList[8] || !this.formatItemsList[8].abilityId) {
+        return this.outerPm || 0
+      }
       const interId =
         this.formatItemsList[8] && this.formatItemsList[8].abilityId
-      if (!interId) {
+      if (interId === null) {
         return 0
       }
 
-      const interPM = Number(
-        this.getAbilityData(this.formatItemsList[8].abilityId).currValue
-      )
+      const interData = this.getAbilityData(this.formatItemsList[8].abilityId)
+      if (!interData) {
+        return 0
+      }
+
+      const interPM = Number(interData.currValue)
       const outerPM = Number(this.getOuterPM)
-      const result = Math.floor(((outerPM - interPM) / outerPM) * 100)
+      const result = Math.floor(((interPM - outerPM) / outerPM) * 100)
       if (Number.isNaN(result) || result < 0) {
         // 如果净化效率不是数字，说明上面某个数据里有字符串
         // 或者是负数的话，也0
@@ -289,6 +297,20 @@ export default {
     }
   },
   methods: {
+    /**
+     * 切换手动/智能模式
+     */
+    changeMode() {
+      let value = 1
+      if (this.isAutoMode) {
+        value = 3
+      } else {
+        value = 1
+      }
+      this.sendFunc(210, value, () => {
+        this.isAutoMode = !this.isAutoMode
+      })
+    },
     handleOpen() {
       this.sendFunc('210', this.isOpen ? '0' : '1', () => {
         this.isOpen = !this.isOpen
@@ -316,6 +338,14 @@ export default {
       })
     },
     handleSwitch(code, value) {
+      if (this.isAutoMode) {
+        Toast({
+          mes: '智能模式下，禁止操作！',
+          timeout: 1000,
+          icon: 'success'
+        })
+        return
+      }
       this.sendFunc(code, value == '0' ? '1' : '0')
     },
     sendFunc(funcId, value, cb) {
@@ -394,22 +424,35 @@ export default {
         if (res.code == 200 && res.data) {
           const data = res.data
           this.pageName = data.pageName
+
+          /**
+           * 找到模式功能项，后续需要添加进查询接口数据列表中
+           */
+          data.abilitysList.forEach(item => {
+            if (item.dirValue == '210') {
+              data.formatItemsList.push({
+                abilityId: item.abilityId
+              })
+            }
+          })
+
           this.formatItemsList = data.formatItemsList
 
           data.abilitysList.forEach(item => {
             item['currValue'] = ''
           })
           this.abilitysList = data.abilitysList
+
           // 定时请求接口数据，更新页面数据
           this.setInter = setInterval(() => {
-            this.getIndexFormatData(res.data)
+            this.getIndexFormatData()
           }, 2000)
 
           this.pageIsShow = true
         }
       })
     },
-    getIndexFormatData(list) {
+    getIndexFormatData() {
       // 获取H5控制页面功能项数据，带isSelect参数
 
       // 根据功能项id筛选功能项
@@ -417,11 +460,17 @@ export default {
         return data.filter(item => item.id == id)[0]
       }
 
+      const ids = this.formatItemsList
+        .filter(item => item.abilityId)
+        .map(item => item.abilityId)
+
+      /**
+       * 在后台型号未完善版式数据更新的逻辑前，先在代码层面处理添加新功能项的情况。
+       */
+
       newQueryDetailByDeviceId({
         deviceId: this.deviceId,
-        abilityIds: list.formatItemsList
-          .filter(item => item.abilityId)
-          .map(item => item.abilityId)
+        abilityIds: ids
       }).then(res => {
         const data = res.data
         // 将res.data中的isSelect和dirValue赋值过去
@@ -458,6 +507,7 @@ export default {
 
         this.initHandler()
         this.initSwitch()
+        this.initMode()
       })
     },
     getLocation() {
@@ -491,6 +541,10 @@ export default {
         item => item.abilityId == abilityId
       )[0]
       return result
+    },
+    getAbilityDataByDirValue(dirValue) {
+      const result = this.abilitysList.filter(item => item.dirValue == dirValue)
+      return result && result[0]
     },
     initHandler() {
       // 初始化下方三个按钮的状态
@@ -547,6 +601,28 @@ export default {
       } else {
         this.isOpen = true
       }
+    },
+    initMode() {
+      // 初始化模式：智能、手动
+      const modeData = this.getAbilityDataByDirValue(210)
+      if (!modeData) {
+        debug('型号未添加「模式功能项」数据！')
+        return
+      }
+      const option = modeData.abilityOptionList
+      if (!option) {
+        debug('模式功能项数据中没有选项数据！')
+        return
+      }
+      // 设备上传：选择了自动模式
+      let isAuto = false
+      option.forEach(item => {
+        if (item.dirValue == '1' && item.isSelect) {
+          isAuto = true
+        }
+      })
+
+      this.isAutoMode = isAuto
     }
   },
   created() {
@@ -740,12 +816,20 @@ export default {
 }
 
 .data-show {
-  background: url('~assets/air-purifier-data-show-bg.png') no-repeat;
-  background-size: contain;
   width: 6.39rem;
   height: 2.78rem;
   display: block;
   margin: auto;
+}
+
+.data-show-auto {
+  background: url('~assets/air-purifier-data-auto.png') no-repeat;
+  background-size: contain;
+}
+
+.data-show-manual {
+  background: url('~assets/air-purifier-data-manual.png') no-repeat;
+  background-size: contain;
 }
 
 .data-show-container {
