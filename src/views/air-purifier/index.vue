@@ -26,7 +26,8 @@
         </div>
       </div>
       <div class="data-show-container">
-        <div @click='changeMode' :class='{"data-show": true,"data-show-auto": isAutoMode, "data-show-manual": !isAutoMode}'></div>
+        <div @click='changeMode' v-if='hasModeData' :class='{"data-show": true,"data-show-auto": isAutoMode, "data-show-manual": !isAutoMode}'></div>
+        <div v-else class="data-show data-show-no-mode"></div>
         <div class="data1">
           <div class="data-template1" v-if='formatItemsList[7] && formatItemsList[7].showStatus'>
             <span>PM2.5</span>
@@ -297,6 +298,22 @@ export default {
     }
   },
   methods: {
+    /**
+     * 型号功能项数据中存在模式数据？
+     */
+    hasModeData() {
+      const modeData = this.getAbilityDataByDirValue(210)
+      if (!modeData) {
+        debug('型号未添加「模式功能项」数据！')
+        return false
+      }
+      const option = modeData.abilityOptionList
+      if (!option) {
+        debug('模式功能项数据中没有选项数据！')
+        return false
+      }
+      return true
+    },
     /**
      * 切换手动/智能模式
      */
@@ -829,6 +846,11 @@ export default {
 
 .data-show-manual {
   background: url('~assets/air-purifier-data-manual.png') no-repeat;
+  background-size: contain;
+}
+
+.data-show-no-mode {
+  background: url('~assets/air-purifier-data-show-bg.png') no-repeat;
   background-size: contain;
 }
 
