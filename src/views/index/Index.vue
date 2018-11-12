@@ -734,7 +734,7 @@ export default {
           console.log(error)
         })
     },
-    getIndexFormatData(list) {
+    getIndexFormatData() {
       // 获取H5控制页面功能项数据，带isSelect参数
 
       // 根据功能项id筛选功能项
