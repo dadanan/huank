@@ -87,7 +87,7 @@ export default {
     returnMethod() {
       // this.$router.back(-1)
       const formatName = Store.fetch('formatName')
-
+      // console.log(formatName)
       if (formatName === '电子净化器') {
         this.$router.push({
           path: '/air-purifier',
@@ -104,8 +104,16 @@ export default {
             deviceId: this.deviceId
           }
         })
-      } else {
+      } else if(formatName === '智慧新风-单风机') {
         // 智慧新风
+        this.$router.push({
+          path: '/indexsingle',
+          query: {
+            wxDeviceId: this.wxDeviceId,
+            deviceId: this.deviceId
+          }
+        })
+      }else{
         this.$router.push({
           path: '/index',
           query: {
