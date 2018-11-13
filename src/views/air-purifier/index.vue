@@ -26,8 +26,7 @@
         </div>
       </div>
       <div class="data-show-container">
-        <div @click='changeMode' v-if='hasModeData()' :class='{"data-show": true,"data-show-auto": isAutoMode, "data-show-manual": !isAutoMode}'></div>
-        <div v-else class="data-show data-show-no-mode"></div>
+        <div @click='changeMode' :class='{"data-show": true,"data-show-auto": theModeType === "1", "data-show-manual": theModeType === "3", "data-show-no-mode": theModeType === "0"}'></div>
         <div class="data1">
           <div class="data-template1" v-if='formatItemsList[7] && formatItemsList[7].showStatus'>
             <span>PM2.5</span>
@@ -91,19 +90,19 @@
         <i class="iconfont icon-jiare"></i>
         <div @click="handleSwitch('2B0', jrSwitch)">
           <!-- :disabled="!isOpen" -->
-          <yd-switch v-model="jrSwitch" true-value="1" false-value="0" :disabled='isAutoMode'></yd-switch>
+          <yd-switch v-model="jrSwitch" true-value="1" false-value="0" :disabled='!isOpen || theModeType === "1"'></yd-switch>
         </div>
       </div>
       <div class="func-sw" v-if='formatItemsList[1] && formatItemsList[1].showStatus'>
         <i class="iconfont icon-jiashi"></i>
         <div @click="handleSwitch('250', jsSwitch)">
-          <yd-switch v-model="jsSwitch" true-value="1" false-value="0" :disabled='isAutoMode'></yd-switch>
+          <yd-switch v-model="jsSwitch" true-value="1" false-value="0" :disabled='!isOpen || theModeType === "1"'></yd-switch>
         </div>
       </div>
       <div class="func-sw" v-if='formatItemsList[2] && formatItemsList[2].showStatus'>
         <i class="iconfont icon-dianzijinghua"></i>
         <div @click="handleSwitch('2A0', jhSwitch)">
-          <yd-switch v-model="jhSwitch" true-value="1" false-value="0" :disabled='isAutoMode'></yd-switch>
+          <yd-switch v-model="jhSwitch" true-value="1" false-value="0" :disabled='!isOpen || theModeType === "1"'></yd-switch>
         </div>
       </div>
     </div>
@@ -201,7 +200,7 @@ export default {
       setInter: undefined, // 定时器的id
       isOpen: false, // 开机状态？
       status: false, // 主机状态
-      isAutoMode: true
+      theModeType: '0' // 当前模式 0：关机 1:自动模式 3: 手动模式
     }
   },
   computed: {
@@ -302,8 +301,7 @@ export default {
      * 型号功能项数据中存在模式数据？
      */
     hasModeData() {
-      const modeData = this.getAbilityDataByDirValue(210)
-      console.log('mnd', modeData)
+      const modeData = this.getAbilityDataByDirValue(210, '模式')
       if (!modeData) {
         debug('型号未添加「模式功能项」数据！')
         return false
@@ -319,14 +317,8 @@ export default {
      * 切换手动/智能模式
      */
     changeMode() {
-      let value = 1
-      if (this.isAutoMode) {
-        value = 3
-      } else {
-        value = 1
-      }
-      this.sendFunc(210, value, () => {
-        this.isAutoMode = !this.isAutoMode
+      this.sendFunc(210, this.theModeType == '1' ? 3 : 1, () => {
+        this.theModeType = this.theModeType === '1' ? '3' : '1'
       })
     },
     handleOpen() {
@@ -356,11 +348,17 @@ export default {
       })
     },
     handleSwitch(code, value) {
-      if (this.isAutoMode) {
+      if (this.theModeType === '1') {
         Toast({
           mes: '智能模式下，禁止操作！',
-          timeout: 1000,
-          icon: 'success'
+          timeout: 1000
+        })
+        return
+      }
+      if (!this.isOpen) {
+        Toast({
+          mes: '设备已关机，禁止操作！',
+          timeout: 1000
         })
         return
       }
@@ -447,7 +445,7 @@ export default {
            * 找到模式功能项，后续需要添加进查询接口数据列表中
            */
           data.abilitysList.forEach(item => {
-            if (item.dirValue == '210') {
+            if (item.dirValue == '210' && item.abilityName == '模式') {
               data.formatItemsList.push({
                 abilityId: item.abilityId
               })
@@ -560,8 +558,10 @@ export default {
       )[0]
       return result
     },
-    getAbilityDataByDirValue(dirValue) {
-      const result = this.abilitysList.filter(item => item.dirValue == dirValue)
+    getAbilityDataByDirValue(dirValue, abilityName) {
+      const result = this.abilitysList.filter(
+        item => item.dirValue == dirValue && item.abilityName == abilityName
+      )
       return result && result[0]
     },
     initHandler() {
@@ -616,13 +616,15 @@ export default {
       if (tempObj.isSelect == 1) {
         // 说明是关机
         this.isOpen = false
+        this.bg = null
       } else {
         this.isOpen = true
+        this.bg = img
       }
     },
     initMode() {
       // 初始化模式：智能、手动
-      const modeData = this.getAbilityDataByDirValue(210)
+      const modeData = this.getAbilityDataByDirValue(210, '模式')
       if (!modeData) {
         debug('型号未添加「模式功能项」数据！')
         return
@@ -633,14 +635,16 @@ export default {
         return
       }
       // 设备上传：选择了自动模式
-      let isAuto = true
+      let modeType = '0'
       option.forEach(item => {
         if (item.dirValue == '3' && item.isSelect) {
-          isAuto = false
+          modeType = '3'
+        } else if (item.dirValue == '1' && item.isSelect) {
+          modeType = '1'
         }
       })
 
-      this.isAutoMode = isAuto
+      this.theModeType = modeType
     }
   },
   created() {
