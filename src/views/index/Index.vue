@@ -182,10 +182,14 @@ import {
 export default {
   data() {
     return {
+      shutdown: '', // 关机
+      cloudyDay: img1, // 阴天
+      sunnyDay: img4, // 晴天
+      cloudyNight: img2, // 夜晚阴
+      sunnyNight: img3, // 夜晚晴
       specIndex: 0,
       pageIsShow: false,
       img: img4,
-      currentBak: '',
       currentTime: 2,
       timeSet: null,
       deviceName: '',
@@ -568,7 +572,6 @@ export default {
         this.offopen(tempd, tempList[index].dirValue)
       } else {
         index = tempList.findIndex(item => item.dirValue === '1')
-        this.getWeather()
       }
       Loading.close()
       sendFunc({
@@ -786,8 +789,9 @@ export default {
       })
     },
     setWeather() {
-      var myDate = new Date()
-      let h = myDate.getHours() //获取当前小时
+      // 当前天气模式
+      let currentBak = ''
+      let h = new Date().getHours() //获取当前小时
       if (!this.weather) {
         //未返回值
         if (
@@ -795,10 +799,10 @@ export default {
           (parseInt(h) < 24 && parseInt(h) > 18)
         ) {
           //夜晚
-          this.currentBak = img3
+          currentBak = this.sunnyNight
         } else {
           //白天
-          this.currentBak = img4
+          currentBak = this.sunnyDay
         }
       } else {
         if (
@@ -811,10 +815,10 @@ export default {
             (parseInt(h) < 24 && parseInt(h) > 18)
           ) {
             //夜晚
-            this.currentBak = img2
+            currentBak = this.cloudyNight
           } else {
             //白天
-            this.currentBak = img1
+            currentBak = this.cloudyDay
           }
         } else {
           if (
@@ -822,14 +826,14 @@ export default {
             (parseInt(h) < 24 && parseInt(h) > 18)
           ) {
             //夜晚
-            this.currentBak = img3
+            currentBak = this.sunnyNight
           } else {
             //白天
-            this.currentBak = img4
+            currentBak = this.sunnyDay
           }
         }
       }
-      this.img = this.currentBak
+      this.img = currentBak
     },
     getLocation() {
       getLocation(this.deviceId).then(res => {
@@ -856,9 +860,7 @@ export default {
         this.outerPm = data.outerPm
         this.outerHum = data.outerHum
 
-        if (this.isOpen) {
-          this.setWeather()
-        }
+        this.setWeather()
       })
     },
     switchHandler() {
@@ -874,7 +876,6 @@ export default {
         this.isOpen = false
       } else {
         this.isOpen = true
-        this.getWeather()
       }
 
       // 童锁初始化
@@ -888,6 +889,29 @@ export default {
         this.isLock = false
       } else {
         this.isLock = true
+      }
+    },
+    /**
+     * 初始化背景图片
+     * 如果客户设置的话，就用客户的；否则使用默认的
+     */
+    initBackground() {
+      const bgImgs = JSON.parse(Store.fetch('bgImgs'))
+      // 依次排列：关机，白天-晴天，白天-阴天，夜晚-晴天，夜晚-阴天
+      if (bgImgs[0]) {
+        this.shutdown = bgImgs[0]
+      }
+      if (bgImgs[1]) {
+        this.sunnyDay = bgImgs[1]
+      }
+      if (bgImgs[2]) {
+        this.cloudyDay = bgImgs[2]
+      }
+      if (bgImgs[3]) {
+        this.sunnyNight = bgImgs[3]
+      }
+      if (bgImgs[4]) {
+        this.cloudyNight = bgImgs[4]
       }
     }
   },
@@ -903,13 +927,15 @@ export default {
     this.getIndexAbilityData()
     this.getLocation()
     this.getWeather()
+    this.initBackground()
   },
   watch: {
     isOpen(val) {
       if (val) {
-        this.img = img4
+        this.setWeather()
       } else {
-        this.img = ''
+        // 关机时，如果客户设置了关机图片就用，否则用默认背景
+        this.img = this.shutdown || ''
       }
     },
     isSleep(val) {

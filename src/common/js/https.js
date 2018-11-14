@@ -4,7 +4,6 @@
  */
 
 import axios from 'axios'
-import Qs from 'qs'
 import Vue from 'vue'
 import Toast from 'base/toast'
 Vue.use(Toast)

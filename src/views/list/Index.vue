@@ -166,7 +166,8 @@ import {
   updateDeviceTeam,
   share,
   childDeviceList,
-  deleteDevice
+  deleteDevice,
+  getBgImgs
 } from '../wenkong/api'
 import Store from '../wenkong/store'
 
@@ -546,6 +547,16 @@ export default {
           Store.remove('obj')
           this.$toast(error.msg, 'bottom')
         })
+    },
+    getBgImgs() {
+      getBgImgs().then(res => {
+        if (res.code === 200 && Array.isArray(res.data)) {
+          const data = res.data.slice(0, 5)
+          Store.save('bgImgs', JSON.stringify(data))
+        }else{
+          Store.save('bgImgs',"[]")
+        }
+      })
     }
   },
   created() {
@@ -558,6 +569,7 @@ export default {
       this.obtainMyDevice()
       Store.remove('obj')
     }
+    this.getBgImgs()
   },
   components: {
     'yd-accordion': Accordion,

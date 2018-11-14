@@ -1,5 +1,5 @@
 <template>
-  <div class="we-page" v-show='pageIsShow' :style="{ 'background-image': 'url(' + bg + ')','background-repeat':'no-repeat','background-size':'cover' }">
+  <div class="we-page" v-show='pageIsShow' :style="{ 'background-image': 'url(' + img + ')','background-repeat':'no-repeat','background-size':'cover' }">
     <div class="we-header">
       <router-link class="we-back" to="/list">
         <i class="iconfont icon-xiangzuojiantou"></i>
@@ -165,6 +165,10 @@ import {
   sendFunc
 } from '../wenkong/api'
 import { debug } from '@/utils/log'
+import img1 from '../../assets/bak3.jpg' // 白天阴
+import img2 from '../../assets/bak2.jpg' // 夜晚阴
+import img3 from '../../assets/bak1.jpg' // 夜晚晴
+import img4 from '../../assets/bak4.jpg' // 白天晴
 
 export default {
   components: {
@@ -174,6 +178,12 @@ export default {
   },
   data() {
     return {
+      shutdown: '', // 关机
+      cloudyDay: img1, // 阴天
+      sunnyDay: img4, // 晴天
+      cloudyNight: img2, // 夜晚阴
+      sunnyNight: img3, // 夜晚晴
+      img: img4,
       jrSwitch: '0',
       jsSwitch: '0',
       jhSwitch: '0',
@@ -183,7 +193,6 @@ export default {
       preJhSpinner: 0,
       preTemSpinner: 0,
       preHumSpinner: 0,
-      bg: img,
       isOpen: true,
       loopLoadTimeSet: null,
       once: true,
@@ -462,6 +471,7 @@ export default {
           // 定时请求接口数据，更新页面数据
           this.setInter = setInterval(() => {
             this.getIndexFormatData()
+            this.getWeather()
           }, 2000)
 
           this.pageIsShow = true
@@ -550,6 +560,8 @@ export default {
         this.outerTem = data.outerTem
         this.outerPm = data.outerPm
         this.outerHum = data.outerHum
+
+        this.setWeather()
       })
     },
     getAbilityData(abilityId) {
@@ -563,6 +575,53 @@ export default {
         item => item.dirValue == dirValue && item.abilityName == abilityName
       )
       return result && result[0]
+    },
+    setWeather() {
+      // 当前天气模式
+      let currentBak = ''
+      let h = new Date().getHours() //获取当前小时
+      if (!this.weather) {
+        //未返回值
+        if (
+          (parseInt(h) < 6 && parseInt(h) >= 0) ||
+          (parseInt(h) < 24 && parseInt(h) > 18)
+        ) {
+          //夜晚
+          currentBak = this.sunnyNight
+        } else {
+          //白天
+          currentBak = this.sunnyDay
+        }
+      } else {
+        if (
+          this.weather.indexOf('雨') != -1 ||
+          this.weather.indexOf('阴') != -1
+        ) {
+          //阴天
+          if (
+            (parseInt(h) < 6 && parseInt(h) >= 0) ||
+            (parseInt(h) < 24 && parseInt(h) > 18)
+          ) {
+            //夜晚
+            currentBak = this.cloudyNight
+          } else {
+            //白天
+            currentBak = this.cloudyDay
+          }
+        } else {
+          if (
+            (parseInt(h) < 6 && parseInt(h) >= 0) ||
+            (parseInt(h) < 24 && parseInt(h) > 18)
+          ) {
+            //夜晚
+            currentBak = this.sunnyNight
+          } else {
+            //白天
+            currentBak = this.sunnyDay
+          }
+        }
+      }
+      this.img = currentBak
     },
     initHandler() {
       // 初始化下方三个按钮的状态
@@ -645,6 +704,29 @@ export default {
       })
 
       this.theModeType = modeType
+    },
+    /**
+     * 初始化背景图片
+     * 如果客户设置的话，就用客户的；否则使用默认的
+     */
+    initBackground() {
+      const bgImgs = JSON.parse(Store.fetch('bgImgs'))
+      // 依次排列：关机，白天-晴天，白天-阴天，夜晚-晴天，夜晚-阴天
+      if (bgImgs[0]) {
+        this.shutdown = bgImgs[0]
+      }
+      if (bgImgs[1]) {
+        this.sunnyDay = bgImgs[1]
+      }
+      if (bgImgs[2]) {
+        this.cloudyDay = bgImgs[2]
+      }
+      if (bgImgs[3]) {
+        this.sunnyNight = bgImgs[3]
+      }
+      if (bgImgs[4]) {
+        this.cloudyNight = bgImgs[4]
+      }
     }
   },
   created() {
@@ -654,13 +736,15 @@ export default {
     this.getIndexAbilityData()
     this.getLocation()
     this.getWeather()
+    this.initBackground()
   },
   watch: {
     isOpen(val) {
       if (val) {
-        this.bg = img
+        this.setWeather()
       } else {
-        this.bg = null
+        // 关机时，如果客户设置了关机图片就用，否则用默认背景
+        this.img = this.shutdown || ''
       }
     }
   },

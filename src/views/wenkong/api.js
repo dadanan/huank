@@ -408,8 +408,18 @@ export function editManageName(data) {
     url: `${BASE_URL}/api/h5/high/editManageName`,
     method: 'post',
     data,
-    headers: { Ticket: Store.fetch('Ticket'),
-    Authorization: Store.fetch('Token') }
+    headers: {
+      Ticket: Store.fetch('Ticket'),
+      Authorization: Store.fetch('Token')
+    }
   })
 }
 
+// 获取客户的背景图册
+export function getBgImgs() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/getBgImgs`,
+    method: 'get',
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
