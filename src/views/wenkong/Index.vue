@@ -133,7 +133,6 @@
 <script type="text/ecmascript-6">
 import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
 import { Popup } from 'vue-ydui/dist/lib.rem/popup'
-import { Picker } from 'mint-ui'
 import {
   getModelVo,
   newQueryDetailByDeviceId,
@@ -446,7 +445,6 @@ export default {
   },
   components: {
     'yd-popup': Popup,
-    'mt-picker': Picker
   }
 }
 </script>

@@ -451,12 +451,14 @@ export default {
           this.pageName = data.pageName
 
           /**
+           * 因为目前电子净化器版式中没有模式的配置项
            * 找到模式功能项，后续需要添加进查询接口数据列表中
            */
           data.abilitysList.forEach(item => {
             if (item.dirValue == '210' && item.abilityName == '模式') {
               data.formatItemsList.push({
-                abilityId: item.abilityId
+                abilityId: item.abilityId,
+                showStatus: 1
               })
             }
           })
@@ -487,7 +489,7 @@ export default {
       }
 
       const ids = this.formatItemsList
-        .filter(item => item.abilityId)
+        .filter(item => item.showStatus == 1 && item.abilityId)
         .map(item => item.abilityId)
 
       /**
