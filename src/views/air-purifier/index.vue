@@ -580,6 +580,11 @@ export default {
     },
     setWeather() {
       // 当前天气模式
+      if (!this.isOpen) {
+        this.img = this.shutdown
+        return
+      }
+
       let currentBak = ''
       let h = new Date().getHours() //获取当前小时
       if (!this.weather) {

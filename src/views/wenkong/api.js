@@ -1,6 +1,6 @@
 const BASE_URL =
   process.env.NODE_ENV === 'development'
-    ? 'http://pro.hcocloud.com'
+    ? 'http://dev.hcocloud.com'
     : window.location.origin
 import { http } from '@/common/js/https'
 import Store from './store'
