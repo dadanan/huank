@@ -349,10 +349,15 @@ export default {
       })
     },
     handleSetting() {
+      if (!this.isOpen) {
+        return
+      }
       this.$router.push({
         path: '/set',
         query: {
-          deviceId: this.$route.query.deviceId
+          deviceId: this.deviceId,
+          wxDeviceId: this.wxDeviceId,
+          customerId: this.customerId
         }
       })
     },
