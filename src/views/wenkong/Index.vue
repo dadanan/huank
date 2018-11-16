@@ -48,7 +48,7 @@
       </p>
     </div>
     <div class='function' v-show='formatItemsList[3] && formatItemsList[3].showStatus'>
-      <div v-for='item in getFunctionList' @click='functionClicked(item)' :class="{'able': item.isChecked}" :key='item.id'>
+      <div v-for='(item,index) in getFunctionList' @click='functionClicked(item,index)' :class="{'able': item.isChecked}" :key='item.id'>
         <span>{{item.optionDefinedName || item.optionName}}</span>
       </div>
     </div>
@@ -75,21 +75,21 @@
     <div class='left-side' v-show='formatItemsList[6] && formatItemsList[6].showStatus'>
       <div>
         <img class='first' src='@/assets/wind.png'>
-        <span>{{windData.abilityOptionList && windData.abilityOptionList[currentOptionForWind].optionDefinedName}}</span>
+        <span>{{currentSpeedIndexLabel}}</span>
       </div>
       <div>
         <img class='second' src='@/assets/model.png'>
-        <span>{{modelData.abilityOptionList && modelData.abilityOptionList[currentOption].optionDefinedName}}</span>
+        <span>{{modeCurrentLabel}}</span>
       </div>
     </div>
     <!-- 模式 -->
     <yd-popup v-model="modelVisible" position="bottom" width="90%">
       <div class="content">
-        <div class="title">{{modelData.definedName}}</div>
+        <div class="title">模式设定</div>
         <div class="list">
-          <ul>
-            <li v-if='item.status !== 2' v-for="(item,index) in modelData.abilityOptionList" :key="index" :class="{ active: currentOption == index }" @click='modelClicked(index,modelData)'>
-              <span>{{ item.optionDefinedName }}</span>
+          <ul v-if='formatItemsList[1] && formatItemsList[1].abilityId'>
+            <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[1].abilityId)" :class="{ active: modeCurrent == index }" @click="modeClicked(index)" :key='item.optionValue'>
+              <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
             </li>
           </ul>
@@ -157,11 +157,13 @@ export default {
       temperatureVisible: false, // 显示温度设定弹框
       currentOption: 0, // 模式的当前选择项
       currentOptionForWind: 0, // 风速的当前选择项
-      currentSpeedIndexLabel: '',
+      currentSpeedIndexLabel: '', // 当前选项风速档位的名称
+      modeCurrentLabel: '', // 当前选择模式选项的名称
       currentSpeed: 0,
       windModel: true, // 用户点击了风速模块?
       modelData: {},
       windData: {},
+      modeCurrent: 0, // 当前模式选项下标
       functionList: [],
       deviceName: '',
       customerName: '',
@@ -211,6 +213,16 @@ export default {
     }
   },
   methods: {
+    modeClicked(index) {
+      const data = this.getAbilityData(this.formatItemsList[1].abilityId)
+      if (!data) {
+        return
+      }
+      const option = data.abilityOptionList
+      this.sendFunc(data.dirValue, option[index].optionValue, () => {
+        this.modeCurrent = index
+      })
+    },
     sliderChanged(val) {
       const index = val / this.leftStep()
       const data = this.getAbilityData(this.formatItemsList[2].abilityId)
@@ -339,29 +351,6 @@ export default {
     goBack() {
       history.back()
     },
-    setModelData(id, index) {
-      const data = this.abilitysList.filter(item => item.abilityId == id)[0]
-      if (!data) {
-        return
-      }
-
-      // 如何用户点击的是“模式”
-      index == 1 ? (this.modelData = data) : (this.windData = data)
-
-      // 根据isSelect的值，对相应选项执行默认选中行为
-      data.abilityOptionList.forEach((item, iIndex) => {
-        if (item.isSelect == 0) {
-          return
-        }
-
-        // “模式”
-        if (index == 1) {
-          this.currentOption = iIndex
-          return
-        }
-        this.currentOptionForWind = iIndex
-      })
-    },
     modelClickedHandler(id, index) {
       if (index == 0) {
         // 如果用户唤起温度框
@@ -369,7 +358,6 @@ export default {
         return
       }
 
-      this.setModelData(id, index)
       index == 1 ? (this.modelVisible = true) : (this.windVisible = true)
     },
     increase() {
@@ -413,15 +401,26 @@ export default {
         if (cb) {
           cb()
         }
+        Toast({
+          mes: '指令发送成功',
+          timeout: 1000,
+          icon: 'success'
+        })
         console.info('指令发送成功:', funcId, '-', value)
       })
     },
-    functionClicked(item) {
+    functionClicked(item, index) {
       this.sendFunc(
         item.dirValue || item.optionValue,
         Number(!item.isChecked),
         () => {
-          item.isChecked = !item.isChecked
+          this.getFunctionList.splice(
+            index,
+            1,
+            Object.assign({}, item, {
+              isChecked: !item.isChecked
+            })
+          )
         }
       )
     },
@@ -519,6 +518,7 @@ export default {
 
           // “模式选项”
           this.modeCurrent = iIndex
+          this.modeCurrentLabel = item.optionDefinedName || item.optionName
 
           // 如果当前选中对模式是睡眠，那么开启睡眠弹框
           if (item.optionValue == '2') {

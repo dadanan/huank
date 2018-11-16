@@ -1202,6 +1202,9 @@ export default {
           justify-content: space-between;
         }
       }
+      > div:nth-child(1) {
+        margin-bottom: 20px;
+      }
     }
   }
   .center {
