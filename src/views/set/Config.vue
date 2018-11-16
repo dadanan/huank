@@ -242,7 +242,7 @@ export default {
       modelSelected: '1',
       deviceChildId: '',
       deviceId: '',
-      customerId: Store.fetch('customerId') || this.$route.query.customerId,
+      customerId: this.$route.query.customerId || Store.fetch('customerId'),
       deviceName: '',
       deleteTheDevice: '',
       dirValueList: [],
@@ -514,8 +514,8 @@ export default {
       Loading.close()
     }, 300)
     this.deviceId = this.$route.query.deviceId
-    // this.childDeviceList()
-    // this.getModelList()
+    this.childDeviceList()
+    this.getModelList()
     this.getModelVo()
   },
   components: {

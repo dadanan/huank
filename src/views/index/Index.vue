@@ -343,20 +343,20 @@ export default {
       return cycleSwitch && cycleSwitch.isSelect
     },
     leftStep() {
-      return (
+      const step =
         100 /
         (this.getListData(this.formatItemsList[2].abilityId, 'left')
           .abilityOptionList.length -
           1)
-      )
+      return step
     },
     rightStep() {
-      return (
+      const step =
         100 /
         (this.getListData(this.formatItemsList[2].abilityId, 'right')
           .abilityOptionList.length -
           1)
-      )
+      return step
     },
     sliderChangedLeft(val) {
       const index = val / this.leftStep()
@@ -446,7 +446,6 @@ export default {
       if (which) {
         // 说明是风速的abilityId，那么特殊情况，特殊处理
         const windOption = this.getListData(abilityId)
-        // console.log(windOption)
         let left = {}
         let right = {}
         if (windOption[0].optionValue === '280') {
@@ -564,7 +563,7 @@ export default {
             return
           }
           // “外风速选项”
-          this.currentSpeedRight = this.leftStep() * iIndex
+          this.currentSpeedRight = this.rightStep() * iIndex
           this.currentSpeedRightIndexLabel =
             item.optionDefinedName || item.definedName
         })

@@ -31,7 +31,7 @@
     <div class='main'>
       <div>
         <h3>设定值</h3>
-        <h1 v-if='formatItemsList[4]'>{{getAbilityData(formatItemsList[4].abilityId).currValue}}</h1>
+        <h1 v-if='formatItemsList[4] && formatItemsList[4].abilityId'>{{getAbilityData(formatItemsList[4].abilityId).currValue}}</h1>
         <h3 class='last'>℃</h3>
       </div>
     </div>
@@ -48,8 +48,8 @@
       </p>
     </div>
     <div class='function' v-show='formatItemsList[3] && formatItemsList[3].showStatus'>
-      <div v-for='item in functionList' @click='functionClicked(item)' :class="{able: item.able}" :key='item.id'>
-        <span>{{item.definedName}}</span>
+      <div v-for='item in getFunctionList' @click='functionClicked(item)' :class="{'able': item.isChecked}" :key='item.id'>
+        <span>{{item.optionDefinedName || item.optionName}}</span>
       </div>
     </div>
     <div class='menu'>
@@ -99,14 +99,16 @@
     <!-- 风速 -->
     <yd-popup v-model="windVisible" position="bottom" width="90%">
       <div class="content">
-        <div class="title">{{windData.definedName}}</div>
-        <div class="list">
-          <ul>
-            <li v-if='item.status !== 2' v-for="(item,index) in windData.abilityOptionList" :key="index" :class="{ active: currentOptionForWind == index }" @click='modelClicked(index,windData,3)'>
-              <span>{{ item.optionDefinedName }}</span>
-              <div class="icon"></div>
-            </li>
-          </ul>
+        <div class="title">风速设定</div>
+        <div class="list wind-speed">
+          <p>
+            <span>{{speedName}}</span>
+            <span>{{currentSpeedIndexLabel}}</span>
+          </p>
+          <div>
+            <el-slider v-model="currentSpeed" :step="leftStep()" @change='sliderChanged' show-stops :show-tooltip="false">
+            </el-slider>
+          </div>
         </div>
       </div>
     </yd-popup>
@@ -131,6 +133,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+import { setWechatTitle } from 'utils'
 import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
 import { Popup } from 'vue-ydui/dist/lib.rem/popup'
 import {
@@ -154,6 +157,8 @@ export default {
       temperatureVisible: false, // 显示温度设定弹框
       currentOption: 0, // 模式的当前选择项
       currentOptionForWind: 0, // 风速的当前选择项
+      currentSpeedIndexLabel: '',
+      currentSpeed: 0,
       windModel: true, // 用户点击了风速模块?
       modelData: {},
       windData: {},
@@ -169,20 +174,92 @@ export default {
       outerPm: '', // PM2.5
       deviceId: this.$route.query.deviceId,
       wxDeviceId: this.$route.query.wxDeviceId,
+      customerId: this.$route.query.customerId,
       setInter: undefined, // 定时器的id
       isOpen: null, // 开机状态？
       status: false // 主机状态
     }
   },
+  computed: {
+    speedName() {
+      const name = '送风风速'
+      if (!this.formatItemsList[2] || !this.formatItemsList[2].abilityId) {
+        return name
+      }
+      const data = this.getAbilityData(this.formatItemsList[2].abilityId)
+      if (!data) {
+        return name
+      }
+      return data.definedName || data.abilityName
+    },
+    /**
+     * 设置功能项指令
+     * 返回功能项选项数据
+     */
+    getFunctionList() {
+      if (!this.formatItemsList[3] || !this.formatItemsList[3].abilityId) {
+        return []
+      }
+      const data = this.getAbilityData(this.formatItemsList[3].abilityId)
+      if (!data) {
+        return []
+      }
+      const option = data && data.abilityOptionList
+      console.log('option', option)
+
+      return option || []
+    }
+  },
   methods: {
+    sliderChanged(val) {
+      const index = val / this.leftStep()
+      const data = this.getAbilityData(this.formatItemsList[2].abilityId)
+      if (!data) {
+        return
+      }
+      const option = data.abilityOptionList
+
+      this.currentSpeedIndexLabel =
+        option[index].optionDefinedName || option[index].optionName
+
+      sendFunc({
+        deviceId: this.deviceId,
+        funcId: data.dirValue,
+        value: option[index].optionValue
+      }).then(() => {
+        Toast({
+          mes: '指令发送成功！',
+          timeout: 1000,
+          icon: 'success'
+        })
+        console.info(
+          '指令发送成功:',
+          data.dirValue,
+          '-',
+          option[index].optionValue
+        )
+      })
+    },
+    leftStep() {
+      if (!this.formatItemsList[2] || !this.formatItemsList[2].abilityId) {
+        return 25
+      }
+      return (
+        100 / (this.getListData(this.formatItemsList[2].abilityId).length - 1)
+      )
+    },
     setTemperature() {
       // 动态显示温度的值
-      if (!this.formatItemsList[4] || hasSetTemperature) {
+      if (
+        !this.formatItemsList[4] ||
+        hasSetTemperature ||
+        !this.formatItemsList[4].abilityId
+      ) {
         return
       }
       const ablityId = this.formatItemsList[4].abilityId
       const data = this.abilitysList.filter(
-        item => item.abilityId === ablityId
+        item => item.abilityId == ablityId
       )[0]
 
       this.temperature = Number(data.currValue)
@@ -195,13 +272,13 @@ export default {
       }
       // 开关机初始化
       const tempArray = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[8].abilityId
+        item => item.abilityId == this.formatItemsList[8].abilityId
       )[0].abilityOptionList
 
       // 找到关机的对象
       const tempObj = tempArray[0].dirValue == 0 ? tempArray[0] : tempArray[1]
 
-      if (tempObj.isSelect === 1) {
+      if (tempObj.isSelect == 1) {
         // 说明是关机
         this.isOpen = false
       } else {
@@ -210,12 +287,12 @@ export default {
 
       // 主机状态初始化
       const tempArray2 = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[7].abilityId
+        item => item.abilityId == this.formatItemsList[7].abilityId
       )[0].abilityOptionList
 
       const tempObj2 =
         tempArray2[0].dirValue == 0 ? tempArray2[0] : tempArray2[1]
-      if (tempObj2.isSelect === 1) {
+      if (tempObj2.isSelect == 1) {
         // 说明是关机
         this.status = false
       } else {
@@ -228,15 +305,15 @@ export default {
       // 开关机
 
       const tempArray = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[8].abilityId
+        item => item.abilityId == this.formatItemsList[8].abilityId
       )[0]
       const tempList = tempArray.abilityOptionList
       let index = 0
       if (this.isOpen) {
         // 找“关”的项
-        index = tempList.findIndex(item => item.dirValue === '0')
+        index = tempList.findIndex(item => item.dirValue == '0')
       } else {
-        index = tempList.findIndex(item => item.dirValue === '1')
+        index = tempList.findIndex(item => item.dirValue == '1')
       }
 
       sendFunc({
@@ -255,7 +332,7 @@ export default {
     },
     getAbilityData(abilityId) {
       const result = this.abilitysList.filter(
-        item => item.abilityId === abilityId
+        item => item.abilityId == abilityId
       )[0]
       return result
     },
@@ -263,22 +340,22 @@ export default {
       history.back()
     },
     setModelData(id, index) {
-      const data = this.abilitysList.filter(item => item.abilityId === id)[0]
+      const data = this.abilitysList.filter(item => item.abilityId == id)[0]
       if (!data) {
         return
       }
 
       // 如何用户点击的是“模式”
-      index === 1 ? (this.modelData = data) : (this.windData = data)
+      index == 1 ? (this.modelData = data) : (this.windData = data)
 
       // 根据isSelect的值，对相应选项执行默认选中行为
       data.abilityOptionList.forEach((item, iIndex) => {
-        if (item.isSelect === 0) {
+        if (item.isSelect == 0) {
           return
         }
 
         // “模式”
-        if (index === 1) {
+        if (index == 1) {
           this.currentOption = iIndex
           return
         }
@@ -286,14 +363,14 @@ export default {
       })
     },
     modelClickedHandler(id, index) {
-      if (index === 0) {
+      if (index == 0) {
         // 如果用户唤起温度框
         this.temperatureVisible = true
         return
       }
 
       this.setModelData(id, index)
-      index === 1 ? (this.modelVisible = true) : (this.windVisible = true)
+      index == 1 ? (this.modelVisible = true) : (this.windVisible = true)
     },
     increase() {
       this.temperature += 1
@@ -306,41 +383,52 @@ export default {
       this.sendFunc(data.dirValue, this.temperature)
     },
     intoSet() {
+      if (!this.isOpen) {
+        return
+      }
       this.$router.push({
-        path: '/wenkongset',
+        path: '/set',
         query: {
-          deviceId: this.deviceId
+          deviceId: this.deviceId,
+          wxDeviceId: this.wxDeviceId,
+          customerId: this.customerId
         }
       })
     },
     modelClicked(index, data, which) {
-      if (which === 3) {
+      if (which == 3) {
         this.currentOptionForWind = index
       } else {
         this.currentOption = index
       }
       this.sendFunc(data.dirValue, data.abilityOptionList[index].dirValue)
     },
-    sendFunc(funcId, value) {
+    sendFunc(funcId, value, cb) {
       // 发送指令
       sendFunc({
         deviceId: this.deviceId,
         funcId: funcId,
         value: value
-      }).then(res => {
+      }).then(() => {
+        if (cb) {
+          cb()
+        }
         console.info('指令发送成功:', funcId, '-', value)
       })
     },
     functionClicked(item) {
-      this.functionList.forEach(list => {
-        list['able'] = false
-      })
-      item['able'] = true
+      this.sendFunc(
+        item.dirValue || item.optionValue,
+        Number(!item.isChecked),
+        () => {
+          item.isChecked = !item.isChecked
+        }
+      )
     },
     getIndexAbilityData() {
       // 获取H5控制页面功能项数据，带isSelect参数
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
-        if (res.code === 200 && res.data) {
+        if (res.code == 200 && res.data) {
           const data = res.data
           this.formatItemsList = data.formatItemsList
 
@@ -352,6 +440,9 @@ export default {
           this.setInter = setInterval(() => {
             this.getIndexFormatData(res.data)
           }, 2000)
+
+          // 显示页面内容
+          this.pageIsShow = true
         }
       })
     },
@@ -360,7 +451,7 @@ export default {
 
       // 根据功能项id筛选功能项
       const findTheAbility = (data, id) => {
-        return data.filter(item => item.id === id)[0]
+        return data.filter(item => item.id == id)[0]
       }
 
       newQueryDetailByDeviceId({
@@ -376,7 +467,7 @@ export default {
           if (data[index] && data[index].currValue) {
             // 找到对应的温度功能项对象
             const temp = this.abilitysList.filter(
-              itemA => itemA.abilityId === data[index].id
+              itemA => itemA.abilityId == data[index].id
             )[0]
             if (!data[index]) {
               return
@@ -387,7 +478,7 @@ export default {
               // 怪异的错误，就算判断data[index]不为空，也会出现currValue of undefined错误～
             }
           }
-          if (!item.abilityOptionList || item.abilityOptionList.length === 0) {
+          if (!item.abilityOptionList || item.abilityOptionList.length == 0) {
             return
           }
           item.abilityType !== 1 &&
@@ -404,7 +495,88 @@ export default {
 
         this.switchHandler()
         this.setTemperature()
+        this.setPopDialogData()
       })
+    },
+    setPopDialogData() {
+      // 实时设置下方模式、风速，功能等弹框内的数据
+      // 为了解决：弹框打开的情况下，设备状态变化时，弹框内选项数据却没有变更的问题。
+
+      // 更新模式选项
+      const updateModel = () => {
+        const data = this.abilitysList.filter(
+          item => item.abilityId == this.formatItemsList[1].abilityId
+        )[0]
+        if (!data) {
+          return
+        }
+
+        // 根据isSelect的值，对相应选项执行默认选中行为
+        data.abilityOptionList.forEach((item, iIndex) => {
+          if (item.isSelect == 0) {
+            return
+          }
+
+          // “模式选项”
+          this.modeCurrent = iIndex
+
+          // 如果当前选中对模式是睡眠，那么开启睡眠弹框
+          if (item.optionValue == '2') {
+            this.isSleep = true
+          } else {
+            this.isSleep = false
+          }
+        })
+      }
+
+      const updateWindSpeed = () => {
+        const data = this.abilitysList.filter(
+          item => item.abilityId == this.formatItemsList[2].abilityId
+        )[0]
+        if (!data) {
+          return
+        }
+        // 根据isSelect的值，对相应选项执行默认选中行为
+        data.abilityOptionList.forEach((item, iIndex) => {
+          if (item.isSelect == 0) {
+            return
+          }
+          // “内风速选项”
+          this.currentSpeed = this.leftStep() * iIndex
+          this.currentSpeedIndexLabel =
+            item.optionDefinedName || item.definedName
+        })
+      }
+
+      // 功能多选项的初始化
+      const updateAbility = () => {
+        const data = this.getListData(this.formatItemsList[3].abilityId)
+        data.forEach(item => {
+          if (item.isSelect == 1) {
+            item.isChecked = true
+          } else {
+            item.isChecked = false
+          }
+        })
+      }
+
+      if (this.formatItemsList[1].abilityId) {
+        updateModel()
+      }
+      if (this.formatItemsList[2].abilityId) {
+        updateWindSpeed()
+      }
+      if (this.formatItemsList[3].abilityId) {
+        updateAbility()
+      }
+    },
+    getListData(abilityId) {
+      // 根据功能id获取功能项的数据
+      const result = this.abilitysList.filter(
+        item => item.abilityId == abilityId
+      )[0]
+
+      return result && result.abilityOptionList
     },
     getLocation() {
       getLocation(this.deviceId).then(res => {
@@ -428,10 +600,6 @@ export default {
     }
   },
   created() {
-    setTimeout(() => {
-      this.pageIsShow = true
-    }, 1000)
-    // Store.save('Ticket', 'oJlAuv3VTrGAo0P3N3jY41mVvkuI')
     this.deviceName = Store.fetch('deviceName')
     this.customerName = Store.fetch('customerName')
     setWechatTitle(this.customerName, '')
@@ -444,7 +612,7 @@ export default {
     clearInterval(this.setInter)
   },
   components: {
-    'yd-popup': Popup,
+    'yd-popup': Popup
   }
 }
 </script>
@@ -467,7 +635,7 @@ export default {
   flex-direction: column;
   .header {
     box-sizing: border-box;
-    margin: tvw(0) tvw(162) auto tvw(162);
+    margin: tvw(0) tvw(162) 0 tvw(162);
     font-size: 16px;
     line-height: 40px;
     position: relative;
@@ -507,7 +675,7 @@ export default {
     align-items: center;
     justify-content: space-between;
     width: tvw(2485);
-    margin: auto;
+    margin: tvw(200) auto;
     > div {
       display: flex;
       flex-direction: column;
@@ -717,6 +885,22 @@ export default {
           width: tvw(141);
           height: tvw(141);
         }
+      }
+    }
+    .wind-speed {
+      display: flex;
+      align-items: center;
+      width: 90%;
+      flex-direction: column;
+      margin: auto;
+      margin-top: 20px;
+      > div,
+      > p {
+        width: 90%;
+      }
+      > p {
+        display: flex;
+        justify-content: space-between;
       }
     }
   }

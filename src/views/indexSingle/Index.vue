@@ -1101,6 +1101,7 @@ export default {
       align-items: center;
       width: 90%;
       flex-direction: column;
+      margin: auto;
       margin-top: 20px;
       > div,
       > p {
