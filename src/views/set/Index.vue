@@ -74,6 +74,28 @@
           <div class="cell-right"></div>
         </a>
       </div>
+      <div class="cell-item white" @click="UserFeedBack = true">
+        <a>
+          <div class="cell-left">
+            <span>用户反馈</span>
+          </div>
+          <div class="cell-right"></div>
+        </a>
+      </div>
+    </div>
+    <!-- 客户反馈 -->
+    <div class="create-dialog dialog" v-if="UserFeedBack">
+      <div class="confirm">
+        <div class="confim-top">
+          <p>用户反馈</p>
+        </div>
+        <div class="confim-content">
+          <textarea v-model="feedBack" placeholder="请输入您的宝贵意见..."></textarea>
+        </div>
+        <div class="confim-bottom">
+          <div class="but1" @click="customMessage">确定</div>
+        </div>
+      </div>
     </div>
     <!-- 联系客服 -->
     <div class="create-dialog dialog" v-if="customer">
@@ -86,24 +108,6 @@
         </div>
         <div class="confim-bottom">
           <div class="but1" @click="customer = false">确定</div>
-        </div>
-      </div>
-      <div class="create-dialog dialog" v-if="setPwdFlag">
-        <div class="confirm">
-          <div class="confim-top">
-            <p>请输入设备密码</p>
-            <input type="number" name="" id="" value="" v-model="pwd" style="position: absolute; top:50px; left: 20px; right: 0; height: 40px; opacity: 0;" />
-            <div class="flex flex-pack-justify" style="margin: 0 20px;">
-              <span class="box">{{pwdList[0]}}</span>
-              <span class="box">{{pwdList[1]}}</span>
-              <span class="box">{{pwdList[2]}}</span>
-              <span class="box">{{pwdList[3]}}</span>
-            </div>
-          </div>
-          <div class="confim-bottom">
-            <div class="but" @click="cancel">取消</div>
-            <div class="but create" @click="getToken">确定</div>
-          </div>
         </div>
       </div>
     </div>
@@ -145,7 +149,7 @@ import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
 import myUrl from 'common/js/api'
 import { editDevice } from '../wenkong/api'
 import Store from '../wenkong/store'
-import { getToken, getServerUser } from '../wenkong/api'
+import { getToken, getServerUser, customMessage } from '../wenkong/api'
 
 export default {
   data() {
@@ -154,7 +158,9 @@ export default {
       switch2: false,
       editDevFlag: false,
       customer: false,
+      UserFeedBack: false,
       deviceName: '',
+      feedBack: '',
       setDeviceName: '',
       batteryList: [],
       setPwdFlag: false,
@@ -198,6 +204,28 @@ export default {
       getServerUser().then(res => {
         this.customer1 = res.data
       })
+    },
+    customMessage() {
+      // 反馈意见
+      if (this.feedBack.length > 0 && this.feedBack.length < 100) {
+        this.UserFeedBack = false
+        customMessage({
+          deviceId: this.deviceId,
+          feedbackInfo: this.feedBack
+        }).then(res => {
+          Toast({
+            mes: res.data,
+            timeout: 1500,
+            icon: 'success'
+          })
+        })
+      }else{
+        Toast({
+            mes: "填写字数在0-50之间，谢谢！",
+            timeout: 1500,
+            icon: 'error'
+          })
+      }
     },
     returnMethod() {
       this.$router.back(-1)
@@ -370,6 +398,11 @@ export default {
       }
       .confim-content {
         padding: 20px 10px;
+        textarea {
+          width: 100%;
+          height: 100px;
+          border: none;
+        }
       }
       .confim-bottom {
         background: #ffffff;
