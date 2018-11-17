@@ -1,22 +1,5 @@
 <template>
   <div class="set-wrapper">
-    
-  <draggable v-model="myArray" :no-transition-on-drag="true" @start="drag=true" @end="drag=false">
-    <transition-group>
-        <div class="box" v-for="element in tags" :key="element.id">
-            {{element.name}}
-        </div>
-    </transition-group>
-  </draggable>
-
-  <draggable v-model="myArray2" :no-transition-on-drag="true" @start="drag=true" @end="drag=false">
-    <transition-group>
-        <div class="box" v-for="element in tags2" :key="element.id">
-            {{element.name}}
-        </div>
-    </transition-group>
-  </draggable>
-        
 
   </div>
 </template>
@@ -24,7 +7,6 @@
 <script type="text/ecmascript-6">
 import { Loading, Toast} from 'vue-ydui/dist/lib.rem/dialog'
 import Vue from 'vue'
-import draggable from 'vuedraggable'
 
 export default {
   data () {

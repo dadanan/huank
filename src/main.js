@@ -14,10 +14,7 @@ import { tap, swipeleft, swiperight, press } from './lib/touchvue.js'
 import 'vue-ydui/dist/ydui.rem.css'
 import 'vue-ydui/dist/ydui.base.css'
 import { wxShare } from 'utils/wx'
-import 'mint-ui/lib/style.css'
-import $ from 'jquery'
 import global_ from 'common/js/global'
-import VueDraggable from 'vue-draggable'
 import Store from '@/views/wenkong/store'
 import 'common/iconfont/iconfont.css'
 import VueAMap from 'vue-amap'
@@ -43,7 +40,6 @@ FastClick.attach(document.body)
 Vue.config.productionTip = false
 Vue.use(VueRouter)
 Vue.use(Toast)
-Vue.use(VueDraggable)
 Vue.use(ElementUI)
 Vue.prototype.GLOBAL = global_
 

@@ -114,18 +114,19 @@
     <!-- 单风机风速 -->
     <yd-popup v-model="windVisible" position="bottom" width="90%">
       <div class="content">
-        <div class="title">{{windData.definedName}}</div>
-        <div class="list">
-          <ul>
-            <li v-if='item.status !== 2' v-for="(item,index) in windData.abilityOptionList" :key="index" :class="{ active: currentOptionForWind == index }" @click='modelClicked(index,windData)'>
-              <span>{{ item.optionDefinedName || item.optionName }}</span>
-              <div class="icon"></div>
-            </li>
-          </ul>
+        <div class="title">风速设定</div>
+        <div class="list wind-speed">
+          <p>
+            <span>{{speedName}}</span>
+            <span>{{currentSpeedIndexLabel}}</span>
+          </p>
+          <div>
+            <el-slider v-model="currentSpeed" :step="leftStep()" @change='sliderChanged' show-stops :show-tooltip="false">
+            </el-slider>
+          </div>
         </div>
       </div>
     </yd-popup>
-
     <yd-popup v-model="functionFlag" position="bottom" width="90%">
       <div class="content">
         <div class="title">其它功能设定</div>
@@ -157,7 +158,6 @@ import img1 from '../../assets/bak3.jpg' // 白天阴
 import img2 from '../../assets/bak2.jpg' // 夜晚阴
 import img3 from '../../assets/bak1.jpg' // 夜晚晴
 import img4 from '../../assets/bak4.jpg' // 白天晴
-import { Picker } from 'mint-ui'
 import Store from '../wenkong/store'
 import {
   getModelVo,
@@ -171,11 +171,15 @@ import {
 export default {
   data() {
     return {
+      shutdown: '', // 关机
+      cloudyDay: img1, // 阴天
+      sunnyDay: img4, // 晴天
+      cloudyNight: img2, // 夜晚阴
+      sunnyNight: img3, // 夜晚晴
       specIndex: 0,
       pageIsShow: false,
       windVisible: false,
       img: img4,
-      currentBak: '',
       windData: {},
       currentTime: 2,
       timeSet: null,
@@ -189,12 +193,13 @@ export default {
       deviceObj: {},
       modeCurrent: undefined,
       currentOptionForWind: undefined,
+      currentSpeedIndexLabel: '',
+      currentSpeed: 0,
       modeData: [],
       speedData: [],
       functionFlag: false,
       functionCurrent: null,
       functionData: [],
-      currentSpeed: [],
       formatItemsList: [],
       abilitysList: [],
       location: '',
@@ -283,9 +288,57 @@ export default {
         return ''
       }
       return this.outerTem.replace('℃', '')
+    },
+    speedName() {
+      const name = '送风风速'
+      if (!this.formatItemsList[2] || !this.formatItemsList[2].abilityId) {
+        return name
+      }
+      const data = this.getAbilityData(this.formatItemsList[2].abilityId)
+      if (!data) {
+        return name
+      }
+      return data.definedName || data.abilityName
     }
   },
   methods: {
+    sliderChanged(val) {
+      const index = val / this.leftStep()
+      const data = this.getAbilityData(this.formatItemsList[2].abilityId)
+      if (!data) {
+        return
+      }
+      const option = data.abilityOptionList
+
+      this.currentSpeedIndexLabel =
+        option[index].optionDefinedName || option[index].optionName
+
+      sendFunc({
+        deviceId: this.deviceId,
+        funcId: data.dirValue,
+        value: option[index].optionValue
+      }).then(() => {
+        Toast({
+          mes: '指令发送成功！',
+          timeout: 1000,
+          icon: 'success'
+        })
+        console.info(
+          '指令发送成功:',
+          data.dirValue,
+          '-',
+          option[index].optionValue
+        )
+      })
+    },
+    leftStep() {
+      if (!this.formatItemsList[2] || !this.formatItemsList[2].abilityId) {
+        return 25
+      }
+      return (
+        100 / (this.getListData(this.formatItemsList[2].abilityId).length - 1)
+      )
+    },
     changeSleepStatus() {
       this.isSleep = false
       sendFunc({
@@ -309,9 +362,9 @@ export default {
       // 根据功能id获取功能项的数据
       const result = this.abilitysList.filter(
         item => item.abilityId == abilityId
-      )[0].abilityOptionList
+      )[0]
 
-      return result
+      return result && result.abilityOptionList
     },
     /**
      * @param which left/right 表示内风机/外风机
@@ -327,17 +380,6 @@ export default {
         item => item.abilityId == abilityId
       )[0]
       return result
-    },
-    changeSpeed(item, index) {
-      this.specIndex = index
-      this.slots[0].values = item.choice
-      this.slots[0].defaultIndex = parseInt(item.value) - 1
-    },
-    onValuesChange(picker, values) {
-      if (values[0] > values[1]) {
-        picker.setSlotValue(1, values[0])
-      }
-      this.currentSpeed = values
     },
     intiTime() {
       if (!this.isOpen) {
@@ -419,8 +461,10 @@ export default {
           if (item.isSelect == 0) {
             return
           }
-          // “风速选项”
-          this.currentOptionForWind = iIndex
+          // “内风速选项”
+          this.currentSpeed = this.leftStep() * iIndex
+          this.currentSpeedIndexLabel =
+            item.optionDefinedName || item.definedName
         })
       }
 
@@ -583,7 +627,6 @@ export default {
       })
     },
     offopen(DirValue, Dirindex) {
-      console.log(DirValue, Dirindex)
       sendFunc({
         deviceId: this.deviceId,
         funcId: DirValue,
@@ -713,11 +756,13 @@ export default {
         return data.filter(item => item.id == id)[0]
       }
 
+      let ids = this.formatItemsList
+        .filter(item => item.showStatus == 1 && item.abilityId)
+        .map(item => item.abilityId)
+
       newQueryDetailByDeviceId({
         deviceId: this.deviceId,
-        abilityIds: this.formatItemsList
-          .filter(item => item.abilityId)
-          .map(item => item.abilityId)
+        abilityIds: ids
       }).then(res => {
         const data = res.data
         // 将res.data中的isSelect和dirValue赋值过去
@@ -757,8 +802,14 @@ export default {
       })
     },
     setWeather() {
-      var myDate = new Date()
-      let h = myDate.getHours() //获取当前小时
+      // 当前天气模式
+      if (!this.isOpen) {
+        this.img = this.shutdown
+        return
+      }
+
+      let currentBak = ''
+      let h = new Date().getHours() //获取当前小时
       if (!this.weather) {
         //未返回值
         if (
@@ -766,10 +817,10 @@ export default {
           (parseInt(h) < 24 && parseInt(h) > 18)
         ) {
           //夜晚
-          this.currentBak = img3
+          currentBak = this.sunnyNight
         } else {
           //白天
-          this.currentBak = img4
+          currentBak = this.sunnyDay
         }
       } else {
         if (
@@ -782,10 +833,10 @@ export default {
             (parseInt(h) < 24 && parseInt(h) > 18)
           ) {
             //夜晚
-            this.currentBak = img2
+            currentBak = this.cloudyNight
           } else {
             //白天
-            this.currentBak = img1
+            currentBak = this.cloudyDay
           }
         } else {
           if (
@@ -793,14 +844,14 @@ export default {
             (parseInt(h) < 24 && parseInt(h) > 18)
           ) {
             //夜晚
-            this.currentBak = img3
+            currentBak = this.sunnyNight
           } else {
             //白天
-            this.currentBak = img4
+            currentBak = this.sunnyDay
           }
         }
       }
-      this.img = this.currentBak
+      this.img = currentBak
     },
     getLocation() {
       getLocation(this.deviceId).then(res => {
@@ -827,10 +878,7 @@ export default {
         this.outerPm = data.outerPm
         this.outerHum = data.outerHum
 
-        // this.setWeather()
-        if (this.isOpen) {
-          this.setWeather()
-        }
+        this.setWeather()
       })
     },
     switchHandler() {
@@ -860,6 +908,29 @@ export default {
       } else {
         this.isLock = true
       }
+    },
+    /**
+     * 初始化背景图片
+     * 如果客户设置的话，就用客户的；否则使用默认的
+     */
+    initBackground() {
+      const bgImgs = JSON.parse(Store.fetch('bgImgs'))
+      // 依次排列：关机，白天-晴天，白天-阴天，夜晚-晴天，夜晚-阴天
+      if (bgImgs[0]) {
+        this.shutdown = bgImgs[0]
+      }
+      if (bgImgs[1]) {
+        this.sunnyDay = bgImgs[1]
+      }
+      if (bgImgs[2]) {
+        this.cloudyDay = bgImgs[2]
+      }
+      if (bgImgs[3]) {
+        this.sunnyNight = bgImgs[3]
+      }
+      if (bgImgs[4]) {
+        this.cloudyNight = bgImgs[4]
+      }
     }
   },
   created() {
@@ -874,13 +945,15 @@ export default {
     this.getIndexAbilityData()
     this.getLocation()
     this.getWeather()
+    this.initBackground()
   },
   watch: {
     isOpen(val) {
       if (val) {
-        this.img = img4
+        this.setWeather()
       } else {
-        this.img = ''
+        // 关机时，如果客户设置了关机图片就用，否则用默认背景
+        this.img = this.shutdown || ''
       }
     },
     isSleep(val) {
@@ -891,8 +964,7 @@ export default {
     }
   },
   components: {
-    'yd-popup': Popup,
-    'mt-picker': Picker
+    'yd-popup': Popup
   },
   destroyed() {
     clearInterval(this.setInter)
@@ -1024,6 +1096,22 @@ export default {
         }
       }
     }
+    .wind-speed {
+      display: flex;
+      align-items: center;
+      width: 90%;
+      flex-direction: column;
+      margin: auto;
+      margin-top: 20px;
+      > div,
+      > p {
+        width: 90%;
+      }
+      > p {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
     .spec {
       padding-left: 10px;
       padding-right: 10px;
@@ -1033,16 +1121,6 @@ export default {
           background: url('../../assets/left.png') no-repeat center right 60%;
           background-size: 20px 15px;
         }
-      }
-    }
-    .wind-speed-list {
-      display: flex;
-      justify-content: space-between;
-      > div {
-        > p {
-          margin-top: 10px;
-        }
-        width: 45%;
       }
     }
   }

@@ -15,7 +15,6 @@
         <div style="padding:15px">
           <div class="list-item" v-swipeleft.stop="swipeleft" v-swiperight="swiperight" @click="intoIndex(child,item)" v-for="(child,cindex) in item.deviceItemPos" :key="cindex">
             <div class="item-left">
-              <!-- <div class="icon" :class="{ active : containIds(child.deviceId) }" v-if="loopValue === true" @click.stop="selectDev(child.deviceId)"></div> -->
               <div class="img">
                 <div class="p-img">
                   <img :src="child.icon">
@@ -29,12 +28,12 @@
                 <div class="img-text">
                   <p>
                     <span class="img-text1">{{ child.deviceName }}</span>
-                    <i class="addr" v-if="loopValue === false"></i>
+                    <i class="addr" v-if="loopValue === false && child.location"></i>
                     <span v-if="loopValue === false">{{child.location && child.location.split(' ').map(str => str.split(',')).reduce((a, b) => a.concat(b),[]) .filter(s => s !== '')[0]}}</span>
                   </p>
                   <template v-if='child.hasOwnProperty("childId")'>
-                    <p>childId:{{ child.childId }}</p>
-                    <p>从设备</p>
+                    <p>从设备ID:{{ child.childId }}</p>
+                    <p>主设备ID:{{child.masterDeviceId}}</p>
                   </template>
                   <template v-else>
                     <p>ID:{{ child.deviceId }}</p>
@@ -166,7 +165,8 @@ import {
   updateDeviceTeam,
   share,
   childDeviceList,
-  deleteDevice
+  deleteDevice,
+  getBgImgs
 } from '../wenkong/api'
 import Store from '../wenkong/store'
 
@@ -221,10 +221,14 @@ export default {
         })
       })
     },
+    /**
+     * 获取主设备id下的从设备
+     */
     childDeviceList(id, data) {
       childDeviceList(id).then(res => {
         res.data.forEach(item => {
           item['deviceId'] = item.id
+          item['masterDeviceId'] = id
         })
         data.push(...res.data)
       })
@@ -546,6 +550,16 @@ export default {
           Store.remove('obj')
           this.$toast(error.msg, 'bottom')
         })
+    },
+    getBgImgs() {
+      getBgImgs().then(res => {
+        if (res.code === 200 && Array.isArray(res.data)) {
+          const data = res.data.slice(0, 5)
+          Store.save('bgImgs', JSON.stringify(data))
+        } else {
+          Store.save('bgImgs', '[]')
+        }
+      })
     }
   },
   created() {
@@ -558,6 +572,7 @@ export default {
       this.obtainMyDevice()
       Store.remove('obj')
     }
+    this.getBgImgs()
   },
   components: {
     'yd-accordion': Accordion,
