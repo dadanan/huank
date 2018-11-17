@@ -236,12 +236,12 @@ export default {
       const interPM = Number(interData.currValue)
       const outerPM = Number(this.getOuterPM)
       const result = Math.floor(((interPM - outerPM) / outerPM) * 100)
-      if (Number.isNaN(result) || result < 0) {
+      if (Number.isNaN(result)) {
         // 如果净化效率不是数字，说明上面某个数据里有字符串
         // 或者是负数的话，也0
         return 0
       }
-      return result
+      return Math.abs(result)
     },
     getOuterPM() {
       if (!this.formatItemsList[7] || !this.formatItemsList[7].abilityId) {
