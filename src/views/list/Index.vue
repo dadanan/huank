@@ -503,6 +503,12 @@ export default {
           path: '/index',
           query
         })
+      } else if (child.formatName === '检测器') {
+        // 纯检测器
+        this.$router.push({
+          path: '/detection',
+          query
+        })
       }
     },
     selectDev(id) {
