@@ -1,12 +1,12 @@
 <template>
-  <div class='index-container' :class="{ cold: currentOption == 0,hot: currentOption == 1,wind: currentOption == 2,off: currentOption == 3 }" v-show='pageIsShow'>
+  <div class='index-container' :class="{ active: isOpen === true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')'}" v-show='pageIsShow'>
     <div class='header'>
       <img src='@/assets/arrow_left.png' @click='goBack()'>
       <span>{{deviceName}}</span>
       <img class='setting' @click='intoSet' src='@/assets/set.png'>
     </div>
     <div class='info'>
-      <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;
+      <img src="../../assets/map.png" />&nbsp;
       <span v-show='formatItemsList[9] && formatItemsList[9].showStatus'>{{location}}&nbsp;</span>
       <span v-show='formatItemsList[10] && formatItemsList[10].showStatus'>{{weather}} {{outerTem}}&nbsp;</span>
       <span v-if='formatItemsList[11] && formatItemsList[11].showStatus'>湿度: {{outerHum}}%&nbsp;</span>
@@ -15,8 +15,8 @@
     <div class='switch'>
       <div v-show='formatItemsList[7] && formatItemsList[7].showStatus'>
         <div class='left'>
-          <img src='@/assets/status-open.png' v-if='status'>
-          <img src='@/assets/status-close.png' v-else>
+          <img src='@/assets/wenkong/host-status-open.png' v-if='status'>
+          <img src='@/assets/wenkong/host-status-close.png' v-else>
         </div>
         <p>{{formatItemsList[7] && formatItemsList[7].showName}}</p>
       </div>
@@ -47,13 +47,13 @@
         %
       </p>
     </div>
-    <div class='function' v-show='formatItemsList[3] && formatItemsList[3].showStatus'>
+    <div class='function' v-show='isOptionalFunctionOpen && formatItemsList[3] && formatItemsList[3].showStatus'>
       <div v-for='(item,index) in getFunctionList' @click='functionClicked(item,index)' :class="{'able': item.isChecked}" :key='item.id'>
         <span>{{item.optionDefinedName || item.optionName}}</span>
       </div>
     </div>
     <div class='menu'>
-      <div @click='modelClickedHandler(formatItemsList[0] && formatItemsList[0].abilityId,0)' v-show='formatItemsList[0] && formatItemsList[0].showStatus'>
+      <div @click='modelClickedHandler(formatItemsList[0] && formatItemsList[0].abilityId,0)'>
         <div>
           <img class='first' src='@/assets/temperature.png'>
         </div>
@@ -71,8 +71,14 @@
         </div>
         <span>{{formatItemsList[2] && formatItemsList[2].showName}}</span>
       </div>
+      <div @click="intiTime">
+        <div>
+          <img class='third' src='@/assets/zhong.png'>
+        </div>
+        <span>定时</span>
+      </div>
     </div>
-    <div class='left-side' v-show='formatItemsList[6] && formatItemsList[6].showStatus'>
+    <div :class='["left-side",{"grey": !isOpen}]' v-show='formatItemsList[6] && formatItemsList[6].showStatus'>
       <div>
         <img class='first' src='@/assets/wind.png'>
         <span>{{currentSpeedIndexLabel}}</span>
@@ -81,6 +87,12 @@
         <img class='second' src='@/assets/model.png'>
         <span>{{modeCurrentLabel}}</span>
       </div>
+    </div>
+    <div class='right-side'>
+      <img src='@/assets/wenkong/floor-hot.png'>
+      <img src='@/assets/wenkong/air-conditioning.png'>
+      <img src='@/assets/wenkong/auxiliary-hot.png'>
+      <img src='@/assets/wenkong/top-cold.png'>
     </div>
     <!-- 模式 -->
     <yd-popup v-model="modelVisible" position="bottom" width="90%">
@@ -114,15 +126,25 @@
     </yd-popup>
     <yd-popup v-model="temperatureVisible" position="bottom" width="90%">
       <div class="content">
-        <div class="title">温度设定</div>
+        <div class="title">环境设定</div>
         <div class="list">
           <div class='inside'>
-            <img @click='increase' src='@/assets/add.png'>
             <div>
-              <span class='number'>{{temperature}}</span>
-              <span class='icon'>℃</span>
+              <img @click='reduceTem' src='@/assets/reduce.png'>
+              <div>
+                <span class='number'>{{temNumber}}</span>
+                <span class='icon'>℃</span>
+              </div>
+              <img @click='increaseTem' src='@/assets/add.png'>
             </div>
-            <img @click='reduce' src='@/assets/reduce.png'>
+            <div>
+              <img @click='reduceHum' src='@/assets/reduce.png'>
+              <div>
+                <span class='number'>{{humNumber}}</span>
+                <span class='icon'>%</span>
+              </div>
+              <img @click='increaseHum' src='@/assets/add.png'>
+            </div>
           </div>
         </div>
       </div>
@@ -144,23 +166,35 @@ import {
   sendFunc
 } from './api'
 import Store from './store'
+import img1 from '../../assets/bak3.jpg' // 白天阴
+import img2 from '../../assets/bak2.jpg' // 夜晚阴
+import img3 from '../../assets/bak1.jpg' // 夜晚晴
+import img4 from '../../assets/bak4.jpg' // 白天晴
+
 let hasSetTemperature = false // 初始化时根据当前温度设置下「预设温度」的值
 let isInited = false // 是否已经被初始化了
 
 export default {
   data() {
     return {
-      modelVisible: false, //
-      windVisible: false, //
+      shutdown: '', // 关机
+      cloudyDay: img1, // 阴天
+      sunnyDay: img4, // 晴天
+      cloudyNight: img2, // 夜晚阴
+      sunnyNight: img3, // 夜晚晴
+      img: img4,
+      modelVisible: false,
+      windVisible: false,
       pageIsShow: false,
-      temperature: 0, // 客户设定温度
+      temNumber: 0, // 客户设定温度
+      humNumber: 0, // 客户设定湿度
       temperatureVisible: false, // 显示温度设定弹框
-      currentOption: 0, // 模式的当前选择项
       currentOptionForWind: 0, // 风速的当前选择项
       currentSpeedIndexLabel: '', // 当前选项风速档位的名称
       modeCurrentLabel: '', // 当前选择模式选项的名称
       currentSpeed: 0,
       windModel: true, // 用户点击了风速模块?
+      isOptionalFunctionOpen: false,
       modelData: {},
       windData: {},
       modeCurrent: 0, // 当前模式选项下标
@@ -207,7 +241,6 @@ export default {
         return []
       }
       const option = data && data.abilityOptionList
-      console.log('option', option)
 
       return option || []
     }
@@ -219,8 +252,15 @@ export default {
         return
       }
       const option = data.abilityOptionList
-      this.sendFunc(data.dirValue, option[index].optionValue, () => {
+      const value = option[index].optionValue
+      this.sendFunc(data.dirValue, value, () => {
         this.modeCurrent = index
+        // 如果当前模式是致热模式，打开次级功能模式
+        if (value == 2) {
+          this.isOptionalFunctionOpen = true
+        } else {
+          this.isOptionalFunctionOpen = false
+        }
       })
     },
     sliderChanged(val) {
@@ -274,7 +314,7 @@ export default {
         item => item.abilityId == ablityId
       )[0]
 
-      this.temperature = Number(data.currValue)
+      this.temNumber = Number(data.currValue)
       this.hasSetTemperature = true
     },
     switchHandler() {
@@ -360,15 +400,21 @@ export default {
 
       index == 1 ? (this.modelVisible = true) : (this.windVisible = true)
     },
-    increase() {
-      this.temperature += 1
-      const data = this.getAbilityData(this.formatItemsList[0].abilityId)
-      this.sendFunc(data.dirValue, this.temperature)
+    increaseTem() {
+      this.temNumber += 1
+      this.sendFunc('140', this.temNumber)
     },
-    reduce() {
-      this.temperature -= 1
-      const data = this.getAbilityData(this.formatItemsList[0].abilityId)
-      this.sendFunc(data.dirValue, this.temperature)
+    reduceTem() {
+      this.temNumber -= 1
+      this.sendFunc('140', this.temNumber)
+    },
+    increaseHum() {
+      this.humNumber += 1
+      this.sendFunc('130', this.humNumber)
+    },
+    reduceHum() {
+      this.humNumber -= 1
+      this.sendFunc('130', this.humNumber)
     },
     intoSet() {
       if (!this.isOpen) {
@@ -438,6 +484,7 @@ export default {
           // 定时请求接口数据，更新页面数据
           this.setInter = setInterval(() => {
             this.getIndexFormatData(res.data)
+            this.getWeather()
           }, 2000)
 
           // 显示页面内容
@@ -520,11 +567,11 @@ export default {
           this.modeCurrent = iIndex
           this.modeCurrentLabel = item.optionDefinedName || item.optionName
 
-          // 如果当前选中对模式是睡眠，那么开启睡眠弹框
+          // 如果当前选中对模式是致热，打开次级功能模式
           if (item.optionValue == '2') {
-            this.isSleep = true
+            this.isOptionalFunctionOpen = true
           } else {
-            this.isSleep = false
+            this.isOptionalFunctionOpen = false
           }
         })
       }
@@ -591,12 +638,109 @@ export default {
         this.outerTem = data.outerTem
         this.outerPm = data.outerPm
         this.outerHum = data.outerHum
+
+        this.setWeather()
+      })
+    },
+    setWeather() {
+      // 当前天气模式
+      if (!this.isOpen) {
+        this.img = this.shutdown
+        return
+      }
+
+      let currentBak = ''
+      let h = new Date().getHours() //获取当前小时
+      if (!this.weather) {
+        //未返回值
+        if (
+          (parseInt(h) < 6 && parseInt(h) >= 0) ||
+          (parseInt(h) < 24 && parseInt(h) > 18)
+        ) {
+          //夜晚
+          currentBak = this.sunnyNight
+        } else {
+          //白天
+          currentBak = this.sunnyDay
+        }
+      } else {
+        if (
+          this.weather.indexOf('雨') != -1 ||
+          this.weather.indexOf('阴') != -1
+        ) {
+          //阴天
+          if (
+            (parseInt(h) < 6 && parseInt(h) >= 0) ||
+            (parseInt(h) < 24 && parseInt(h) > 18)
+          ) {
+            //夜晚
+            currentBak = this.cloudyNight
+          } else {
+            //白天
+            currentBak = this.cloudyDay
+          }
+        } else {
+          if (
+            (parseInt(h) < 6 && parseInt(h) >= 0) ||
+            (parseInt(h) < 24 && parseInt(h) > 18)
+          ) {
+            //夜晚
+            currentBak = this.sunnyNight
+          } else {
+            //白天
+            currentBak = this.sunnyDay
+          }
+        }
+      }
+
+      this.img = currentBak
+    },
+    /**
+     * 初始化背景图片
+     * 如果客户设置的话，就用客户的；否则使用默认的
+     */
+    initBackground() {
+      const bgImgs = JSON.parse(Store.fetch('bgImgs'))
+      // 依次排列：关机，白天-晴天，白天-阴天，夜晚-晴天，夜晚-阴天
+      if (bgImgs[0]) {
+        this.shutdown = bgImgs[0]
+      }
+      if (bgImgs[1]) {
+        this.sunnyDay = bgImgs[1]
+      }
+      if (bgImgs[2]) {
+        this.cloudyDay = bgImgs[2]
+      }
+      if (bgImgs[3]) {
+        this.sunnyNight = bgImgs[3]
+      }
+      if (bgImgs[4]) {
+        this.cloudyNight = bgImgs[4]
+      }
+    },
+    intiTime() {
+      if (!this.isOpen) {
+        this.$toast('当前关机状态，不可操作', 'bottom')
+        return false
+      }
+      this.$router.push({
+        path: '/timinglist',
+        query: {
+          deviceId: this.deviceId,
+          wxDeviceId: this.wxDeviceId,
+          customerId: this.customerId
+        }
       })
     }
   },
   watch: {
     isOpen(val) {
-      this.currentOption = val ? 2 : 3
+      if (val) {
+        this.setWeather()
+      } else {
+        // 关机时，如果客户设置了关机图片就用，否则用默认背景
+        this.img = this.shutdown || ''
+      }
     }
   },
   created() {
@@ -607,6 +751,7 @@ export default {
     this.getIndexAbilityData()
     this.getLocation()
     this.getWeather()
+    this.initBackground()
   },
   destroyed() {
     clearInterval(this.setInter)
@@ -628,11 +773,11 @@ export default {
   top: 0;
   left: 0;
   box-sizing: border-box;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-image: url('~@/assets/background.png');
+  background-color: #999;
   display: flex;
   flex-direction: column;
+  background-repeat: no-repeat;
+  background-size: cover;
   .header {
     box-sizing: border-box;
     margin: tvw(0) tvw(162) 0 tvw(162);
@@ -668,6 +813,10 @@ export default {
     span {
       color: #fff;
       font-size: tvw(83);
+    }
+    img {
+      width: 12px;
+      height: auto;
     }
   }
   .switch {
@@ -707,9 +856,10 @@ export default {
     }
     div.left {
       img {
-        width: 80%;
+        width: tvw(167);
         position: relative;
-        top: 0.2px;
+        top: -0.1vw;
+        left: -0.2vw;
       }
     }
   }
@@ -834,6 +984,7 @@ export default {
   .content {
     padding: 20px 15px 20px 15px;
     color: #4d4d4d;
+    background: #f0f0f0;
     .title {
       font-size: 16px;
       padding-bottom: 10px;
@@ -860,30 +1011,32 @@ export default {
         }
       }
       .inside {
-        width: fit-content;
-        display: flex;
-        align-items: center;
-        margin: tvw(442) auto tvw(505) auto;
         > div {
-          margin: auto tvw(205);
-          width: tvw(605);
-          height: tvw(255);
-          background-image: url('~@/assets/small_background.png');
-          background-size: cover;
-          background-repeat: no-repeat;
-          line-height: tvw(255);
-          text-align: center;
-          color: #fff;
-          span.number {
-            font-size: tvw(150);
+          width: fit-content;
+          display: flex;
+          align-items: center;
+          margin: tvw(300) auto tvw(100) auto;
+          > div {
+            margin: auto tvw(205);
+            width: tvw(605);
+            height: tvw(255);
+            background-image: url('~@/assets/small_background.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            line-height: tvw(255);
+            text-align: center;
+            color: #fff;
+            span.number {
+              font-size: tvw(150);
+            }
+            span.icon {
+              font-size: tvw(17);
+            }
           }
-          span.icon {
-            font-size: tvw(17);
+          img {
+            width: tvw(141);
+            height: tvw(141);
           }
-        }
-        img {
-          width: tvw(141);
-          height: tvw(141);
         }
       }
     }
@@ -940,6 +1093,23 @@ export default {
     }
     img.second {
       transform: scale(0.7);
+    }
+  }
+  .left-side.grey {
+    background: #aaa;
+  }
+  .right-side {
+    position: fixed;
+    width: tvw(600);
+    height: tvw(1072);
+    right: tvw(100);
+    top: 28%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    img {
+      width: tvw(260);
     }
   }
   .gif {

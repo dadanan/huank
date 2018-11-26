@@ -1,5 +1,5 @@
 <template>
-  <div class="we-page" v-show='pageIsShow' :style="{ 'background-image': 'url(' + img + ')','background-repeat':'no-repeat','background-size':'cover' }">
+  <div class="we-page" v-show='pageIsShow' :style="{ 'background-image': 'url(' + img + ')'}">
     <div class="we-header">
       <router-link class="we-back" to="/list">
         <i class="iconfont icon-xiangzuojiantou"></i>
@@ -838,6 +838,8 @@ export default {
   background-color: #999999;
   display: flex;
   flex-direction: column;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .we-header {

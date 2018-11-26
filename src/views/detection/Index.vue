@@ -1,5 +1,5 @@
 <template>
-  <div class="main-wrapper" v-show='pageIsShow' :class="{ active: isOpen === true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')','background-repeat':'no-repeat','background-size':'cover' }">
+  <div class="main-wrapper" v-show='pageIsShow' :class="{ active: isOpen === true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')'}">
     <div class="header">
       <span>{{ deviceName }}</span>
       <span class="edit" @click="intoSet"></span>
@@ -639,6 +639,8 @@ export default {
   transition-property: background-color;
   transition-duration: 0.3s;
   transition-timing-function: linear;
+  background-repeat: no-repeat;
+  background-size: cover;
   .child-suo {
     z-index: 10;
     position: absolute;
@@ -717,71 +719,6 @@ export default {
       top: 10px;
       background: url('../../assets/set.png') no-repeat center center;
       background-size: 20px 20px;
-    }
-  }
-  .content {
-    padding: 20px 15px 20px 15px;
-    color: #4d4d4d;
-    .title {
-      font-size: 16px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #dfdfdf;
-    }
-    .list {
-      & ul li {
-        font-size: 14px;
-        margin-top: 20px;
-        .icon {
-          float: right;
-          margin-right: 5px;
-          width: 20px;
-          height: 20px;
-          border: 1px solid #a3a3a3;
-          border-radius: 100%;
-        }
-        &.active {
-          .icon {
-            background: url('../../assets/select.png') no-repeat center center;
-            background-size: 20px 20px;
-            border: none;
-          }
-        }
-      }
-    }
-    .spec {
-      padding-left: 10px;
-      padding-right: 10px;
-      & ul li {
-        &.active {
-          color: #000;
-          background: url('../../assets/left.png') no-repeat center right 60%;
-          background-size: 20px 15px;
-        }
-      }
-    }
-    .wind-speed-list {
-      display: flex;
-      justify-content: space-between;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 20px;
-      > div {
-        display: flex;
-        align-items: center;
-        width: 90%;
-        flex-direction: column;
-        > div,
-        > p {
-          width: 90%;
-        }
-        > p {
-          display: flex;
-          justify-content: space-between;
-        }
-      }
-      > div:nth-child(1) {
-        margin-bottom: 20px;
-      }
     }
   }
   .center {

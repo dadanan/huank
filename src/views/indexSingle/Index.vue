@@ -1,5 +1,5 @@
 <template>
-  <div class="main-wrapper" v-show='pageIsShow' :class="{ active: isOpen == true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')','background-repeat':'no-repeat','background-size':'cover' }">
+  <div class="main-wrapper" v-show='pageIsShow' :class="{ active: isOpen == true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')'}">
     <div class="header">
       <span>{{ deviceName }}</span>
       <span class="edit" @click="intoSet"></span>
@@ -987,6 +987,8 @@ export default {
   transition-property: background-color;
   transition-duration: 0.3s;
   transition-timing-function: linear;
+  background-repeat: no-repeat;
+  background-size: cover;
   .child-suo {
     z-index: 10;
     position: absolute;
@@ -1070,6 +1072,7 @@ export default {
   .content {
     padding: 20px 15px 20px 15px;
     color: #4d4d4d;
+    background: #f0f0f0;
     .title {
       font-size: 16px;
       padding-bottom: 10px;
