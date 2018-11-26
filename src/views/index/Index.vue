@@ -142,8 +142,8 @@
         <div class="title">其它功能设定</div>
         <div class="list">
           <ul v-if='formatItemsList[3] && formatItemsList[3].abilityId'>
-            <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[3].abilityId)" :class="{ active: item.isChecked}" @click="nodeClicked(item,index,3)">
-              <span>{{ item.optionDefinedName || item.optionName }}</span>
+            <li v-if='item.status !== 2' v-for="item in getListData(formatItemsList[3].abilityId,'func')" :class="{ active: item.isChecked}" @click="nodeClicked(item,'',3)" :key='item.abilityId'>
+              <span>{{ item.definedName || item.abilityName }}</span>
               <div class="icon"></div>
             </li>
           </ul>
@@ -335,32 +335,36 @@ export default {
      */
     isCycleSwitchOpen() {
       // 如果当前指令是外风机的，判断是否循环阀是否打开，没有的话。禁止发送指令
-      const modelData = this.getListData(this.formatItemsList[3].abilityId)
+      const modelData = this.getListData(
+        this.formatItemsList[3].abilityId,
+        'func'
+      )
+
       if (!modelData) {
         return false
       }
       const cycleSwitch = modelData.filter(item => item.dirValue === '290')[0]
-      return cycleSwitch && cycleSwitch.isSelect
+      return cycleSwitch && cycleSwitch.isChecked
     },
     leftStep() {
       const step =
         100 /
-        (this.getListData(this.formatItemsList[2].abilityId, 'left')
-          .abilityOptionList.length -
-          1)
+        (this.getListData(this.formatItemsList[2].abilityId, 'left').length - 1)
       return step
     },
     rightStep() {
       const step =
         100 /
-        (this.getListData(this.formatItemsList[2].abilityId, 'right')
-          .abilityOptionList.length -
+        (this.getListData(this.formatItemsList[2].abilityId, 'right').length -
           1)
       return step
     },
     sliderChangedLeft(val) {
       const index = val / this.leftStep()
-      const data = this.getListData(this.formatItemsList[2].abilityId, 'left')
+      const data = this.getAbilityData(
+        this.formatItemsList[2].abilityId,
+        'left'
+      )
       if (!data) {
         return
       }
@@ -396,7 +400,10 @@ export default {
         return
       }
       const index = val / this.rightStep()
-      const data = this.getListData(this.formatItemsList[2].abilityId, 'right')
+      const data = this.getAbilityData(
+        this.formatItemsList[2].abilityId,
+        'right'
+      )
       if (!data) {
         return
       }
@@ -442,24 +449,26 @@ export default {
       // 根据指令值找对应的功能项数据，双风机风速用到
       return this.abilitysList.filter(item => item.dirValue === dirValue)[0]
     },
+    /**
+     * 返回功能项的选项数据，
+     * 如果是风速，和功能（多选），则特殊处理
+     * @param which left 回风风速
+     * @param which right 送风风速
+     * @param which func 功能
+     */
     getListData(abilityId, which) {
-      if (which) {
+      if (which && which !== 'func') {
         // 说明是风速的abilityId，那么特殊情况，特殊处理
-        const windOption = this.getListData(abilityId)
-        let left = {}
-        let right = {}
-        if (windOption[0].optionValue === '280') {
-          // 如果第一个选项是280，即内风机，那么找到风外风机的ability数据
-          left = this.getAbilityByDirValue('280')
-          right = this.getAbilityByDirValue(windOption[1].optionValue)
-        } else {
-          right = this.getAbilityByDirValue('280')
-          left = this.getAbilityByDirValue(windOption[1].optionValue)
-        }
+        const ids = abilityId.split(',')
         if (which === 'left') {
-          return left
+          return this.getListData(ids[0])
         }
-        return right
+        return this.getListData(ids[1])
+      }
+      if (which === 'func') {
+        return abilityId.split(',').map(id => {
+          return this.getAbilityData(id)
+        })
       }
       // 根据功能id获取功能项的数据
       const result = this.abilitysList.filter(
@@ -571,13 +580,18 @@ export default {
 
       // 功能多选项的初始化
       const updateAbility = () => {
-        const data = this.getListData(this.formatItemsList[3].abilityId)
-        data.forEach(item => {
-          if (item.isSelect == 1) {
-            item.isChecked = true
-          } else {
-            item.isChecked = false
+        const data = this.getListData(this.formatItemsList[3].abilityId, 'func')
+        data.forEach(ability => {
+          const options = ability.abilityOptionList
+          if (!options) {
+            return
           }
+
+          const isChecked = options.some(option => {
+            return option.optionValue == '1' && option.isSelect == 1
+          })
+
+          this.$set(ability, 'isChecked', isChecked)
         })
       }
 
@@ -610,15 +624,15 @@ export default {
         this.$toast('当前关机状态，不可操作', 'bottom')
         return false
       }
-      // 做下功能多选项的初始化
-      const data = this.getListData(this.formatItemsList[3].abilityId)
-      data.forEach(item => {
-        if (item.isSelect == 1) {
-          item.isChecked = true
-        } else {
-          item.isChecked = false
-        }
-      })
+      // // 做下功能多选项的初始化
+      // const data = this.getListData(this.formatItemsList[3].abilityId, 'func')
+      // data.forEach(item => {
+      //   if (item.isSelect == 1) {
+      //     item.isChecked = true
+      //   } else {
+      //     item.isChecked = false
+      //   }
+      // })
       this.functionFlag = true
     },
     intoSet() {
@@ -795,7 +809,7 @@ export default {
           }
           this.setInter2 = setInterval(() => {
             this.getWeather()
-          }, 2000)
+          }, 20000)
 
           // 显示页面
           this.pageIsShow = true
@@ -832,10 +846,14 @@ export default {
       let ids = this.formatItemsList
         .filter(item => item.showStatus == 1 && item.abilityId)
         .map(item => item.abilityId)
+      let tempIds = []
+      ids.forEach(id => {
+        tempIds.push(...String(id).split(','))
+      })
 
       newQueryDetailByDeviceId({
         deviceId: this.deviceId,
-        abilityIds: ids
+        abilityIds: tempIds
       }).then(res => {
         const data = res.data
         // 将res.data中的isSelect和dirValue赋值过去

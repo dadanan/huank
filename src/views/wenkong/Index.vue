@@ -67,7 +67,7 @@
       </div>
       <div @click='modelClickedHandler(formatItemsList[2] && formatItemsList[2].abilityId,2)' v-show='formatItemsList[2] && formatItemsList[2].showStatus'>
         <div>
-          <img class='third' src='@/assets/wind.png'>
+          <img class='third' src='@/assets/wenkong/wind-grey.png'>
         </div>
         <span>{{formatItemsList[2] && formatItemsList[2].showName}}</span>
       </div>
@@ -973,6 +973,9 @@ export default {
         img.third {
           transform: scale(0.8);
         }
+      }
+      div.grey {
+        border-color: #aaa;
       }
       span {
         margin-top: tvw(50);
