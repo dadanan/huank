@@ -778,7 +778,7 @@ export default {
           let windData = []
           let ids = data.formatItemsList[2].abilityId.split(',')
           data.abilitysList.forEach(item => {
-            if (ids.includes(String(item.dirValue))) {
+            if (ids.includes(String(item.abilityId))) {
               windData.push({
                 ...item,
                 showStatus: 1
