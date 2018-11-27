@@ -471,31 +471,21 @@ export default {
         if (res.code == 200 && res.data) {
           this.manageName = res.data.manageName
           const data = res.data
-          this.pageName = data.pageName
+
           // 将功能集里的内外风机的数据加到版式集合中。为了后面持续刷新两个风机的数据
-          const windBoxId = data.formatItemsList[2].abilityId
           let windData = []
-          if (windBoxId) {
-            const windOption = data.abilitysList
-              .filter(item => item.abilityId == windBoxId)[0]
-              .abilityOptionList.map(item => item.optionValue)
-            // 根据内外风机指令 筛选内外风机功能数据
-            windData = data.abilitysList.filter(item =>
-              windOption.includes(item.dirValue)
-            )
-          }
+          data.abilitysList.forEach(item => {
+            if (item.dirValue === '280' || item.dirValue === '281') {
+              windData.push({
+                ...item,
+                showStatus: 1
+              })
+            }
+          })
 
           this.formatItemsList = data.formatItemsList.concat(windData)
 
-          data.abilitysList.forEach(item => {
-            item['currValue'] = ''
-            item.abilityOptionList &&
-              item.abilityOptionList.forEach(iItem => {
-                iItem.isChecked = false
-              })
-          })
           this.abilitysList = data.abilitysList
-          // console.log(this.abilitysList)
           for (var i = 0; i < this.abilitysList.length; i++) {
             const dirValue = this.abilitysList[i].dirValue.substring(0, 3)
             if (dirValue == 'C10') {

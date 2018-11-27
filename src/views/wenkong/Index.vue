@@ -67,7 +67,7 @@
       </div>
       <div @click='modelClickedHandler(formatItemsList[2] && formatItemsList[2].abilityId,2)' v-show='formatItemsList[2] && formatItemsList[2].showStatus'>
         <div>
-          <img class='third' src='@/assets/wenkong/wind-grey.png'>
+          <img class='third' src='@/assets/wind.png'>
         </div>
         <span>{{formatItemsList[2] && formatItemsList[2].showName}}</span>
       </div>
@@ -500,11 +500,17 @@ export default {
         return data.filter(item => item.id == id)[0]
       }
 
+      let ids = this.formatItemsList
+        .filter(item => item.showStatus == 1 && item.abilityId)
+        .map(item => item.abilityId)
+      let tempIds = []
+      ids.forEach(id => {
+        tempIds.push(...String(id).split(','))
+      })
+
       newQueryDetailByDeviceId({
         deviceId: this.deviceId,
-        abilityIds: list.formatItemsList
-          .filter(item => item.abilityId)
-          .map(item => item.abilityId)
+        abilityIds: tempIds
       }).then(res => {
         const data = res.data
         // 将res.data中的isSelect和dirValue赋值过去

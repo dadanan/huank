@@ -124,7 +124,7 @@
               </el-slider>
             </div>
           </div>
-          <div>
+          <div v-if='hasRightWind()'>
             <p>
               <span>{{rightSpeedName}}</span>
               <span>{{currentSpeedRightIndexLabel}}</span>
@@ -305,7 +305,7 @@ export default {
       if (!this.formatItemsList[2] || !this.formatItemsList[2].abilityId) {
         return name
       }
-      const leftData = this.getListData(
+      const leftData = this.getAbilityData(
         this.formatItemsList[2].abilityId,
         'left'
       )
@@ -319,7 +319,7 @@ export default {
       if (!this.formatItemsList[2] || !this.formatItemsList[2].abilityId) {
         return name
       }
-      const rightData = this.getListData(
+      const rightData = this.getAbilityData(
         this.formatItemsList[2].abilityId,
         'right'
       )
@@ -330,6 +330,13 @@ export default {
     }
   },
   methods: {
+    /**
+     * 开启回风风机？
+     */
+    hasRightWind() {
+      const ids = this.formatItemsList[2].abilityId.split(',')
+      return ids.length === 2
+    },
     /**
      * 循环阈处于打开状态？
      */
@@ -353,6 +360,9 @@ export default {
       return step
     },
     rightStep() {
+      if (!this.hasRightWind()) {
+        return 0
+      }
       const step =
         100 /
         (this.getListData(this.formatItemsList[2].abilityId, 'right').length -
@@ -457,19 +467,17 @@ export default {
      * @param which func 功能
      */
     getListData(abilityId, which) {
-      if (which && which !== 'func') {
-        // 说明是风速的abilityId，那么特殊情况，特殊处理
-        const ids = abilityId.split(',')
-        if (which === 'left') {
-          return this.getListData(ids[0])
-        }
-        return this.getListData(ids[1])
-      }
-      if (which === 'func') {
+      // 说明是风速的abilityId，那么特殊情况，特殊处理
+      if (which === 'left') {
+        return this.getListData(abilityId.split(',')[0])
+      } else if (which === 'right') {
+        return this.getListData(abilityId.split(',')[1])
+      } else if (which === 'func') {
         return abilityId.split(',').map(id => {
           return this.getAbilityData(id)
         })
       }
+
       // 根据功能id获取功能项的数据
       const result = this.abilitysList.filter(
         item => item.abilityId == abilityId
@@ -624,15 +632,7 @@ export default {
         this.$toast('当前关机状态，不可操作', 'bottom')
         return false
       }
-      // // 做下功能多选项的初始化
-      // const data = this.getListData(this.formatItemsList[3].abilityId, 'func')
-      // data.forEach(item => {
-      //   if (item.isSelect == 1) {
-      //     item.isChecked = true
-      //   } else {
-      //     item.isChecked = false
-      //   }
-      // })
+
       this.functionFlag = true
     },
     intoSet() {
@@ -776,8 +776,9 @@ export default {
 
           // 将功能集里的内外风机的数据加到版式集合中。为了后面持续刷新两个风机的数据
           let windData = []
+          let ids = data.formatItemsList[2].abilityId.split(',')
           data.abilitysList.forEach(item => {
-            if (item.dirValue === '280' || item.dirValue === '281') {
+            if (ids.includes(String(item.dirValue))) {
               windData.push({
                 ...item,
                 showStatus: 1
