@@ -1,22 +1,9 @@
 <template>
-  <div
-    class='index-container'
-    :class="{ active: isOpen === true }"
-    @touchmove.prevent
-    :style="{ 'background-image': 'url(' + img + ')'}"
-    v-show='pageIsShow'
-  >
+  <div class='index-container' :class="{ active: isOpen === true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')'}" v-show='pageIsShow'>
     <div class='header'>
-      <img
-        src='@/assets/arrow_left.png'
-        @click='goBack()'
-      >
+      <img src='@/assets/arrow_left.png' @click='goBack()'>
       <span>{{deviceName}}</span>
-      <img
-        class='setting'
-        @click='intoSet'
-        src='@/assets/set.png'
-      >
+      <img class='setting' @click='intoSet' src='@/assets/set.png'>
     </div>
     <div class='info'>
       <img src="../../assets/map.png" />&nbsp;
@@ -28,30 +15,15 @@
     <div class='switch'>
       <div v-show='formatItemsList[7] && formatItemsList[7].showStatus'>
         <div class='left'>
-          <img
-            src='@/assets/wenkong/host-status-open.png'
-            v-if='status'
-          >
-          <img
-            src='@/assets/wenkong/host-status-close.png'
-            v-else
-          >
+          <img src='@/assets/wenkong/host-status-open.png' v-if='status'>
+          <img src='@/assets/wenkong/host-status-close.png' v-else>
         </div>
         <p>{{formatItemsList[7] && formatItemsList[7].showName}}</p>
       </div>
-      <div
-        v-show='formatItemsList[8] && formatItemsList[8].showStatus'
-        @click='onOffMethod'
-      >
+      <div v-show='formatItemsList[8] && formatItemsList[8].showStatus' @click='onOffMethod'>
         <div>
-          <img
-            src='@/assets/wenkong_close.png'
-            v-if='isOpen'
-          >
-          <img
-            src='@/assets/wenkong_close.png'
-            v-else
-          >
+          <img src='@/assets/wenkong_close.png' v-if='isOpen'>
+          <img src='@/assets/wenkong_close.png' v-else>
         </div>
         <p>{{formatItemsList[8] && formatItemsList[8].showName}}</p>
       </div>
@@ -75,118 +47,63 @@
         %
       </p>
     </div>
-    <div
-      class='function'
-      v-show='isOptionalFunctionOpen && formatItemsList[3] && formatItemsList[3].showStatus'
-    >
-      <div
-        v-for='(item,index) in getFunctionList'
-        @click='functionClicked(item)'
-        :class="{'able': currFunction === index}"
-        :key='item.id'
-      >
+    <div class='function' v-show='isOptionalFunctionOpen && hasOptionalFunction()'>
+      <div v-for='(item,index) in getFunctionList' @click='functionClicked(item)' :class="{'able': currFunction === index}" :key='item.id'>
         <span>{{item.optionDefinedName || item.optionName}}</span>
       </div>
     </div>
     <div class='menu'>
       <div @click='modelClickedHandler(formatItemsList[0] && formatItemsList[0].abilityId,0)'>
         <div>
-          <img
-            class='first'
-            src='@/assets/temperature.png'
-          >
+          <img class='first' src='@/assets/temperature.png'>
         </div>
         <span>{{formatItemsList[0] && formatItemsList[0].showName}}</span>
       </div>
-      <div
-        @click='modelClickedHandler(formatItemsList[1].abilityId,1)'
-        v-show='formatItemsList[1] && formatItemsList[1].showStatus'
-      >
+      <div @click='modelClickedHandler(formatItemsList[1].abilityId,1)' v-show='formatItemsList[1] && formatItemsList[1].showStatus'>
         <div>
           <img src='@/assets/model.png'>
         </div>
         <span>{{formatItemsList[1] && formatItemsList[1].showName}}</span>
       </div>
-      <div
-        @click='modelClickedHandler(formatItemsList[2] && formatItemsList[2].abilityId,2)'
-        v-show='formatItemsList[2] && formatItemsList[2].showStatus'
-      >
+      <div @click='modelClickedHandler(formatItemsList[2] && formatItemsList[2].abilityId,2)' v-show='formatItemsList[2] && formatItemsList[2].showStatus'>
         <div>
-          <img
-            class='third'
-            src='@/assets/wind.png'
-          >
+          <img class='third' src='@/assets/wind.png'>
         </div>
         <span>{{formatItemsList[2] && formatItemsList[2].showName}}</span>
       </div>
       <div @click="intiTime">
         <div>
-          <img
-            class='third'
-            src='@/assets/zhong.png'
-          >
+          <img class='third' src='@/assets/zhong.png'>
         </div>
         <span>定时</span>
       </div>
     </div>
-    <div
-      :class='["left-side",{"grey": !isOpen}]'
-      v-show='formatItemsList[6] && formatItemsList[6].showStatus'
-    >
+    <div class='left-side' v-show='formatItemsList[6] && formatItemsList[6].showStatus' :style='{
+      background: leftSideColor
+    }'>
       <div>
-        <img
-          class='first'
-          src='@/assets/wind.png'
-        >
+        <img class='first' src='@/assets/wind.png'>
         <span>{{currentSpeedIndexLabel}}</span>
       </div>
       <div>
-        <img
-          class='second'
-          src='@/assets/model.png'
-        >
+        <img class='second' src='@/assets/model.png'>
         <span>{{modeCurrentLabel}}</span>
       </div>
     </div>
     <div class='right-side'>
-      <img
-        v-if='functionIcon.isFloorHot'
-        src='@/assets/wenkong/floor-hot.png'
-      >
-      <img
-        v-if='functionIcon.isAirConditioning'
-        src='@/assets/wenkong/air-conditioning.png'
-      >
-      <img
-        v-if='functionIcon.isAuxiliaryHot'
-        src='@/assets/wenkong/auxiliary-hot.png'
-      >
-      <img
-        v-if='functionIcon.isTopCold'
-        src='@/assets/wenkong/top-cold.png'
-      >
-      <img
-        v-if='functionIcon.isTopHot'
-        src='@/assets/wenkong/top-hot.png'
-      >
+      <img v-if='functionIcon.isFloorHot' src='@/assets/wenkong/floor-hot.png'>
+      <img v-if='functionIcon.isAirConditioning' src='@/assets/wenkong/air-conditioning.png'>
+      <img v-if='functionIcon.isAuxiliaryHot' src='@/assets/wenkong/auxiliary-hot.png'>
+      <img v-if='functionIcon.isTopCold' src='@/assets/wenkong/top-cold.png'>
+      <img v-if='functionIcon.isTopHot' src='@/assets/wenkong/top-hot.png'>
     </div>
     <!-- 模式 -->
-    <yd-popup
-      v-model="modelVisible"
-      position="bottom"
-      width="90%"
-    >
+    <yd-popup v-model="modelVisible" position="bottom" width="90%">
       <div class="content">
         <div class="title">模式设定</div>
         <div class="list">
           <ul v-if='formatItemsList[1] && formatItemsList[1].abilityId'>
-            <li
-              v-if='item.status !== 2'
-              v-for="(item,index) in getListData(formatItemsList[1].abilityId)"
-              :class="{ active: modeCurrent == index }"
-              @click="modeClicked(index)"
-              :key='item.optionValue'
-            >
+            <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[1].abilityId)" :class="{ active: modeCurrent == index }" @click="modeClicked(index)" :key='item.optionValue'>
               <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
             </li>
@@ -195,11 +112,7 @@
       </div>
     </yd-popup>
     <!-- 风速 -->
-    <yd-popup
-      v-model="windVisible"
-      position="bottom"
-      width="90%"
-    >
+    <yd-popup v-model="windVisible" position="bottom" width="90%">
       <div class="content">
         <div class="title">风速设定</div>
         <div class="list wind-speed">
@@ -208,54 +121,32 @@
             <span>{{currentSpeedIndexLabel}}</span>
           </p>
           <div>
-            <el-slider
-              v-model="currentSpeed"
-              :step="leftStep()"
-              @change='sliderChanged'
-              show-stops
-              :show-tooltip="false"
-            >
+            <el-slider v-model="currentSpeed" :step="leftStep()" @change='sliderChanged' show-stops :show-tooltip="false">
             </el-slider>
           </div>
         </div>
       </div>
     </yd-popup>
-    <yd-popup
-      v-model="temperatureVisible"
-      position="bottom"
-      width="90%"
-    >
+    <yd-popup v-model="temperatureVisible" position="bottom" width="90%">
       <div class="content">
         <div class="title">环境设定</div>
         <div class="list">
           <div class='inside'>
             <div>
-              <img
-                @click='reduceTem'
-                src='@/assets/reduce.png'
-              >
+              <img @click='reduceTem' src='@/assets/reduce.png'>
               <div>
                 <span class='number'>{{temNumber}}</span>
                 <span class='icon'>℃</span>
               </div>
-              <img
-                @click='increaseTem'
-                src='@/assets/add.png'
-              >
+              <img @click='increaseTem' src='@/assets/add.png'>
             </div>
             <div>
-              <img
-                @click='reduceHum'
-                src='@/assets/reduce.png'
-              >
+              <img @click='reduceHum' src='@/assets/reduce.png'>
               <div>
                 <span class='number'>{{humNumber}}</span>
                 <span class='icon'>%</span>
               </div>
-              <img
-                @click='increaseHum'
-                src='@/assets/add.png'
-              >
+              <img @click='increaseHum' src='@/assets/add.png'>
             </div>
           </div>
         </div>
@@ -295,6 +186,15 @@ export default {
       cloudyNight: img2, // 夜晚阴
       sunnyNight: img3, // 夜晚晴
       img: img4,
+      toolColor: {
+        // 不同的天气下，小工具的背景颜色改变
+        cloudyDay: "#385994",
+        sunnyDay: "#0c9dd8",
+        cloudyNight: "#004696",
+        sunnyNight: "#383b89",
+        shutdown: "grey"
+      },
+      leftSideColor: "#205483",
       modelVisible: false,
       windVisible: false,
       pageIsShow: false,
@@ -326,7 +226,7 @@ export default {
       customerId: this.$route.query.customerId,
       setInter: undefined, // 定时器的id
       isOpen: null, // 开机状态？
-      status: false, // 主机状态
+      status: true, // 主机状态
       functionIcon: {
         isFloorHot: false,
         isAirConditioning: false,
@@ -366,6 +266,27 @@ export default {
     }
   },
   methods: {
+    /**
+     * 用户配置了打开了次级模式并且配置了数据?
+     */
+    hasOptionalFunction() {
+      const id = this.formatItemsList[3] && this.formatItemsList[3].abilityId;
+      if (!id) {
+        return false;
+      }
+
+      const ability = this.getAbilityData(id);
+      if (!ability) {
+        return false;
+      }
+
+      const option = ability.abilityOptionList;
+      if (!option || option.length === 0) {
+        return false;
+      }
+
+      return true;
+    },
     modeClicked(index) {
       const data = this.getAbilityData(this.formatItemsList[1].abilityId);
       if (!data) {
@@ -374,13 +295,15 @@ export default {
       const option = data.abilityOptionList;
       let value = option[index].optionValue;
       // 如果是致热模式，默认打开选项值为6的次级模式
-      if (value === "--") {
-        value = 6;
+      if (value == "2") {
+        if (this.hasOptionalFunction()) {
+          value = 41;
+        }
       }
       this.sendFunc(data.dirValue, value, () => {
         this.modeCurrent = index;
         // 如果当前模式是致热模式，打开次级功能模式
-        if ([6, 7, 8, 9].includes(Number(value))) {
+        if ([41, 42, 43, 44].includes(Number(value))) {
           this.isOptionalFunctionOpen = true;
         } else [(this.isOptionalFunctionOpen = false)];
       });
@@ -526,19 +449,19 @@ export default {
     },
     increaseTem() {
       this.temNumber += 1;
-      this.sendFunc("140", this.temNumber);
+      this.sendFunc("2DD.0", this.temNumber);
     },
     reduceTem() {
       this.temNumber -= 1;
-      this.sendFunc("140", this.temNumber);
+      this.sendFunc("2DD.0", this.temNumber);
     },
     increaseHum() {
       this.humNumber += 1;
-      this.sendFunc("130", this.humNumber);
+      this.sendFunc("2DE.0", this.humNumber);
     },
     reduceHum() {
       this.humNumber -= 1;
-      this.sendFunc("130", this.humNumber);
+      this.sendFunc("2DE.0", this.humNumber);
     },
     intoSet() {
       if (!this.isOpen) {
@@ -694,7 +617,7 @@ export default {
 
           // 如果当前选中对模式是致热，打开次级功能模式
           // 6789是次级模式的选项值
-          if ([6, 7, 8, 9].includes(Number(item.optionValue))) {
+          if ([41, 42, 43, 44].includes(Number(item.optionValue))) {
             this.isOptionalFunctionOpen = true;
           } else {
             this.isOptionalFunctionOpen = false;
@@ -730,7 +653,7 @@ export default {
             this.currFunction = index;
             // 将模式的下标设置成致热
             modeData.abilityOptionList.forEach((item, index) => {
-              if (item.optionValue === "--") {
+              if (item.optionValue === "2") {
                 this.modeCurrent = index;
               }
             });
@@ -802,6 +725,10 @@ export default {
         return;
       }
 
+      const setColor = day => {
+        this.leftSideColor = this.toolColor[day];
+      };
+
       let currentBak = "";
       let h = new Date().getHours(); //获取当前小时
       if (!this.weather) {
@@ -812,9 +739,11 @@ export default {
         ) {
           //夜晚
           currentBak = this.sunnyNight;
+          setColor("sunnyNight");
         } else {
           //白天
           currentBak = this.sunnyDay;
+          setColor("sunnyDay");
         }
       } else {
         if (
@@ -828,9 +757,11 @@ export default {
           ) {
             //夜晚
             currentBak = this.cloudyNight;
+            setColor("cloudyNight");
           } else {
             //白天
             currentBak = this.cloudyDay;
+            setColor("cloudyDay");
           }
         } else {
           if (
@@ -839,9 +770,11 @@ export default {
           ) {
             //夜晚
             currentBak = this.sunnyNight;
+            setColor("sunnyNight");
           } else {
             //白天
             currentBak = this.sunnyDay;
+            setColor("sunnyDay");
           }
         }
       }
@@ -893,6 +826,7 @@ export default {
       } else {
         // 关机时，如果客户设置了关机图片就用，否则用默认背景
         this.img = this.shutdown || "";
+        this.leftSideColor = this.toolColor["shutdown"];
       }
     }
   },
@@ -1250,9 +1184,6 @@ export default {
     img.second {
       transform: scale(0.7);
     }
-  }
-  .left-side.grey {
-    background: #aaa;
   }
   .right-side {
     position: fixed;
