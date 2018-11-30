@@ -1,52 +1,19 @@
 <template>
   <div class="list-wrapper">
-    <yd-accordion
-      style="position: relative;padding-bottom: 50px;"
-      v-if="teamList.length"
-    >
-      <yd-accordion-item
-        open="open"
-        v-for="(item,index) in teamList"
-        :key="index"
-        v-swipeleft="swipeTeamLeft"
-      >
+    <yd-accordion style="position: relative;padding-bottom: 50px;" v-if="teamList.length">
+      <yd-accordion-item open="open" v-for="(item,index) in teamList" :key="index" v-swipeleft="swipeTeamLeft">
         <div slot="title">
-          <img
-            class='team-icon'
-            :src="item.icon"
-          />
+          <img class='team-icon' :src="item.icon" />
           <span>{{item.teamName}}</span>
         </div>
-        <div
-          slot="txt"
-          style="color:#20aaf8;margin-left:5px; position: absolute; right: 90px;"
-          v-show="groupFlag"
-          @click="OpenGroup(item)"
-        >编辑
+        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 90px;" v-show="groupFlag" @click="OpenGroup(item)">编辑
         </div>
-        <div
-          slot="txt"
-          style="color:#20aaf8;margin-left:5px; position: absolute; right: 60px;"
-          v-show="groupFlag"
-          @click="deleteTeam(item.teamId)"
-        >删除
+        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 60px;" v-show="groupFlag" @click="deleteTeam(item.teamId)">删除
         </div>
-        <div
-          slot="txt"
-          style="color:#20aaf8;margin-left:5px; position: absolute; right: 30px;"
-          v-show="groupFlag"
-          @click="groupFlag = false"
-        >取消
+        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 30px;" v-show="groupFlag" @click="groupFlag = false">取消
         </div>
         <div style="padding:15px">
-          <div
-            class="list-item"
-            v-swipeleft.stop="swipeleft"
-            v-swiperight="swiperight"
-            @click="intoIndex(child,item)"
-            v-for="(child,cindex) in item.deviceItemPos"
-            :key="cindex"
-          >
+          <div class="list-item" v-swipeleft.stop="swipeleft" v-swiperight="swiperight" @click="intoIndex(child,item)" v-for="(child,cindex) in item.deviceItemPos" :key="cindex">
             <div class="item-left">
               <div class="img">
                 <div class="p-img">
@@ -54,20 +21,14 @@
                   <span v-if="child.onlineStatus === 1">
                     <em>在线</em>
                   </span>
-                  <span
-                    class="active"
-                    v-else
-                  >
+                  <span class="active" v-else>
                     <em>离线</em>
                   </span>
                 </div>
                 <div class="img-text">
                   <p>
                     <span class="img-text1">{{ child.deviceName }}</span>
-                    <i
-                      class="addr"
-                      v-if="loopValue === false && child.location"
-                    ></i>
+                    <i class="addr" v-if="loopValue === false && child.location"></i>
                     <span v-if="loopValue === false">{{child.location && child.location.split(' ').map(str => str.split(',')).reduce((a, b) => a.concat(b),[]) .filter(s => s !== '')[0]}}</span>
                   </p>
                   <template v-if='child.hasOwnProperty("childId")'>
@@ -81,26 +42,10 @@
                 </div>
               </div>
             </div>
-            <div
-              class="item-right"
-              v-if='!child.hasOwnProperty("childId")'
-            >
-              <span
-                class="group"
-                v-if="loopValue === true"
-                @click.stop="OpenDev(child,item.teamId,1)"
-              >分组</span>
-              <span
-                class="edit"
-                v-if="loopValue === true"
-                @click.stop="OpenDev(child,2)"
-              >编辑</span>
-              <span
-                class="delete"
-                v-if="loopValue === true"
-                @click.stop="deleteDev(child)"
-                style="color: #a0a0a0;"
-              >删除</span>
+            <div class='item-right' v-if='!child.hasOwnProperty("childId")'>
+              <span class="group" v-if="loopValue === true" @click.stop="OpenDev(child,item.teamId,1)">分组</span>
+              <span class="edit" v-if="loopValue === true" @click.stop="OpenDev(child,2)">编辑</span>
+              <span class="delete" v-if="loopValue === true" @click.stop="deleteDev(child)" style="color: #a0a0a0;">删除</span>
               <p>PM2.5</p>
               <p>{{child.pm}}ug/m³</p>
             </div>
@@ -109,32 +54,15 @@
         </div>
       </yd-accordion-item>
     </yd-accordion>
-    <div
-      v-else
-      style="padding:10px 10px;"
-    >暂无产品</div>
+    <div v-else style="padding:10px 10px;">暂无产品</div>
     <div class="fixed-bottom">
       <div class="group">
-        <div
-          class="active"
-          @click="qRcode"
-          v-if="!loopValue"
-        >扫码添加</div>
-        <div
-          class="active"
-          v-else
-          @click="selctButtonMethod(1,'cancel')"
-        >取消分组</div>
-        <div
-          class=""
-          @click="selctButtonMethod(0,'create')"
-        >新建分组</div>
+        <div class="active" @click="qRcode" v-if="!loopValue">扫码添加</div>
+        <div class="active" v-else @click="selctButtonMethod(1,'cancel')">取消分组</div>
+        <div class="" @click="selctButtonMethod(0,'create')">新建分组</div>
       </div>
     </div>
-    <div
-      class="wx-dialog dialog"
-      v-if="wxValue"
-    >
+    <div class="wx-dialog dialog" v-if="wxValue">
       <div class="confirm">
         <div class="confim-top">
           <p>设备联网提示</p>
@@ -151,148 +79,71 @@
           </ul>
         </div>
         <div class="confim-bottom">
-          <div
-            class="but"
-            @click="wxValue = false"
-          >取消</div>
+          <div class="but" @click="wxValue = false">取消</div>
           <div class="but">下一步</div>
         </div>
       </div>
     </div>
-    <div
-      class="create-dialog dialog"
-      v-if="createValue"
-    >
+    <div class="create-dialog dialog" v-if="createValue">
       <div class="confirm">
         <div class="confim-top">
-          <textarea
-            class="name"
-            placeholder="在此输入新建分组的名称"
-            v-model="teamName"
-          ></textarea>
+          <textarea class="name" placeholder="在此输入新建分组的名称" v-model="teamName"></textarea>
         </div>
         <div class="confim-bottom">
-          <div
-            class="but"
-            @click="createValue = false"
-          >取消</div>
-          <div
-            class="but create"
-            @click="addGroup"
-          >确定</div>
+          <div class="but" @click="createValue = false">取消</div>
+          <div class="but create" @click="addGroup">确定</div>
         </div>
       </div>
     </div>
-    <div
-      class="create-dialog dialog"
-      v-if="editDevFlag"
-    >
+    <div class="create-dialog dialog" v-if="editDevFlag">
       <div class="confirm">
         <div class="confim-top">
-          <textarea
-            class="name"
-            style="min-height:50px;"
-            placeholder="输入新设备的名称"
-            v-model="devInfo.deviceName"
-          ></textarea>
+          <textarea class="name" style="min-height:50px;" placeholder="输入新设备的名称" v-model="devInfo.deviceName"></textarea>
         </div>
         <div class="confim-bottom">
-          <div
-            class="but"
-            @click="editDevFlag = false"
-          >取消</div>
-          <div
-            class="but create"
-            @click="editDev"
-          >确定</div>
+          <div class="but" @click="editDevFlag = false">取消</div>
+          <div class="but create" @click="editDev">确定</div>
         </div>
       </div>
     </div>
-    <div
-      class="create-dialog dialog"
-      v-if="teamNameFlag"
-    >
+    <div class="create-dialog dialog" v-if="teamNameFlag">
       <div class="confirm">
         <div class="confim-top">
-          <textarea
-            class="name"
-            style="min-height:50px;"
-            placeholder="输入组的名称"
-            v-model="groupInfo.teamName"
-          ></textarea>
+          <textarea class="name" style="min-height:50px;" placeholder="输入组的名称" v-model="groupInfo.teamName"></textarea>
         </div>
         <div class="confim-bottom">
-          <div
-            class="but"
-            @click="teamNameFlag = false"
-          >取消</div>
-          <div
-            class="but create"
-            @click="updateTeamName"
-          >确定</div>
+          <div class="but" @click="teamNameFlag = false">取消</div>
+          <div class="but create" @click="updateTeamName">确定</div>
         </div>
       </div>
     </div>
-    <div
-      class="create-dialog dialog"
-      v-if="groupDialog"
-    >
-      <div
-        class="confirm"
-        style="padding: 0;"
-      >
-        <div
-          class="confim-top"
-          style="text-align: left; color: #fff; padding: 0 10px 10px; "
-        >
+    <div class="create-dialog dialog" v-if="groupDialog">
+      <div class="confirm" style="padding: 0;">
+        <div class="confim-top" style="text-align: left; color: #fff; padding: 0 10px 10px; ">
           <h4 class="title">{{selname}}</h4>
           <p style="padding-top:10px ;">请选择组：</p>
           <div>
-            <yd-radio-group
-              v-model="selectId"
-              color="#00ff00"
-            >
-              <yd-radio
-                :val="item.teamId"
-                v-if="currentTeamId != item.teamId"
-                style="margin-top:10px;width:100%;color: #fff "
-                v-for="(item,index) in teamList"
-                :key="index"
-              >{{ item.teamName }}
+            <yd-radio-group v-model="selectId" color="#00ff00">
+              <yd-radio :val="item.teamId" v-if="currentTeamId != item.teamId" style="margin-top:10px;width:100%;color: #fff " v-for="(item,index) in teamList" :key="index">{{ item.teamName }}
               </yd-radio>
             </yd-radio-group>
           </div>
         </div>
         <div class="confim-bottom">
-          <div
-            class="but"
-            @click="cancelGroup"
-          >取消</div>
-          <div
-            class="but create"
-            @click="editGroup"
-          >确定</div>
+          <div class="but" @click="cancelGroup">取消</div>
+          <div class="but create" @click="editGroup">确定</div>
         </div>
       </div>
     </div>
     <!--删除设备-->
-    <div
-      class="create-dialog dialog"
-      v-if="delDevFlag"
-    >
+    <div class="create-dialog dialog" v-if="delDevFlag">
       <div class="confirm">
         <div class="confim-top">
           <p style="padding:10px;">您确认要解除该设备的绑定吗？</p>
         </div>
         <div class="confim-bottom">
-          <div
-            class="but"
-            @click="delDevFlag = false"
-          >取消</div>
-          <div
-            class="but create"
-            @click="confirmdeleteDev"
-          >确定</div>
+          <div class="but" @click="delDevFlag = false">取消</div>
+          <div class="but create" @click="confirmdeleteDev">确定</div>
         </div>
       </div>
     </div>
