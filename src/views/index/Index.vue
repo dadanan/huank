@@ -780,15 +780,20 @@ export default {
 
           // 将功能集里的内外风机的数据加到版式集合中。为了后面持续刷新两个风机的数据
           let windData = [];
-          let ids = data.formatItemsList[2].abilityId.split(",");
-          data.abilitysList.forEach(item => {
-            if (ids.includes(String(item.abilityId))) {
-              windData.push({
-                ...item,
-                showStatus: 1
-              });
-            }
-          });
+          if (
+            data.formatItemsList[2].abilityId &&
+            data.formatItemsList[2].showStatus
+          ) {
+            let ids = data.formatItemsList[2].abilityId.split(",");
+            data.abilitysList.forEach(item => {
+              if (ids.includes(String(item.abilityId))) {
+                windData.push({
+                  ...item,
+                  showStatus: 1
+                });
+              }
+            });
+          }
 
           this.formatItemsList = data.formatItemsList.concat(windData);
 
