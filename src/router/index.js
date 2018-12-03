@@ -4,6 +4,7 @@
  */
 const Index = resolve => require(['@/views/index/Index'], resolve)
 const IndexSingle = resolve => require(['@/views/IndexSingle/Index'], resolve)
+const Detection = resolve => require(['@/views/detection/Index'], resolve)
 
 const Auth = resolve => require(['@/views/auth/Auth'], resolve)
 const Init = resolve => require(['@/views/init/Init'], resolve)
@@ -77,6 +78,13 @@ let routes = [
   {
     path: '/indexsingle',
     component: IndexSingle,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/detection',
+    component: Detection,
     meta: {
       title: ''
     }

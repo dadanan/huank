@@ -7,13 +7,6 @@
     <div class="data-cell" v-for="(item,index) in dataList" :key="index">
       <div class="cell-header">
         <div class="title"><span>{{ item.name }}({{ item.unit }})</span></div>
-        <!-- <div class="cell-right">
-          <yd-radio-group v-model="radio1" color="#3fa9f5">
-            <yd-radio val="时" v-if="1==2"></yd-radio>
-            <yd-radio val="日"></yd-radio>
-            <yd-radio val="月" v-if="1==2"></yd-radio>
-          </yd-radio-group>
-        </div> -->
       </div>
       <div class="cell-data">
         <my-echarts :id="'echart'+(index)" :xdata="item.xdata" :ydata="item.ydata"></my-echarts>
@@ -69,7 +62,7 @@ export default {
       Loading.open('很快加载好了')
       getHistoryData({
         deviceId: this.$route.query.deviceId,
-        type:1
+        type: 1
       })
         .then(res => {
           this.dataList = res.data

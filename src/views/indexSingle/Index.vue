@@ -1,5 +1,5 @@
 <template>
-  <div class="main-wrapper" v-show='pageIsShow' :class="{ active: isOpen == true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')','background-repeat':'no-repeat','background-size':'cover' }">
+  <div class="main-wrapper" v-show='pageIsShow' :class="{ active: isOpen == true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')'}">
     <div class="header">
       <span>{{ deviceName }}</span>
       <span class="edit" @click="intoSet"></span>
@@ -132,8 +132,8 @@
         <div class="title">其它功能设定</div>
         <div class="list">
           <ul v-if='formatItemsList[3] && formatItemsList[3].abilityId'>
-            <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[3].abilityId)" :key="item.dirValue" :class="{ active: item.isChecked}" @click="nodeClicked(item,index,3)">
-              <span>{{ item.optionDefinedName || item.optionName }}</span>
+            <li v-if='item.status !== 2' v-for="item in getListData(formatItemsList[3].abilityId,'func')" :class="{ active: item.isChecked}" @click="nodeClicked(item,'',3)" :key='item.abilityId'>
+              <span>{{ item.definedName || item.abilityName }}</span>
               <div class="icon"></div>
             </li>
           </ul>
@@ -358,8 +358,19 @@ export default {
       // 根据指令值找对应的功能项数据，双风机风速用到
       return this.abilitysList.filter(item => item.dirValue == dirValue)[0]
     },
-    getListData(abilityId) {
+    /**
+     * 返回功能项的选项数据，
+     * 如果是 功能（多选），则特殊处理
+     * @param which func 功能
+     */
+    getListData(abilityId, which) {
       // 根据功能id获取功能项的数据
+      if (which === 'func') {
+        return abilityId.split(',').map(id => {
+          return this.getAbilityData(id)
+        })
+      }
+
       const result = this.abilitysList.filter(
         item => item.abilityId == abilityId
       )[0]
@@ -470,13 +481,18 @@ export default {
 
       // 功能多选项的初始化
       const updateAbility = () => {
-        const data = this.getListData(this.formatItemsList[3].abilityId)
-        data.forEach(item => {
-          if (item.isSelect == 1) {
-            item.isChecked = true
-          } else {
-            item.isChecked = false
+        const data = this.getListData(this.formatItemsList[3].abilityId, 'func')
+        data.forEach(ability => {
+          const options = ability.abilityOptionList
+          if (!options) {
+            return
           }
+
+          const isChecked = options.some(option => {
+            return option.optionValue == '1' && option.isSelect == 1
+          })
+
+          this.$set(ability, 'isChecked', isChecked)
         })
       }
 
@@ -534,15 +550,7 @@ export default {
         this.$toast('当前关机状态，不可操作', 'bottom')
         return false
       }
-      // 做下功能多选项的初始化
-      const data = this.getListData(this.formatItemsList[3].abilityId)
-      data.forEach(item => {
-        if (item.isSelect == 1) {
-          item.isChecked = true
-        } else {
-          item.isChecked = false
-        }
-      })
+
       this.functionFlag = true
     },
     intoSet() {
@@ -642,7 +650,10 @@ export default {
       }
 
       // 如果当前指令是外风机的，判断是否循环阀是否打开，没有的话。禁止发送指令
-      const modelData = this.getListData(this.formatItemsList[3].abilityId)
+      const modelData = this.getListData(
+        this.formatItemsList[3].abilityId,
+        'func'
+      )
       const circleSwitch = modelData.filter(item => item.dirValue == '290')[0]
 
       if (item.dirValue == '281' && circleSwitch.isSelect == 0) {
@@ -759,10 +770,14 @@ export default {
       let ids = this.formatItemsList
         .filter(item => item.showStatus == 1 && item.abilityId)
         .map(item => item.abilityId)
+      let tempIds = []
+      ids.forEach(id => {
+        tempIds.push(...String(id).split(','))
+      })
 
       newQueryDetailByDeviceId({
         deviceId: this.deviceId,
-        abilityIds: ids
+        abilityIds: tempIds
       }).then(res => {
         const data = res.data
         // 将res.data中的isSelect和dirValue赋值过去
@@ -987,6 +1002,8 @@ export default {
   transition-property: background-color;
   transition-duration: 0.3s;
   transition-timing-function: linear;
+  background-repeat: no-repeat;
+  background-size: cover;
   .child-suo {
     z-index: 10;
     position: absolute;
@@ -1070,6 +1087,7 @@ export default {
   .content {
     padding: 20px 15px 20px 15px;
     color: #4d4d4d;
+    background: #f0f0f0;
     .title {
       font-size: 16px;
       padding-bottom: 10px;
