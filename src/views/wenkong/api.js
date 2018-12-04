@@ -433,3 +433,21 @@ export function getBgImgs() {
     headers: { Ticket: Store.fetch('Ticket') }
   })
 }
+// 保修类型查询
+export function getRuleInfo() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/userFeedback/getRuleInfo`,
+    method: 'get',
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+
+// 保修类型查询
+export function repairInfo(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/userFeedback/repairInfo`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}

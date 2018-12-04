@@ -82,6 +82,40 @@
           <div class="cell-right"></div>
         </a>
       </div>
+      <div class="cell-item white" @click="warranty = true">
+        <a>
+          <div class="cell-left">
+            <span>保修反馈</span>
+          </div>
+          <div class="cell-right"></div>
+        </a>
+      </div>
+    </div>
+    <!-- 保修反馈 -->
+    <div class="create-dialog dialog" v-if="warranty">
+      <div class="confirm">
+        <div class="confim-top">
+          <p>保修反馈</p>
+        </div>
+        <div class="confim-content">
+          <template>
+            <el-select v-model="value" placeholder="请选择"  style="width:135px" @change="changes">
+              <el-option v-for="item in options" :key="item.id" :label="item.value" :value="item.id">
+              </el-option>
+            </el-select>
+          </template>
+          <template>
+            <el-select v-model="value1" placeholder="请选择"  style="width:135px">
+              <el-option v-for="item in options1" :key="item.value" :label="item.name" :value="item.id">
+              </el-option>
+            </el-select>
+          </template>
+          <textarea v-model="feedBacks" placeholder="请输入您的宝贵意见..." style="margin-top:20px"></textarea>
+        </div>
+        <div class="confim-bottom">
+          <div class="but1" @click="sub">确定</div>
+        </div>
+      </div>
     </div>
     <!-- 客户反馈 -->
     <div class="create-dialog dialog" v-if="UserFeedBack">
@@ -149,7 +183,7 @@ import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
 import myUrl from 'common/js/api'
 import { editDevice } from '../wenkong/api'
 import Store from '../wenkong/store'
-import { getToken, getServerUser, customMessage } from '../wenkong/api'
+import { getToken, getServerUser, customMessage , getRuleInfo ,repairInfo} from '../wenkong/api'
 
 export default {
   data() {
@@ -159,6 +193,7 @@ export default {
       editDevFlag: false,
       customer: false,
       UserFeedBack: false,
+      warranty:false,
       deviceName: '',
       feedBack: '',
       setDeviceName: '',
@@ -168,7 +203,13 @@ export default {
       customerId: this.$route.query.customerId,
       pwd: '',
       pwdList: [],
-      customer1: ''
+      customer1: '',
+      value:'',
+      value1:'',
+      options:[],
+      options1:[],
+      feedBacks:'',
+      list:[]
     }
   },
   methods: {
@@ -204,6 +245,49 @@ export default {
       getServerUser().then(res => {
         this.customer1 = res.data
       })
+    },
+    sub(){
+      repairInfo({
+        deviceId: this.deviceId,
+        ruleId:this.value1,
+        description: this.feedBacks
+      }).then(res=>{
+        if(res.code == 200){
+          this.warranty = false
+          Toast({
+            mes: res.data,
+            timeout: 1500,
+            icon: 'success'
+          })
+          this.value = ''
+          this.value1= ''
+          this.feedBacks = ''
+        }
+      })
+    },
+    changes(val){
+      this.value1 =''
+      console.log(this.options1)
+      for(var i = 0;i<this.list.length;i++){
+        if( val == this.list[i].dictId){
+          this.options1 = Object.assign([], this.list[i].rules, [])
+        }
+      }
+    },
+    getRuleInfo() {
+      // 保修反馈
+        getRuleInfo().then(res => {
+          console.log(res.data)
+          if(res.code ==200){
+            this.list = res.data
+            for(var i = 0;i<this.list.length;i++){
+              this.options.push({"value":this.list[i].dictName,"id":this.list[i].dictId})
+            }
+            this.options1 = Object.assign([], this.list[0].rules, [])
+            // console.log(this.options1)
+            // console.log(this.options)
+            }
+        })
     },
     customMessage() {
       // 反馈意见
@@ -304,6 +388,7 @@ export default {
     }
   },
   created() {
+    this.getRuleInfo()
     this.getServerUser()
     Loading.open('很快加载好了')
     if (Store.fetch('screens')) {
