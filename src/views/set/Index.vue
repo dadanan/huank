@@ -187,11 +187,17 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
-import myUrl from 'common/js/api'
-import { editDevice } from '../wenkong/api'
-import Store from '../wenkong/store'
-import { getToken, getServerUser, customMessage , getRuleInfo ,repairInfo} from '../wenkong/api'
+import { Loading, Toast } from "vue-ydui/dist/lib.rem/dialog";
+import myUrl from "common/js/api";
+import { editDevice } from "../wenkong/api";
+import Store from "../wenkong/store";
+import {
+  getToken,
+  getServerUser,
+  customMessage,
+  getRuleInfo,
+  repairInfo
+} from "../wenkong/api";
 
 export default {
   data() {
@@ -201,106 +207,110 @@ export default {
       editDevFlag: false,
       customer: false,
       UserFeedBack: false,
-      warranty:false,
-      deviceName: '',
-      feedBack: '',
-      setDeviceName: '',
+      warranty: false,
+      deviceName: "",
+      feedBack: "",
+      setDeviceName: "",
       batteryList: [],
       setPwdFlag: false,
       deviceId: this.$route.query.deviceId,
       customerId: this.$route.query.customerId,
-      pwd: '',
+      pwd: "",
       pwdList: [],
-      customer1: '',
-      value:'',
-      value1:'',
-      options:[],
-      options1:[],
-      feedBacks:'',
-      list:[]
-    }
+      customer1: "",
+      value: "",
+      value1: "",
+      options: [],
+      options1: [],
+      feedBacks: "",
+      list: []
+    };
   },
   methods: {
     getToken() {
       // 高级设置Token
       getToken({
         customerId: this.customerId,
-        password: this.pwdList.join('')
+        password: this.pwdList.join("")
       })
         .then(res => {
           if (res.code === 200 && res.data) {
-            this.setPwdFlag = false
+            this.setPwdFlag = false;
             this.$router.push({
-              path: '/config',
+              path: "/config",
               query: {
                 deviceId: this.deviceId,
                 customerId: this.customerId
               }
-            })
-            Store.save('Token', res.data)
+            });
+            Store.save("Token", res.data);
           }
         })
         .catch(err => {
           Toast({
-            mes: '密码错误！',
+            mes: "密码错误！",
             timeout: 1500,
-            icon: 'success'
-          })
-        })
+            icon: "success"
+          });
+        });
     },
     getServerUser() {
       // 客服
       getServerUser().then(res => {
-        this.customer1 = res.data
-      })
+        this.customer1 = res.data;
+      });
     },
-    sub(){
+    sub() {
       repairInfo({
         deviceId: this.deviceId,
-        ruleId:this.value1,
+        ruleId: this.value1,
         description: this.feedBacks
-      }).then(res=>{
-        if(res.code == 200){
-          this.warranty = false
+      }).then(res => {
+        if (res.code == 200) {
+          this.warranty = false;
           Toast({
             mes: res.data,
             timeout: 1500,
-            icon: 'success'
-          })
-          this.value = ''
-          this.value1= ''
-          this.feedBacks = ''
+            icon: "success"
+          });
+          this.value = "";
+          this.value1 = "";
+          this.feedBacks = "";
         }
-      })
+      });
     },
-    changes(val){
-      this.value1 =''
-      console.log(this.options1)
-      for(var i = 0;i<this.list.length;i++){
-        if( val == this.list[i].dictId){
-          this.options1 = Object.assign([], this.list[i].rules, [])
+    changes(val) {
+      this.value1 = "";
+      for (var i = 0; i < this.list.length; i++) {
+        if (val == this.list[i].dictId) {
+          this.options1 = Object.assign([], this.list[i].rules, []);
         }
       }
     },
     getRuleInfo() {
       // 保修反馈
-        getRuleInfo().then(res => {
-          console.log(res.data)
-          if(res.code ==200){
-            this.list = res.data
-            for(var i = 0;i<this.list.length;i++){
-              this.options.push({"value":this.list[i].dictName,"id":this.list[i].dictId})
-            }
-            this.options1 = Object.assign([], this.list[0].rules, [])
-            // console.log(this.options1)
-            // console.log(this.options)
-            }
-        })
+      getRuleInfo().then(res => {
+        if (res.code == 200) {
+          if (!res.data) {
+            return;
+          }
+          this.list = res.data;
+          for (var i = 0; i < this.list.length; i++) {
+            this.options.push({
+              value: this.list[i].dictName,
+              id: this.list[i].dictId
+            });
+          }
+          this.options1 = Object.assign([], this.list[0].rules, []);
+          // console.log(this.options1)
+          // console.log(this.options)
+        }
+      });
     },
     customMessage() {
       // 反馈意见
       if (this.feedBack.length > 0 && this.feedBack.length < 100) {
-        this.UserFeedBack = false
+        this.UserFeedBack = false;
         customMessage({
           deviceId: this.deviceId,
           feedbackInfo: this.feedBack
@@ -308,64 +318,64 @@ export default {
           Toast({
             mes: res.data,
             timeout: 1500,
-            icon: 'success'
-          })
-        })
-      }else{
+            icon: "success"
+          });
+        });
+      } else {
         Toast({
-            mes: "填写字数在0-50之间，谢谢！",
-            timeout: 1500,
-            icon: 'error'
-          })
+          mes: "填写字数在0-50之间，谢谢！",
+          timeout: 1500,
+          icon: "error"
+        });
       }
     },
     returnMethod() {
-      this.$router.back(-1)
+      this.$router.back(-1);
     },
     intoShare() {
       this.$router.push({
-        path: '/share',
+        path: "/share",
         query: {
           deviceId: this.deviceId,
           customerId: this.customerId
         }
-      })
+      });
     },
     intoMap() {
       this.$router.push({
-        path: '/map',
+        path: "/map",
         query: {
           deviceId: this.deviceId,
           customerId: this.customerId
         }
-      })
+      });
     },
     intoPermissions() {
       this.$router.push({
-        path: '/permissions',
+        path: "/permissions",
         query: {
           deviceId: this.deviceId
         }
-      })
+      });
     },
     intoConfig() {
-      this.setPwdFlag = true
+      this.setPwdFlag = true;
     },
     intoBattery() {
       this.$router.push({
-        path: '/battery',
+        path: "/battery",
         query: {
           deviceId: this.deviceId
         }
-      })
+      });
     },
     intoData() {
       this.$router.push({
-        path: '/data',
+        path: "/data",
         query: {
           deviceId: this.deviceId
         }
-      })
+      });
     },
     record() {
       this.$router.push({
@@ -377,64 +387,64 @@ export default {
     },
 
     editDev() {
-      Loading.open('很快加载好了')
+      Loading.open("很快加载好了");
       editDevice({
         deviceId: this.deviceId,
         deviceName: this.setDeviceName
       })
         .then(res => {
           if (res.code === 200) {
-            Loading.close()
-            this.editDevFlag = false
-            Store.save('deviceName', this.setDeviceName)
-            this.deviceName = this.setDeviceName
+            Loading.close();
+            this.editDevFlag = false;
+            Store.save("deviceName", this.setDeviceName);
+            this.deviceName = this.setDeviceName;
           }
         })
         .catch(error => {
-          Loading.close()
-          this.$toast(error.msg, 'bottom')
-        })
+          Loading.close();
+          this.$toast(error.msg, "bottom");
+        });
     },
     intoInfo() {
       this.$router.push({
-        path: '/devinfo',
+        path: "/devinfo",
         query: {
           deviceId: this.deviceId
         }
-      })
+      });
     }
   },
   created() {
-    this.getRuleInfo()
-    this.getServerUser()
-    Loading.open('很快加载好了')
-    if (Store.fetch('screens')) {
-      this.batteryList = JSON.parse(Store.fetch('screens'))
+    this.getRuleInfo();
+    this.getServerUser();
+    Loading.open("很快加载好了");
+    if (Store.fetch("screens")) {
+      this.batteryList = JSON.parse(Store.fetch("screens"));
     }
     setTimeout(() => {
-      Loading.close()
-    }, 300)
+      Loading.close();
+    }, 300);
   },
   mounted() {
-    this.deviceName = Store.fetch('deviceName')
+    this.deviceName = Store.fetch("deviceName");
   },
   watch: {
     pwd: function() {
       if (this.pwd && this.pwd.length > 0) {
         if (this.pwd.length >= 4) {
-          this.pwd = this.pwd.slice(0, 4)
+          this.pwd = this.pwd.slice(0, 4);
         }
-        this.pwdList = this.pwd.split('')
+        this.pwdList = this.pwd.split("");
       } else {
-        this.pwdList = []
+        this.pwdList = [];
       }
     }
   }
-}
+};
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-@import 'src/common/scss/variable.scss';
-@import 'src/common/scss/mixins.scss';
+@import "src/common/scss/variable.scss";
+@import "src/common/scss/mixins.scss";
 .set-wrapper {
   position: absolute;
   width: 100%;
@@ -550,7 +560,7 @@ export default {
     .return {
       position: absolute;
       left: 0px;
-      background: url('../../assets/arr-left.png') no-repeat center center;
+      background: url("../../assets/arr-left.png") no-repeat center center;
       background-size: 8px 16px;
       width: 40px;
       height: 40px;
@@ -580,7 +590,7 @@ export default {
       &.border-bottom {
         padding-bottom: 15px;
         &::after {
-          content: '';
+          content: "";
           margin-left: 15px;
           position: absolute;
           z-index: 0;
@@ -605,10 +615,10 @@ export default {
         &::after {
           display: block;
           color: #c9c9c9;
-          content: '';
+          content: "";
           width: 8px;
           height: 15px;
-          background: url('../../assets/arr-right.png') no-repeat center center;
+          background: url("../../assets/arr-right.png") no-repeat center center;
           background-size: 8px 15px;
           position: absolute;
           right: 20px;

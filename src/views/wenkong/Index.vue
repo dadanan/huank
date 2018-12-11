@@ -383,7 +383,11 @@ export default {
       }
 
       // 主机状态初始化
-      if (this.formatItemsList[7] && this.formatItemsList[7].abilityId) {
+      if (
+        this.formatItemsList[7] &&
+        this.formatItemsList[7].showStatus &&
+        this.formatItemsList[7].abilityId
+      ) {
         const tempArray2 = this.abilitysList.filter(
           item => item.abilityId == this.formatItemsList[7].abilityId
         )[0].abilityOptionList;
