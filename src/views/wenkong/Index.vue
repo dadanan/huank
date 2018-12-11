@@ -443,6 +443,11 @@ export default {
       history.back();
     },
     modelClickedHandler(id, index) {
+      if (!this.isOpen) {
+        this.$toast("当前关机状态，不可操作", "bottom");
+        return;
+      }
+      
       if (index == 0) {
         // 如果用户唤起温度框
         this.temperatureVisible = true;
@@ -507,6 +512,10 @@ export default {
       });
     },
     functionClicked(item) {
+      if (!this.isOpen) {
+        this.$toast("当前关机状态，不可操作", "bottom");
+        return;
+      }
       this.sendFunc("210", item.optionValue, () => {
         Toast({
           mes: "指令发送成功",
@@ -811,7 +820,7 @@ export default {
     intiTime() {
       if (!this.isOpen) {
         this.$toast("当前关机状态，不可操作", "bottom");
-        return false;
+        return;
       }
       this.$router.push({
         path: "/timinglist",
