@@ -264,17 +264,18 @@ export default {
         return this.outerHum.replace('%', '')
       }
       const currData = this.getAbilityData(this.formatItemsList[14].abilityId)
+      console.log(currData)
       if (!currData) {
         if (!this.outerHum) {
           return ''
         }
         return this.outerHum.replace('%', '')
       }
-      const currValue = currData.currValue
+      // const currValue = currData.currValue
 
-      if (currValue && currValue !== '0') {
-        return currValue
-      }
+      // if (currValue && currValue !== '0') {
+      //   return currValue
+      // }
       if (!this.outerHum) {
         return ''
       }

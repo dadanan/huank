@@ -90,6 +90,14 @@
           <div class="cell-right"></div>
         </a>
       </div>
+      <!-- <div class="cell-item white" @click="record">
+        <a>
+          <div class="cell-left">
+            <span>反馈记录</span>
+          </div>
+          <div class="cell-right"></div>
+        </a>
+      </div> -->
     </div>
     <!-- 保修反馈 -->
     <div class="create-dialog dialog" v-if="warranty">
@@ -99,13 +107,13 @@
         </div>
         <div class="confim-content">
           <template>
-            <el-select v-model="value" placeholder="请选择"  style="width:135px" @change="changes">
+            <el-select v-model="value" placeholder="请选择"  style="width:125px" @change="changes">
               <el-option v-for="item in options" :key="item.id" :label="item.value" :value="item.id">
               </el-option>
             </el-select>
           </template>
           <template>
-            <el-select v-model="value1" placeholder="请选择"  style="width:135px">
+            <el-select v-model="value1" placeholder="请选择"  style="width:125px">
               <el-option v-for="item in options1" :key="item.value" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
@@ -359,6 +367,15 @@ export default {
         }
       })
     },
+    record() {
+      this.$router.push({
+        path: '/record',
+        query: {
+          deviceId: this.deviceId
+        }
+      })
+    },
+
     editDev() {
       Loading.open('很快加载好了')
       editDevice({
