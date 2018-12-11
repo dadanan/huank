@@ -35,7 +35,7 @@
           <p>
             负离子
           </p>
-          <p v-if='formatItemsList[6] && formatItemsList[6].abilityId' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[6].abilityId).currValue}}</p>
+          <p v-if='formatItemsList[6] && formatItemsList[6].abilityId' :class="{ active:  isOpen === true}" v-html='anion'></p>
           <p></p>
           <p>个/m³</p>
         </div>
@@ -172,6 +172,20 @@ export default {
     };
   },
   computed: {
+    anion() {
+      // 负离子数值处理
+      let number = Number(
+        this.getAbilityData(this.formatItemsList[6].abilityId).currValue
+      );
+      if (Number.isNaN(number)) {
+        return 0;
+      }
+      if (number < 10000) {
+        return number;
+      }
+      // 如果数值过万，精简显示：x.y万
+      return (number / 10000).toFixed(1) + "<em>万</em>";
+    },
     getOuterPM() {
       // 对应配置项被用作室内PM2.5，所以室外PM2.5直接返回第三方数据
       return this.outerPm;
@@ -894,9 +908,10 @@ export default {
     .box {
       width: 50%;
       display: flex;
-      justify-content: center;
+      justify-content: flex-end;
       align-items: center;
       .left {
+        width: 35px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -910,6 +925,7 @@ export default {
         }
       }
       .right {
+        width: 80px;
         margin-left: 10px;
         font-size: 25px;
         em {
@@ -932,3 +948,8 @@ export default {
 }
 </style>
 
+<style>
+div.center > div > div > p.active > em {
+  font-size: 14px;
+}
+</style>
