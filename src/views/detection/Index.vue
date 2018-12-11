@@ -649,6 +649,8 @@ export default {
   transition-timing-function: linear;
   background-repeat: no-repeat;
   background-size: cover;
+  display: flex;
+  flex-direction: column;
   .child-suo {
     z-index: 10;
     position: absolute;
@@ -888,7 +890,7 @@ export default {
     display: flex;
     flex-wrap: wrap;
     width: 90%;
-    margin: 60px auto auto auto;
+    margin: auto;
     .box {
       width: 50%;
       display: flex;
@@ -919,7 +921,7 @@ export default {
     .line {
       width: 50%;
       color: white;
-      margin: 20px 0;
+      margin: 10px 0;
       img {
         display: block;
         margin: auto;

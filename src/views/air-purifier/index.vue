@@ -13,7 +13,7 @@
       <div class="base-info-text">
         <span v-if='formatItemsList[12] && formatItemsList[12].showStatus'>
           <i class="iconfont icon-weizhi vam"></i> {{ location }}</span>
-        <span v-if='formatItemsList[13] && formatItemsList[13].showStatus'>{{ weather }} {{ getOuterTem }}</span>
+        <span v-if='formatItemsList[13] && formatItemsList[13].showStatus'>{{ weather }}&nbsp;&nbsp;{{ getOuterTem }}℃</span>
       </div>
       <div class="control-btn-group">
         <div class="btn" @click="show1 = true" v-if='formatItemsList[10] && formatItemsList[10].showStatus'>
@@ -150,43 +150,43 @@
 </template>
 
 <script>
-import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
-import { Switch } from 'vue-ydui/dist/lib.rem/switch'
-import { Popup } from 'vue-ydui/dist/lib.rem/popup'
-import { Spinner } from 'vue-ydui/dist/lib.rem/spinner'
-import img from '../../assets/bak4.jpg'
-import { setWechatTitle } from 'utils'
-import Store from '../wenkong/store'
+import { Loading, Toast } from "vue-ydui/dist/lib.rem/dialog";
+import { Switch } from "vue-ydui/dist/lib.rem/switch";
+import { Popup } from "vue-ydui/dist/lib.rem/popup";
+import { Spinner } from "vue-ydui/dist/lib.rem/spinner";
+import img from "../../assets/bak4.jpg";
+import { setWechatTitle } from "utils";
+import Store from "../wenkong/store";
 import {
   getModelVo,
   newQueryDetailByDeviceId,
   getLocation,
   getWeather,
   sendFunc
-} from '../wenkong/api'
-import { debug } from '@/utils/log'
-import img1 from '../../assets/bak3.jpg' // 白天阴
-import img2 from '../../assets/bak2.jpg' // 夜晚阴
-import img3 from '../../assets/bak1.jpg' // 夜晚晴
-import img4 from '../../assets/bak4.jpg' // 白天晴
+} from "../wenkong/api";
+import { debug } from "@/utils/log";
+import img1 from "../../assets/bak3.jpg"; // 白天阴
+import img2 from "../../assets/bak2.jpg"; // 夜晚阴
+import img3 from "../../assets/bak1.jpg"; // 夜晚晴
+import img4 from "../../assets/bak4.jpg"; // 白天晴
 
 export default {
   components: {
-    'yd-switch': Switch,
-    'yd-popup': Popup,
-    'yd-spinner': Spinner
+    "yd-switch": Switch,
+    "yd-popup": Popup,
+    "yd-spinner": Spinner
   },
   data() {
     return {
-      shutdown: '', // 关机
+      shutdown: "", // 关机
       cloudyDay: img1, // 阴天
       sunnyDay: img4, // 晴天
       cloudyNight: img2, // 夜晚阴
       sunnyNight: img3, // 夜晚晴
       img: img4,
-      jrSwitch: '0',
-      jsSwitch: '0',
-      jhSwitch: '0',
+      jrSwitch: "0",
+      jsSwitch: "0",
+      jhSwitch: "0",
       show1: false,
       pageIsShow: false,
       prePmSpinner: 0,
@@ -196,22 +196,22 @@ export default {
       isOpen: true,
       loopLoadTimeSet: null,
       once: true,
-      pageName: '',
+      pageName: "",
       formatItemsList: [],
       abilitysList: [],
-      location: '',
-      weather: '', // 天气
-      outerTem: '', // 温度
-      outerHum: '', // 湿度
-      outerPm: '', // PM2.5
+      location: "",
+      weather: "", // 天气
+      outerTem: "", // 温度
+      outerHum: "", // 湿度
+      outerPm: "", // PM2.5
       deviceId: this.$route.query.deviceId,
       wxDeviceId: this.$route.query.wxDeviceId,
       customerId: this.$route.query.customerId,
       setInter: undefined, // 定时器的id
       isOpen: false, // 开机状态？
       status: false, // 主机状态
-      theModeType: '0' // 当前模式 0：关机 1:自动模式 3: 手动模式
-    }
+      theModeType: "0" // 当前模式 0：关机 1:自动模式 3: 手动模式
+    };
   },
   computed: {
     puriEffic() {
@@ -220,91 +220,90 @@ export default {
        * (室内PM2.5 - 室外PM2.5)/室外PM2.5
        */
       if (!this.formatItemsList[8] || !this.formatItemsList[8].abilityId) {
-        return this.outerPm || 0
+        return this.outerPm || 0;
       }
       const interId =
-        this.formatItemsList[8] && this.formatItemsList[8].abilityId
+        this.formatItemsList[8] && this.formatItemsList[8].abilityId;
       if (interId === null) {
-        return 0
+        return 0;
       }
 
-      const interData = this.getAbilityData(this.formatItemsList[8].abilityId)
+      const interData = this.getAbilityData(this.formatItemsList[8].abilityId);
       if (!interData) {
-        return 0
+        return 0;
       }
 
-      const interPM = Number(interData.currValue)
-      const outerPM = Number(this.getOuterPM)
-      const result = Math.floor(((interPM - outerPM) / outerPM) * 100)
+      const interPM = Number(interData.currValue);
+      const outerPM = Number(this.getOuterPM);
+      const result = Math.floor(((interPM - outerPM) / outerPM) * 100);
       if (Number.isNaN(result)) {
         // 如果净化效率不是数字，说明上面某个数据里有字符串
         // 或者是负数的话，也0
-        return 0
+        return 0;
       }
-      return Math.abs(result)
+      return Math.abs(result);
     },
     getOuterPM() {
       if (!this.formatItemsList[7] || !this.formatItemsList[7].abilityId) {
-        return this.outerPm
+        return this.outerPm;
       }
       // 获取室外PM2.5 湿度 数据，如果室外传感器有值，就用。否则用第三方接口的
       const currValue = this.getAbilityData(this.formatItemsList[7].abilityId)
-        .currValue
-      if (currValue && currValue !== '0') {
-        return currValue
+        .currValue;
+      if (currValue && currValue !== "0") {
+        return currValue;
       }
-      return this.outerPm
+      return this.outerPm;
     },
     getOuterHum() {
       // 室外湿度
-      if (!this.formatItemsList[14] || !this.formatItemsList[14].abilityId) {
+      if (!this.formatItemsList[4] || !this.formatItemsList[4].abilityId) {
         if (!this.outerHum) {
-          return ''
+          return "";
         }
-        return this.outerHum.replace('%', '')
+        return this.outerHum.replace("%", "");
       }
-      const currData = this.getAbilityData(this.formatItemsList[14].abilityId)
-      console.log(currData)
+      const currData = this.getAbilityData(this.formatItemsList[4].abilityId);
       if (!currData) {
         if (!this.outerHum) {
-          return ''
+          return "";
         }
-        return this.outerHum.replace('%', '')
+        return this.outerHum.replace("%", "");
       }
-      // const currValue = currData.currValue
+      const currValue = currData.currValue;
 
-      // if (currValue && currValue !== '0') {
-      //   return currValue
-      // }
-      if (!this.outerHum) {
-        return ''
+      if (currValue && currValue !== "0") {
+        return currValue;
       }
-      return this.outerHum.replace('%', '')
+      if (!this.outerHum) {
+        return "";
+      }
+      return this.outerHum.replace("%", "");
     },
     getOuterTem() {
       // 室外温度
-      if (!this.formatItemsList[13] || !this.formatItemsList[13].abilityId) {
+      if (!this.formatItemsList[3] || !this.formatItemsList[3].abilityId) {
         if (!this.outerTem) {
-          return ''
+          return "";
         }
-        return this.outerTem.replace('℃', '')
+        return this.outerTem.replace("℃", "");
       }
-      const currData = this.getAbilityData(this.formatItemsList[13].abilityId)
+      const currData = this.getAbilityData(this.formatItemsList[3].abilityId);
       if (!currData) {
         if (!this.outerTem) {
-          return ''
+          return "";
         }
-        return this.outerTem.replace('℃', '')
+        return this.outerTem.replace("℃", "");
       }
-      const currValue = currData.currValue
+      const currValue = currData.currValue;
 
-      if (currValue && currValue !== '0') {
-        return currValue
+      if (currValue && currValue !== "0") {
+        return currValue;
       }
       if (!this.outerTem) {
-        return ''
+        return "";
       }
-      return this.outerTem.replace('℃', '')
+      return this.outerTem.replace("℃", "");
     }
   },
   methods: {
@@ -312,76 +311,76 @@ export default {
      * 型号功能项数据中存在模式数据？
      */
     hasModeData() {
-      const modeData = this.getAbilityDataByDirValue(210, '模式')
+      const modeData = this.getAbilityDataByDirValue(210, "模式");
       if (!modeData) {
-        debug('型号未添加「模式功能项」数据！')
-        return false
+        debug("型号未添加「模式功能项」数据！");
+        return false;
       }
-      const option = modeData.abilityOptionList
+      const option = modeData.abilityOptionList;
       if (!option) {
-        debug('模式功能项数据中没有选项数据！')
-        return false
+        debug("模式功能项数据中没有选项数据！");
+        return false;
       }
-      return true
+      return true;
     },
     /**
      * 切换手动/智能模式
      */
     changeMode() {
-      this.sendFunc(210, this.theModeType == '1' ? 3 : 1, () => {
-        this.theModeType = this.theModeType === '1' ? '3' : '1'
-      })
+      this.sendFunc(210, this.theModeType == "1" ? 3 : 1, () => {
+        this.theModeType = this.theModeType === "1" ? "3" : "1";
+      });
     },
     handleOpen() {
-      this.sendFunc('210', this.isOpen ? '0' : '1', () => {
-        this.isOpen = !this.isOpen
+      this.sendFunc("210", this.isOpen ? "0" : "1", () => {
+        this.isOpen = !this.isOpen;
         if (this.isOpen) {
           Toast({
-            mes: '开启成功',
+            mes: "开启成功",
             timeout: 1500,
-            icon: 'success'
-          })
+            icon: "success"
+          });
         } else {
           Toast({
-            mes: '关闭成功',
+            mes: "关闭成功",
             timeout: 1500,
-            icon: 'success'
-          })
+            icon: "success"
+          });
         }
-      })
+      });
     },
     handleSetting() {
       if (!this.isOpen) {
-        return
+        return;
       }
       this.$router.push({
-        path: '/set',
+        path: "/set",
         query: {
           deviceId: this.deviceId,
           wxDeviceId: this.wxDeviceId,
           customerId: this.customerId
         }
-      })
+      });
     },
     handleSwitch(code, value) {
-      if (this.theModeType === '1') {
+      if (this.theModeType === "1") {
         Toast({
-          mes: '智能模式下，禁止操作！',
+          mes: "智能模式下，禁止操作！",
           timeout: 1000
-        })
-        return
+        });
+        return;
       }
       if (!this.isOpen) {
         Toast({
-          mes: '设备已关机，禁止操作！',
+          mes: "设备已关机，禁止操作！",
           timeout: 1000
-        })
-        return
+        });
+        return;
       }
-      this.sendFunc(code, value == '0' ? '1' : '0')
+      this.sendFunc(code, value == "0" ? "1" : "0");
     },
     sendFunc(funcId, value, cb) {
-      Loading.open('发送中...')
+      Loading.open("发送中...");
       sendFunc({
         deviceId: this.$route.query.deviceId,
         funcId,
@@ -389,21 +388,21 @@ export default {
       })
         .then(res => {
           if (res.code == 200) {
-            Loading.close()
+            Loading.close();
             Toast({
-              mes: '发送成功',
+              mes: "发送成功",
               timeout: 1000,
-              icon: 'success'
-            })
-            console.log('指令发送成功', funcId, '-', value)
+              icon: "success"
+            });
+            console.log("指令发送成功", funcId, "-", value);
             if (cb) {
-              cb()
+              cb();
             }
           }
         })
         .catch(() => {
-          Loading.close()
-        })
+          Loading.close();
+        });
     },
     asyncSendFunc(code, value) {
       return new Promise((resolve, reject) => {
@@ -411,7 +410,7 @@ export default {
           deviceId: this.$route.query.deviceId,
           funcId: code,
           value: value
-        }
+        };
         sendFunc({
           deviceId: this.$route.query.deviceId,
           funcId: code,
@@ -419,85 +418,85 @@ export default {
         })
           .then(res => {
             if (res.code == 200) {
-              resolve()
+              resolve();
             }
           })
           .catch(e => {
-            reject(e)
-          })
-      })
+            reject(e);
+          });
+      });
     },
     handleSetFuncs() {
       Promise.all([
-        this.asyncSendFunc('2DD.0', this.preTemSpinner),
-        this.asyncSendFunc('2DE.0', this.preHumSpinner),
-        this.asyncSendFunc('2DF.0', this.prePmSpinner),
-        this.asyncSendFunc('2DG.0', this.preJhSpinner)
+        this.asyncSendFunc("2DD.0", this.preTemSpinner),
+        this.asyncSendFunc("2DE.0", this.preHumSpinner),
+        this.asyncSendFunc("2DF.0", this.prePmSpinner),
+        this.asyncSendFunc("2DG.0", this.preJhSpinner)
       ])
         .then(() => {
           Toast({
-            mes: '设置成功',
+            mes: "设置成功",
             timeout: 1500,
-            icon: 'success'
-          })
-          this.show1 = false
+            icon: "success"
+          });
+          this.show1 = false;
         })
         .catch(() => {
           Toast({
-            mes: '设置失败',
+            mes: "设置失败",
             timeout: 1500,
-            icon: 'fail'
-          })
-        })
+            icon: "fail"
+          });
+        });
     },
     getIndexAbilityData() {
       // 获取H5控制页面功能项数据，带isSelect参数
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
         if (res.code == 200 && res.data) {
-          const data = res.data
-          this.pageName = data.pageName
+          const data = res.data;
+          this.pageName = data.pageName;
 
           /**
            * 因为目前电子净化器版式中没有模式的配置项
            * 找到模式功能项，后续需要添加进查询接口数据列表中
            */
           data.abilitysList.forEach(item => {
-            if (item.dirValue == '210' && item.abilityName == '模式') {
+            if (item.dirValue == "210" && item.abilityName == "模式") {
               data.formatItemsList.push({
                 abilityId: item.abilityId,
                 showStatus: 1
-              })
+              });
             }
-          })
+          });
 
-          this.formatItemsList = data.formatItemsList
+          this.formatItemsList = data.formatItemsList;
 
           data.abilitysList.forEach(item => {
-            item['currValue'] = ''
-          })
-          this.abilitysList = data.abilitysList
+            item["currValue"] = "";
+          });
+          this.abilitysList = data.abilitysList;
 
           // 定时请求接口数据，更新页面数据
           this.setInter = setInterval(() => {
-            this.getIndexFormatData()
-            this.getWeather()
-          }, 2000)
+            this.getIndexFormatData();
+            this.getWeather();
+          }, 2000);
 
-          this.pageIsShow = true
+          this.pageIsShow = true;
         }
-      })
+      });
     },
     getIndexFormatData() {
       // 获取H5控制页面功能项数据，带isSelect参数
 
       // 根据功能项id筛选功能项
       const findTheAbility = (data, id) => {
-        return data.filter(item => item.id == id)[0]
-      }
+        return data.filter(item => item.id == id)[0];
+      };
 
       const ids = this.formatItemsList
         .filter(item => item.showStatus == 1 && item.abilityId)
-        .map(item => item.abilityId)
+        .map(item => item.abilityId);
 
       /**
        * 在后台型号未完善版式数据更新的逻辑前，先在代码层面处理添加新功能项的情况。
@@ -507,7 +506,7 @@ export default {
         deviceId: this.deviceId,
         abilityIds: ids
       }).then(res => {
-        const data = res.data
+        const data = res.data;
         // 将res.data中的isSelect和dirValue赋值过去
         this.abilitysList.forEach((item, index) => {
           // 如果有值，说明是温度功能项，讲数值拿过来
@@ -515,85 +514,85 @@ export default {
             // 找到对应的温度功能项对象
             const temp = this.abilitysList.filter(
               itemA => itemA.abilityId == data[index].id
-            )[0]
+            )[0];
             if (!data[index]) {
-              return
+              return;
             }
             try {
-              temp.currValue = data[index].currValue
+              temp.currValue = data[index].currValue;
             } catch (e) {
               // 怪异的错误，就算判断data[index]不为空，也会出现currValue of undefined错误～
             }
           }
           if (!item.abilityOptionList || item.abilityOptionList.length == 0) {
-            return
+            return;
           }
           item.abilityType !== 1 &&
             item.abilityOptionList.forEach((option, oIndex) => {
-              const result = findTheAbility(data, item.abilityId)
+              const result = findTheAbility(data, item.abilityId);
               if (result) {
                 const temp = Object.assign(
                   option,
                   result.abilityOptionList[oIndex]
-                )
+                );
               }
-            })
-        })
+            });
+        });
 
-        this.initHandler()
-        this.initSwitch()
-        this.initMode()
-      })
+        this.initHandler();
+        this.initSwitch();
+        this.initMode();
+      });
     },
     getLocation() {
       getLocation(this.deviceId).then(res => {
-        const data = res.data
+        const data = res.data;
 
         // 取地址的省市区信息
         if (data.location) {
-          let location = data.location.split(',')
-          location.pop()
-          location = location.filter(item => item).join(',')
-          this.location = location
+          let location = data.location.split(",");
+          location.pop();
+          location = location.filter(item => item).join(",");
+          this.location = location;
         }
         if (data.mapGps) {
-          Store.save('mapGps', data.mapGps)
+          Store.save("mapGps", data.mapGps);
         }
-      })
+      });
     },
     getWeather() {
       getWeather(this.deviceId).then(res => {
-        const data = res.data
+        const data = res.data;
 
-        this.weather = data.weather
-        this.outerTem = data.outerTem
-        this.outerPm = data.outerPm
-        this.outerHum = data.outerHum
+        this.weather = data.weather;
+        this.outerTem = data.outerTem;
+        this.outerPm = data.outerPm;
+        this.outerHum = data.outerHum;
 
-        this.setWeather()
-      })
+        this.setWeather();
+      });
     },
     getAbilityData(abilityId) {
       const result = this.abilitysList.filter(
         item => item.abilityId == abilityId
-      )[0]
-      return result
+      )[0];
+      return result;
     },
     getAbilityDataByDirValue(dirValue, abilityName) {
       const result = this.abilitysList.filter(
         item => item.dirValue == dirValue && item.abilityName == abilityName
-      )
-      return result && result[0]
+      );
+      return result && result[0];
     },
     setWeather() {
       // 当前天气模式
       if (!this.isOpen) {
-        this.img = this.shutdown
-        return
+        this.img = this.shutdown;
+        return;
       }
 
-      let currentBak = ''
-      let h = new Date().getHours() //获取当前小时
+      let currentBak = "";
+      let h = new Date().getHours(); //获取当前小时
       if (!this.weather) {
         //未返回值
         if (
@@ -601,15 +600,15 @@ export default {
           (parseInt(h) < 24 && parseInt(h) > 18)
         ) {
           //夜晚
-          currentBak = this.sunnyNight
+          currentBak = this.sunnyNight;
         } else {
           //白天
-          currentBak = this.sunnyDay
+          currentBak = this.sunnyDay;
         }
       } else {
         if (
-          this.weather.indexOf('雨') != -1 ||
-          this.weather.indexOf('阴') != -1
+          this.weather.indexOf("雨") != -1 ||
+          this.weather.indexOf("阴") != -1
         ) {
           //阴天
           if (
@@ -617,10 +616,10 @@ export default {
             (parseInt(h) < 24 && parseInt(h) > 18)
           ) {
             //夜晚
-            currentBak = this.cloudyNight
+            currentBak = this.cloudyNight;
           } else {
             //白天
-            currentBak = this.cloudyDay
+            currentBak = this.cloudyDay;
           }
         } else {
           if (
@@ -628,53 +627,53 @@ export default {
             (parseInt(h) < 24 && parseInt(h) > 18)
           ) {
             //夜晚
-            currentBak = this.sunnyNight
+            currentBak = this.sunnyNight;
           } else {
             //白天
-            currentBak = this.sunnyDay
+            currentBak = this.sunnyDay;
           }
         }
       }
-      this.img = currentBak
+      this.img = currentBak;
     },
     initHandler() {
       // 初始化下方三个按钮的状态
       if (this.formatItemsList[0]) {
         const temp = this.getAbilityData(this.formatItemsList[0].abilityId)
-          .abilityOptionList
+          .abilityOptionList;
 
-        const tempObj = temp[0].dirValue == 0 ? temp[0] : temp[1]
+        const tempObj = temp[0].dirValue == 0 ? temp[0] : temp[1];
         if (tempObj.isSelect == 1) {
           // 说明是关
-          this.jrSwitch = '0'
+          this.jrSwitch = "0";
         } else {
-          this.jrSwitch = '1'
+          this.jrSwitch = "1";
         }
       }
 
       if (this.formatItemsList[1]) {
         const temp = this.getAbilityData(this.formatItemsList[1].abilityId)
-          .abilityOptionList
+          .abilityOptionList;
 
-        const tempObj = temp[0].dirValue == 0 ? temp[0] : temp[1]
+        const tempObj = temp[0].dirValue == 0 ? temp[0] : temp[1];
         if (tempObj.isSelect == 1) {
           // 说明是关
-          this.jsSwitch = '0'
+          this.jsSwitch = "0";
         } else {
-          this.jsSwitch = '1'
+          this.jsSwitch = "1";
         }
       }
 
       if (this.formatItemsList[2]) {
         const temp = this.getAbilityData(this.formatItemsList[2].abilityId)
-          .abilityOptionList
+          .abilityOptionList;
 
-        const tempObj = temp[0].dirValue == 0 ? temp[0] : temp[1]
+        const tempObj = temp[0].dirValue == 0 ? temp[0] : temp[1];
         if (tempObj.isSelect == 1) {
           // 说明是关
-          this.jhSwitch = '0'
+          this.jhSwitch = "0";
         } else {
-          this.jhSwitch = '1'
+          this.jhSwitch = "1";
         }
       }
     },
@@ -682,90 +681,90 @@ export default {
       // 初始化开关的状态
       const tempArray = this.abilitysList.filter(
         item => item.abilityId == this.formatItemsList[11].abilityId
-      )[0].abilityOptionList
+      )[0].abilityOptionList;
 
       // 找到关机的对象
-      const tempObj = tempArray[0].dirValue == 0 ? tempArray[0] : tempArray[1]
+      const tempObj = tempArray[0].dirValue == 0 ? tempArray[0] : tempArray[1];
       if (tempObj.isSelect == 1) {
         // 说明是关机
-        this.isOpen = false
-        this.bg = null
+        this.isOpen = false;
+        this.bg = null;
       } else {
-        this.isOpen = true
-        this.bg = img
+        this.isOpen = true;
+        this.bg = img;
       }
     },
     initMode() {
       // 初始化模式：智能、手动
-      const modeData = this.getAbilityDataByDirValue(210, '模式')
+      const modeData = this.getAbilityDataByDirValue(210, "模式");
       if (!modeData) {
-        debug('型号未添加「模式功能项」数据！')
-        return
+        debug("型号未添加「模式功能项」数据！");
+        return;
       }
-      const option = modeData.abilityOptionList
+      const option = modeData.abilityOptionList;
       if (!option) {
-        debug('模式功能项数据中没有选项数据！')
-        return
+        debug("模式功能项数据中没有选项数据！");
+        return;
       }
       // 设备上传：选择了自动模式
-      let modeType = '0'
+      let modeType = "0";
       option.forEach(item => {
-        if (item.dirValue == '3' && item.isSelect) {
-          modeType = '3'
-        } else if (item.dirValue == '1' && item.isSelect) {
-          modeType = '1'
+        if (item.dirValue == "3" && item.isSelect) {
+          modeType = "3";
+        } else if (item.dirValue == "1" && item.isSelect) {
+          modeType = "1";
         }
-      })
+      });
 
-      this.theModeType = modeType
+      this.theModeType = modeType;
     },
     /**
      * 初始化背景图片
      * 如果客户设置的话，就用客户的；否则使用默认的
      */
     initBackground() {
-      const bgImgs = JSON.parse(Store.fetch('bgImgs'))
+      const bgImgs = JSON.parse(Store.fetch("bgImgs"));
       // 依次排列：关机，白天-晴天，白天-阴天，夜晚-晴天，夜晚-阴天
       if (bgImgs[0]) {
-        this.shutdown = bgImgs[0]
+        this.shutdown = bgImgs[0];
       }
       if (bgImgs[1]) {
-        this.sunnyDay = bgImgs[1]
+        this.sunnyDay = bgImgs[1];
       }
       if (bgImgs[2]) {
-        this.cloudyDay = bgImgs[2]
+        this.cloudyDay = bgImgs[2];
       }
       if (bgImgs[3]) {
-        this.sunnyNight = bgImgs[3]
+        this.sunnyNight = bgImgs[3];
       }
       if (bgImgs[4]) {
-        this.cloudyNight = bgImgs[4]
+        this.cloudyNight = bgImgs[4];
       }
     }
   },
   created() {
-    this.customerName = Store.fetch('customerName')
-    setWechatTitle(this.customerName, '')
+    this.customerName = Store.fetch("customerName");
+    setWechatTitle(this.customerName, "");
 
-    this.getIndexAbilityData()
-    this.getLocation()
-    this.getWeather()
-    this.initBackground()
+    this.getIndexAbilityData();
+    this.getLocation();
+    this.getWeather();
+    this.initBackground();
   },
   watch: {
     isOpen(val) {
       if (val) {
-        this.setWeather()
+        this.setWeather();
       } else {
         // 关机时，如果客户设置了关机图片就用，否则用默认背景
-        this.img = this.shutdown || ''
+        this.img = this.shutdown || "";
       }
     }
   },
   beforeDestroy() {
-    clearInterval(this.setInter)
+    clearInterval(this.setInter);
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -882,7 +881,7 @@ export default {
   i {
     height: 20px;
     width: 20px;
-    background: url('../../assets/set.png') no-repeat center center;
+    background: url("../../assets/set.png") no-repeat center center;
     background-size: 20px 20px;
   }
 }
@@ -945,17 +944,17 @@ export default {
 }
 
 .data-show-auto {
-  background: url('~assets/air-purifier-data-auto.png') no-repeat;
+  background: url("~assets/air-purifier-data-auto.png") no-repeat;
   background-size: contain;
 }
 
 .data-show-manual {
-  background: url('~assets/air-purifier-data-manual.png') no-repeat;
+  background: url("~assets/air-purifier-data-manual.png") no-repeat;
   background-size: contain;
 }
 
 .data-show-no-mode {
-  background: url('~assets/air-purifier-data-show-bg.png') no-repeat;
+  background: url("~assets/air-purifier-data-show-bg.png") no-repeat;
   background-size: contain;
 }
 
