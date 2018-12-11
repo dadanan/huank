@@ -921,7 +921,7 @@ export default {
     .line {
       width: 50%;
       color: white;
-      margin: 20px 0;
+      margin: 10px 0;
       img {
         display: block;
         margin: auto;
