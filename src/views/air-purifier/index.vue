@@ -257,13 +257,13 @@ export default {
     },
     getOuterHum() {
       // 室外湿度
-      if (!this.formatItemsList[14] || !this.formatItemsList[14].abilityId) {
+      if (!this.formatItemsList[4] || !this.formatItemsList[4].abilityId) {
         if (!this.outerHum) {
           return "";
         }
         return this.outerHum.replace("%", "");
       }
-      const currData = this.getAbilityData(this.formatItemsList[14].abilityId);
+      const currData = this.getAbilityData(this.formatItemsList[4].abilityId);
       if (!currData) {
         if (!this.outerHum) {
           return "";
@@ -282,13 +282,13 @@ export default {
     },
     getOuterTem() {
       // 室外温度
-      if (!this.formatItemsList[13] || !this.formatItemsList[13].abilityId) {
+      if (!this.formatItemsList[3] || !this.formatItemsList[3].abilityId) {
         if (!this.outerTem) {
           return "";
         }
         return this.outerTem.replace("℃", "");
       }
-      const currData = this.getAbilityData(this.formatItemsList[13].abilityId);
+      const currData = this.getAbilityData(this.formatItemsList[3].abilityId);
       if (!currData) {
         if (!this.outerTem) {
           return "";
