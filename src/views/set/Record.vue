@@ -2,79 +2,54 @@
   <div class="set-wrapper">
     <div class="header">
       <div class="return" @click="returnMethod"></div>
-      <span>设备信息</span>
+      <span>客户反馈记录</span>
     </div>
-    <div class="set-cell">
-      <div class="cell-item border-bottom">
-        <div class="cell-left"><span>设备ID</span></div>
-        <div class="cell-right none"><span>{{ id }}</span></div>
-      </div>
-      <div class="cell-item">
-        <div class="cell-left"><span>MAC地址</span></div>
-        <div class="cell-right none"><span>{{MAC}}</span></div>
-      </div>
-      <div class="cell-item">
-        <div class="cell-left"><span>硬件版本</span></div>
-        <div class="cell-right none"><span>{{hardVersion || '1.0'}}</span></div>
-      </div>
-      <div class="cell-item">
-        <div class="cell-left"><span>软件版本</span></div>
-        <div class="cell-right none"><span>{{softVersion || '1.0'}}</span></div>
-      </div>
-      <div class="cell-item">
-        <div class="cell-left"><span>设备支持</span></div>
-        <div class="cell-right none"><span>{{deviceSupport || '环可科技'}}</span></div>
-      </div>
-      <div class="cell-item">
-        <div class="cell-left"><span>软件支持</span></div>
-        <div class="cell-right none"><span>{{softSupport || '环可科技'}}</span></div>
-      </div>
-      <!-- <div class="cell-item">
-        <div class="cell-left"><span>IP地址</span></div>
-        <div class="cell-right none"><span>{{ ip }}</span></div>
-      </div>-->
+    <div class="record">
+      <el-table :data="tableData" border style="width: 100%">
+        <el-table-column prop="name" label="反馈标题">
+        </el-table-column>
+        <el-table-column prop="description" label="反馈内容">
+        </el-table-column>
+        <el-table-column prop="status" label="状态" >
+        </el-table-column>
+        <el-table-column prop="createTime" label="时间" >
+          <template slot-scope="scope">
+            {{new Date(scope.row.createTime).toLocaleString()}}
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-import { Loading } from 'vue-ydui/dist/lib.rem/dialog'
-import Store from '../wenkong/store'
+import Store from "../wenkong/store";
+import { getRepairInfoLog } from '../wenkong/api'
 
 export default {
   data() {
     return {
-      id: '',
-      MAC: '',
-      hardVersion: '',
-      softVersion: '',
-      deviceSupport: '',
-      softSupport: ''
-    }
+       tableData:[]
+    };
   },
   methods: {
     returnMethod() {
-      this.$router.back(-1)
+      this.$router.back(-1);
+    },
+    getRepairInfoLog(){
+      getRepairInfoLog({deviceId: this.$route.query.deviceId}).then(res=>{
+        this.tableData = res.data
+      })
     }
   },
   created() {
-    this.id = Store.fetch('wxDeviceId')
-    this.MAC = Store.fetch('MAC')
-    this.hardVersion = Store.fetch('hardVersion')
-    this.softVersion = Store.fetch('softVersion')
-    this.deviceSupport = Store.fetch('deviceSupport')
-    this.softSupport = Store.fetch('softSupport')
-
-    Loading.open('很快加载好了')
-    setTimeout(() => {
-      Loading.close()
-    }, 300)
+    this.getRepairInfoLog()
   }
-}
+};
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-@import 'src/common/scss/variable.scss';
-@import 'src/common/scss/mixins.scss';
+@import "src/common/scss/variable.scss";
+@import "src/common/scss/mixins.scss";
 .set-wrapper {
   position: absolute;
   width: 100%;
@@ -89,7 +64,7 @@ export default {
     .return {
       position: absolute;
       left: 0px;
-      background: url('../../assets/arr-left.png') no-repeat center center;
+      background: url("../../assets/arr-left.png") no-repeat center center;
       background-size: 8px 16px;
       width: 40px;
       height: 40px;
@@ -120,7 +95,7 @@ export default {
       &.border-bottom {
         padding-bottom: 15px;
         &::after {
-          content: '';
+          content: "";
           margin-left: 15px;
           position: absolute;
           z-index: 0;
@@ -145,10 +120,10 @@ export default {
         &::after {
           display: block;
           color: #c9c9c9;
-          content: '';
+          content: "";
           width: 8px;
           height: 15px;
-          background: url('../../assets/arr-right.png') no-repeat center center;
+          background: url("../../assets/arr-right.png") no-repeat center center;
           background-size: 8px 15px;
           position: absolute;
           right: 30px;
@@ -166,6 +141,11 @@ export default {
       }
     }
   }
+}
+.record{
+  width: 96%;
+  margin: auto;
+  padding: 20px 0px;
 }
 </style>
 
