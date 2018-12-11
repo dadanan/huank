@@ -31,7 +31,7 @@
     <div class='main'>
       <div>
         <h3>设定值</h3>
-        <h1 v-if='formatItemsList[4] && formatItemsList[4].abilityId'>{{getAbilityData(formatItemsList[4].abilityId).currValue}}</h1>
+        <h1>{{temNumber}}</h1>
         <h3 class='last'>℃</h3>
       </div>
     </div>
@@ -174,7 +174,6 @@ import img2 from "../../assets/bak2.jpg"; // 夜晚阴
 import img3 from "../../assets/bak1.jpg"; // 夜晚晴
 import img4 from "../../assets/bak4.jpg"; // 白天晴
 
-let hasSetTemperature = false; // 初始化时根据当前温度设置下「预设温度」的值
 let isInited = false; // 是否已经被初始化了
 
 export default {
@@ -346,21 +345,29 @@ export default {
       );
     },
     setTemperature() {
-      // 动态显示温度的值
+      // 动态初始化环境设置的温度、湿度数值
       if (
-        !this.formatItemsList[4] ||
-        hasSetTemperature ||
-        !this.formatItemsList[4].abilityId
+        !this.formatItemsList[0] ||
+        !this.formatItemsList[0].showStatus ||
+        !this.formatItemsList[0].abilityId
       ) {
         return;
       }
-      const ablityId = this.formatItemsList[4].abilityId;
-      const data = this.abilitysList.filter(
-        item => item.abilityId == ablityId
-      )[0];
 
-      this.temNumber = Number(data.currValue);
-      this.hasSetTemperature = true;
+      const ablityId = this.formatItemsList[0].abilityId.split(",");
+
+      ablityId.forEach(id => {
+        const ability = this.getAbilityData(id);
+        // 设置温度的数值
+        if (ability.dirValue === "2DD.0") {
+          this.temNumber = Number(ability.currValue);
+        }
+
+        // 设置湿度的数值
+        if (ability.dirValue === "2DE.0") {
+          this.humNumber = Number(ability.currValue);
+        }
+      });
     },
     switchHandler() {
       // 保证只初始化一次
@@ -447,7 +454,7 @@ export default {
         this.$toast("当前关机状态，不可操作", "bottom");
         return;
       }
-      
+
       if (index == 0) {
         // 如果用户唤起温度框
         this.temperatureVisible = true;
@@ -461,6 +468,9 @@ export default {
       this.sendFunc("2DD.0", this.temNumber);
     },
     reduceTem() {
+      if (this.temNumber <= 0) {
+        return;
+      }
       this.temNumber -= 1;
       this.sendFunc("2DD.0", this.temNumber);
     },
@@ -469,6 +479,9 @@ export default {
       this.sendFunc("2DE.0", this.humNumber);
     },
     reduceHum() {
+      if (this.humNumber <= 0) {
+        return;
+      }
       this.humNumber -= 1;
       this.sendFunc("2DE.0", this.humNumber);
     },
