@@ -261,7 +261,7 @@ export default {
         if (!this.outerHum) {
           return "";
         }
-        return this.outerHum.replace("%", "");
+        return this.outerHum.replace("%", "")
       }
       const currData = this.getAbilityData(this.formatItemsList[4].abilityId);
       if (!currData) {

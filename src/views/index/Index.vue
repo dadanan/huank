@@ -127,7 +127,8 @@
           <div v-if='hasRightWind()'>
             <p>
               <span>{{rightSpeedName}}</span>
-              <span>{{currentSpeedRightIndexLabel}}</span>
+              <span v-if="!isCycleSwitchOpen()">循环阀未打开，禁止操作此风机！</span>
+              <span v-if="isCycleSwitchOpen()">{{currentSpeedRightIndexLabel}}</span>
             </p>
             <div>
               <el-slider :disabled="!isCycleSwitchOpen()" v-model="currentSpeedRight" :step="rightStep()" @change='sliderChangedRight' show-stops :show-tooltip="false">
@@ -315,7 +316,7 @@ export default {
       return leftData.definedName || leftData.abilityName;
     },
     rightSpeedName() {
-      const name = "送风风速";
+      const name = "回风风速";
       if (!this.formatItemsList[2] || !this.formatItemsList[2].abilityId) {
         return name;
       }
@@ -346,7 +347,7 @@ export default {
         this.formatItemsList[3].abilityId,
         "func"
       );
-
+      // console.log(modelData)
       if (!modelData) {
         return false;
       }

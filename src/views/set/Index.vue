@@ -46,13 +46,21 @@
         <div class="cell-right">
         </div>
       </div>
-      <div class="cell-item white" @click="intoBattery">
+      <div class="cell-item white" @click="intoBattery" v-if="screen">
         <div class="cell-left">
           <span>滤芯寿命</span>
         </div>
         <div class="cell-right">
           <span></span>
         </div>
+      </div>
+      <div class="cell-item white" v-else>
+        <div class="cell-left">
+          <span>该设备没有滤网</span>
+        </div>
+        <!-- <div class="cell-right">
+          <span></span>
+        </div> -->
       </div>
       <div class="cell-item white" v-if="1===2">
         <div class="cell-left">
@@ -90,6 +98,14 @@
           <div class="cell-right"></div>
         </a>
       </div>
+      <div class="cell-item white" @click="record">
+        <a>
+          <div class="cell-left">
+            <span>反馈记录</span>
+          </div>
+          <div class="cell-right"></div>
+        </a>
+      </div>
     </div>
     <!-- 保修反馈 -->
     <div class="create-dialog dialog" v-if="warranty">
@@ -99,13 +115,13 @@
         </div>
         <div class="confim-content">
           <template>
-            <el-select v-model="value" placeholder="请选择" style="width:135px" @change="changes">
+            <el-select v-model="value" placeholder="请选择"  style="width:125px" @change="changes">
               <el-option v-for="item in options" :key="item.id" :label="item.value" :value="item.id">
               </el-option>
             </el-select>
           </template>
           <template>
-            <el-select v-model="value1" placeholder="请选择" style="width:135px">
+            <el-select v-model="value1" placeholder="请选择"  style="width:125px">
               <el-option v-for="item in options1" :key="item.value" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
@@ -114,6 +130,7 @@
         </div>
         <div class="confim-bottom">
           <div class="but1" @click="sub">确定</div>
+          <div class="but1" @click="warranty = false" style="margin-top:10px">取消</div>
         </div>
       </div>
     </div>
@@ -128,6 +145,7 @@
         </div>
         <div class="confim-bottom">
           <div class="but1" @click="customMessage">确定</div>
+          <div class="but1" @click="UserFeedBack = false" style="margin-top:10px">取消</div>
         </div>
       </div>
     </div>
@@ -181,7 +199,7 @@
 <script type="text/ecmascript-6">
 import { Loading, Toast } from "vue-ydui/dist/lib.rem/dialog";
 import myUrl from "common/js/api";
-import { editDevice } from "../wenkong/api";
+import { editDevice ,getModelVo} from "../wenkong/api";
 import Store from "../wenkong/store";
 import {
   getToken,
@@ -215,10 +233,26 @@ export default {
       options: [],
       options1: [],
       feedBacks: "",
-      list: []
+      list: [],
+      screen:false
     };
   },
   methods: {
+    getIndexAbilityData() {
+      // 获取H5控制页面功能项数据，带isSelect参数
+      getModelVo({ deviceId: this.$route.query.deviceId, pageNo: 1 }).then(
+        res => {
+          if (res.code === 200 && res.data) {
+            const data = res.data.abilitysList
+            for(var i = 0;i<data.length;i++){
+              if(data[i].abilityName == "滤网寿命"){
+                this.screen = true
+              }
+            }
+          }
+        }
+      )
+    },
     getToken() {
       // 高级设置Token
       getToken({
@@ -253,23 +287,31 @@ export default {
       });
     },
     sub() {
-      repairInfo({
-        deviceId: this.deviceId,
-        ruleId: this.value1,
-        description: this.feedBacks
-      }).then(res => {
-        if (res.code == 200) {
-          this.warranty = false;
-          Toast({
-            mes: res.data,
-            timeout: 1500,
-            icon: "success"
-          });
-          this.value = "";
-          this.value1 = "";
-          this.feedBacks = "";
-        }
-      });
+       if (this.feedBacks.length > 0 && this.feedBacks.length < 100) {
+        repairInfo({
+          deviceId: this.deviceId,
+          ruleId: this.value1,
+          description: this.feedBacks
+        }).then(res => {
+          if (res.code == 200) {
+            this.warranty = false;
+            Toast({
+              mes: res.data,
+              timeout: 1500,
+              icon: "success"
+            });
+            this.value = "";
+            this.value1 = "";
+            this.feedBacks = "";
+          }
+        });
+      }else {
+        Toast({
+          mes: "填写字数在0-50之间，谢谢！",
+          timeout: 1500,
+          icon: "error"
+        });
+      }
     },
     changes(val) {
       this.value1 = "";
@@ -294,8 +336,6 @@ export default {
             });
           }
           this.options1 = Object.assign([], this.list[0].rules, []);
-          // console.log(this.options1)
-          // console.log(this.options)
         }
       });
     },
@@ -369,6 +409,14 @@ export default {
         }
       });
     },
+    record() {
+      this.$router.push({
+        path: '/record',
+        query: {
+          deviceId: this.deviceId
+        }
+      })
+    },
     editDev() {
       Loading.open("很快加载好了");
       editDevice({
@@ -398,6 +446,7 @@ export default {
     }
   },
   created() {
+    this.getIndexAbilityData()
     this.getRuleInfo();
     this.getServerUser();
     Loading.open("很快加载好了");

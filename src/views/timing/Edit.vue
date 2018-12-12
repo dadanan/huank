@@ -43,8 +43,8 @@
       <yd-datetime type="time" v-model="afterTime" slot="right"></yd-datetime>
     </div>
     <div v-if='timer.type === 2' class="timing-but">
-      <span>策略</span>
-      <div class="but-group flex" style="width: 80%;">
+      <span style="float:left">策略</span>
+      <div class="but-group flex" style="width: 90%;">
         <button class="but" v-for='item in timeList' :key='item.value' :class="{ active : item.type === true }" @click="item.type = !item.type">{{item.name}}</button>
       </div>
     </div>

@@ -451,3 +451,14 @@ export function repairInfo(data) {
     headers: { Ticket: Store.fetch('Ticket') }
   })
 }
+
+// 客户反馈记录
+
+export function getRepairInfoLog(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/userFeedback/getRepairInfoLog`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
