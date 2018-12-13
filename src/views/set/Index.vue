@@ -284,28 +284,20 @@ export default {
       getToken({
         customerId: this.customerId,
         password: this.pwdList.join("")
-      })
-        .then(res => {
-          if (res.code === 200 && res.data) {
-            this.setPwdFlag = false;
-            this.$router.push({
-              path: "/config",
-              query: {
-                deviceId: this.deviceId,
-                customerId: this.customerId,
-                masterFormat: this.masterFormat
-              }
-            });
-            Store.save("Token", res.data);
-          }
-        })
-        .catch(err => {
-          Toast({
-            mes: "密码错误！",
-            timeout: 1500,
-            icon: "success"
+      }).then(res => {
+        if (res.code === 200 && res.data) {
+          this.setPwdFlag = false;
+          this.$router.push({
+            path: "/config",
+            query: {
+              deviceId: this.deviceId,
+              customerId: this.customerId,
+              masterFormat: this.masterFormat
+            }
           });
-        });
+          Store.save("Token", res.data);
+        }
+      });
     },
     getServerUser() {
       // 客服

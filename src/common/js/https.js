@@ -54,24 +54,7 @@ Axios.interceptors.request.use(
 Axios.interceptors.response.use(
   res => {
     if (res.data && res.data.code != 200) {
-      let message = '服务端异常！'
-      switch (res.data.code) {
-        case 400:
-          message = '错误请求'
-          break
-        case 404:
-          message = '请求错误,未找到该资源'
-          break
-        case 408:
-          message = '请求超时'
-          break
-        case 500:
-          message = '服务器端异常'
-          break
-        default:
-          message = `连接错误:${res.data.msg}`
-      }
-      Vue.prototype.$toast(message, 'bottom')
+      Vue.prototype.$toast(`连接错误:${res.data.msg}`, 'bottom')
       return Promise.reject(res.data)
     }
     return res.data

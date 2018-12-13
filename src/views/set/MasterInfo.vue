@@ -97,6 +97,7 @@ export default {
     const temp = Store.fetch("masterInfoAbility");
     try {
       this.abilityArray = JSON.parse(Store.fetch("masterInfoAbility"));
+      this.getRealTimeValue();
       this.setInter = setInterval(() => {
         this.getRealTimeValue();
       }, 4000);
