@@ -530,7 +530,7 @@ export default {
         wxDeviceId: child.wxDeviceId,
         deviceId: child.deviceId,
         customerId: this.customerId,
-        hasChildren: Boolean(child.childDeviceCount)
+        hasChildren: Boolean(child.childDeviceCount) ? 1 : 0
       };
 
       if (child.formatName === "电子净化器") {

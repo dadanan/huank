@@ -495,7 +495,7 @@ export default {
           deviceId: this.deviceId,
           wxDeviceId: this.wxDeviceId,
           customerId: this.customerId,
-          masterFormat: false, // 此版式不能作为主机版式
+          masterFormat: 0, // 此版式不能作为主机版式
           hasTwoAbility: this.hasTwoAbility()
         }
       });
@@ -509,9 +509,9 @@ export default {
       if (filter.length === 2) {
         // 如果两个功能项都存在
         Store.save("masterInfoAbility", JSON.stringify(filter));
-        return true;
+        return 1;
       }
-      return false;
+      return 0;
     },
     modelClicked(index, data, which) {
       if (which == 3) {

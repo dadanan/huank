@@ -246,7 +246,7 @@ export default {
     showAccordion() {
       // 显示从设备添加入口？
       // 如果从主设备版式（目前是新风版式）跳转过来，则显示；其他情况不显示
-      return this.$route.query.masterFormat;
+      return this.$route.query.masterFormat == 1;
     },
     goBack() {
       history.back();

@@ -651,7 +651,7 @@ export default {
           deviceId: this.deviceId,
           wxDeviceId: this.wxDeviceId,
           customerId: this.customerId,
-          masterFormat: true, // 可能作为主机（目前只有新风版式可以作为主机）
+          masterFormat: 1, // 可能作为主机（目前只有新风版式可以作为主机）
           hasChildren: query.hasChildren,
           hasTwoAbility: this.hasTwoAbility()
         }
@@ -666,9 +666,9 @@ export default {
       if (filter.length === 2) {
         // 如果两个功能项都存在
         Store.save("masterInfoAbility", JSON.stringify(filter));
-        return true;
+        return 1;
       }
-      return false;
+      return 0;
     },
     childMethod(type) {
       if (!this.isOpen && !type) {

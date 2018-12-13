@@ -33,7 +33,7 @@ export default {
      * 目前只有智慧新风可以作为主机
      */
     isMasterForamt() {
-      return !this.masterFormat;
+      return this.masterFormat == 0;
     },
     switchStatusHandler(item) {
       console.log(1, item);

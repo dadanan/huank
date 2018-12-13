@@ -251,12 +251,15 @@ export default {
     showMasterInfo() {
       // 展示主机开关和主机模式入口？
       // 需要：1.目前只能是新风版式跳转过来的 2.用户选择了这两个功能项 3.存在从机
-
-      if (this.masterFormat && this.hasChildren && this.hasTwoAbility) {
+      if (
+        this.masterFormat == 1 &&
+        this.hasChildren == 1 &&
+        this.hasTwoAbility == 1
+      ) {
         // 如果是主机版式需满足2,3
         return true;
       }
-      if (!this.masterFormat && this.hasTwoAbility) {
+      if (this.masterFormat == 0 && this.hasTwoAbility == 1) {
         // 如果不是主机版式需满足2
         return true;
       }
