@@ -36,8 +36,8 @@
                     <span v-if="loopValue === false">{{child.location && child.location.split(' ').map(str => str.split(',')).reduce((a, b) => a.concat(b),[]) .filter(s => s !== '')[0]}}</span>
                   </p>
                   <template v-if='child.hasOwnProperty("childId")'>
-                    <p>从设备ID:{{ child.childId }}</p>
-                    <p>主设备ID:{{child.masterDeviceId}}</p>
+                    <p><span>从设备ID:{{ child.childId }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span>主设备ID:{{child.masterDeviceId}}</span></p>
+                    <p>主机状态:{{child.hostPowerStatus ? '开' : '关'}}</p>
                   </template>
                   <template v-else>
                     <p>ID:{{ child.deviceId }}</p>
