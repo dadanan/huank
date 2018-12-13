@@ -7,7 +7,10 @@
     <div class="set-cell">
       <div class="cell-item" v-for='item in abilityArray' :key='item.id'>
         <div class="cell-left"><span>{{item.definedName || item.abilityName}}</span></div>
-        <el-switch v-model="item.status" @change="switchStatusHandler(item)" :disabled="isMasterForamt()"></el-switch>
+        <div>
+          <span v-if='item.dirValue=="2DR.0"'>{{item.status ? '制热' : '制冷'}}</span>
+          <el-switch v-model="item.status" @change="switchStatusHandler(item)" :disabled="isMasterForamt()"></el-switch>
+        </div>
       </div>
     </div>
   </div>
