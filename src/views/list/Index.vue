@@ -494,7 +494,8 @@ export default {
       const query = {
         wxDeviceId: child.wxDeviceId,
         deviceId: child.deviceId,
-        customerId: this.customerId
+        customerId: this.customerId,
+        hasChildren: Boolean(child.childDeviceCount)
       };
 
       if (child.formatName === "电子净化器") {

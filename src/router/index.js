@@ -11,8 +11,8 @@ const Init = resolve => require(['@/views/init/Init'], resolve)
 const TimingList = resolve => require(['@/views/timing/List'], resolve)
 const TimingEdet = resolve => require(['@/views/timing/Edit'], resolve)
 const Set = resolve => require(['@/views/set/Index'], resolve)
-const WenkongSet = resolve => require(['@/views/wenongSet/Index'], resolve)
 const DevInfo = resolve => require(['@/views/set/DevInfo'], resolve)
+const MasterInfo = resolve => require(['@/views/set/MasterInfo'], resolve)
 const Share = resolve => require(['@/views/set/Share'], resolve)
 const WKShare = resolve => require(['@/views/wenongSet/Share'], resolve)
 const Data = resolve => require(['@/views/set/Data'], resolve)
@@ -113,15 +113,15 @@ let routes = [
     }
   },
   {
-    path: '/wenkongset',
-    component: WenkongSet,
+    path: '/devinfo',
+    component: DevInfo,
     meta: {
       title: ''
     }
   },
   {
-    path: '/devinfo',
-    component: DevInfo,
+    path: '/masterinfo',
+    component: MasterInfo,
     meta: {
       title: ''
     }
