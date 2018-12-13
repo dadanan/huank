@@ -233,6 +233,8 @@ export default {
       deviceId: this.$route.query.deviceId,
       customerId: this.$route.query.customerId,
       masterFormat: this.$route.query.masterFormat,
+      hasChildren: this.$route.query.hasChildren,
+      hasTwoAbility: this.$route.query.hasTwoAbility,
       pwd: "",
       pwdList: [],
       customer1: "",
@@ -248,15 +250,17 @@ export default {
   computed: {
     showMasterInfo() {
       // 展示主机开关和主机模式入口？
-      // 需要：1. 目前只能是新风版式跳转过来的 2.用户选择了这两个功能项 3.存在从机
-      if (
-        !this.masterFormat ||
-        // !this.$route.query.hasChildren ||
-        !this.$route.query.hasTwoAbility
-      ) {
-        return false;
+      // 需要：1.目前只能是新风版式跳转过来的 2.用户选择了这两个功能项 3.存在从机
+
+      if (this.masterFormat && this.hasChildren && this.hasTwoAbility) {
+        // 如果是主机版式需满足2,3
+        return true;
       }
-      return true;
+      if (!this.masterFormat && this.hasTwoAbility) {
+        // 如果不是主机版式需满足2
+        return true;
+      }
+      return false;
     }
   },
   methods: {

@@ -420,8 +420,10 @@ export function customMessage(data) {
     url: `${BASE_URL}/api/h5/api/userFeedback/customMessage`,
     method: 'post',
     data,
-    headers: { Ticket: Store.fetch('Ticket'),
-    Authorization: Store.fetch('Token') }
+    headers: {
+      Ticket: Store.fetch('Ticket'),
+      Authorization: Store.fetch('Token')
+    }
   })
 }
 
@@ -453,10 +455,19 @@ export function repairInfo(data) {
 }
 
 // 客户反馈记录
-
 export function getRepairInfoLog(data) {
   return http({
     url: `${BASE_URL}/api/h5/api/userFeedback/getRepairInfoLog`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+
+// 设备组的开和关
+export function teamControl(data) {
+  return http({
+    url: `${BASE_URL}//api/h5/api/team/occ`,
     method: 'post',
     data,
     headers: { Ticket: Store.fetch('Ticket') }
