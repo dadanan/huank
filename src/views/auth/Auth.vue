@@ -13,7 +13,11 @@ export default {
   },
   methods: {
     authMethod() {
-      auth(Store.fetch("customerId"), getQueryString("code"))
+      // 因为如果用户来自扫描托管二维码，那么customerId就在路径参数里而不是Init.vue页面存储的
+      auth(
+        Store.fetch("customerId") || getQueryString("customerId"),
+        getQueryString("code")
+      )
         .then(res => {
           // 拿到微信openid
           Store.save("Ticket", res.data);
