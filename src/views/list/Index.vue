@@ -284,7 +284,6 @@ export default {
       })
         .then(res => {
           if (res.code === 200) {
-            console.log(res.data);
             Loading.close();
             this.teamNameFlag = false;
             this.teamList.forEach(item => {
@@ -337,7 +336,6 @@ export default {
         })
           .then(res => {
             if (res.code === 200) {
-              console.log(res.data);
               Toast({
                 mes: "分组成功",
                 timeout: 1500,

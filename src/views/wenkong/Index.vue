@@ -174,8 +174,6 @@ import img2 from "../../assets/bak2.jpg"; // 夜晚阴
 import img3 from "../../assets/bak1.jpg"; // 夜晚晴
 import img4 from "../../assets/bak4.jpg"; // 白天晴
 
-let isInited = false; // 是否已经被初始化了
-
 export default {
   data() {
     return {
@@ -370,10 +368,6 @@ export default {
       });
     },
     switchHandler() {
-      // 保证只初始化一次
-      if (isInited) {
-        return;
-      }
       // 开关机初始化
       const tempArray = this.abilitysList.filter(
         item => item.abilityId == this.formatItemsList[8].abilityId
@@ -408,8 +402,6 @@ export default {
           this.status = true;
         }
       }
-
-      isInited = true;
     },
     onOffMethod() {
       // 开关机
