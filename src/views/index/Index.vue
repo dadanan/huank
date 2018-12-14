@@ -644,14 +644,31 @@ export default {
       if (!this.isOpen) {
         return;
       }
+      const query = this.$route.query;
       this.$router.push({
         path: "/set",
         query: {
           deviceId: this.deviceId,
           wxDeviceId: this.wxDeviceId,
-          customerId: this.customerId
+          customerId: this.customerId,
+          masterFormat: 1, // 可能作为主机（目前只有新风版式可以作为主机）
+          hasChildren: query.hasChildren,
+          hasTwoAbility: this.hasTwoAbility()
         }
       });
+    },
+    hasTwoAbility() {
+      // 功能项数据中是否存在：主机模式(制冷制热)和主机开关，存在返回true
+      const dirValueArray = ["2D8.0", "2DR.0"];
+      const filter = this.abilitysList.filter(ability =>
+        dirValueArray.includes(ability.dirValue)
+      );
+      if (filter.length === 2) {
+        // 如果两个功能项都存在
+        Store.save("masterInfoAbility", JSON.stringify(filter));
+        return 1;
+      }
+      return 0;
     },
     childMethod(type) {
       if (!this.isOpen && !type) {

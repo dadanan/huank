@@ -6,6 +6,10 @@
           <img class='team-icon' :src="item.icon" />
           <span>{{item.teamName}}</span>
         </div>
+        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 150px;" v-show="groupFlag" @click="openTeam(item.teamId)">组开
+        </div>
+        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 120px;" v-show="groupFlag" @click="closeTeam(item.teamId)">组关
+        </div>
         <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 90px;" v-show="groupFlag" @click="OpenGroup(item)">编辑
         </div>
         <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 60px;" v-show="groupFlag" @click="deleteTeam(item.teamId)">删除
@@ -32,8 +36,8 @@
                     <span v-if="loopValue === false">{{child.location && child.location.split(' ').map(str => str.split(',')).reduce((a, b) => a.concat(b),[]) .filter(s => s !== '')[0]}}</span>
                   </p>
                   <template v-if='child.hasOwnProperty("childId")'>
-                    <p>从设备ID:{{ child.childId }}</p>
-                    <p>主设备ID:{{child.masterDeviceId}}</p>
+                    <p><span>从设备ID:{{ child.childId }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span>主设备ID:{{child.masterDeviceId}}</span></p>
+                    <p>主机状态:{{child.hostPowerStatus ? '开' : '关'}}</p>
                   </template>
                   <template v-else>
                     <p>ID:{{ child.deviceId }}</p>
@@ -166,7 +170,8 @@ import {
   share,
   childDeviceList,
   deleteDevice,
-  getBgImgs
+  getBgImgs,
+  teamControl
 } from "../wenkong/api";
 import Store from "../wenkong/store";
 
@@ -447,6 +452,36 @@ export default {
       this.teamNameFlag = true;
       this.groupInfo = Object.assign({}, obj);
     },
+    openTeam(teamId) {
+      // 小组设备全部开启
+      teamControl({
+        funcId: "210",
+        value: "1",
+        teamId
+      }).then(() => {
+        Toast({
+          mes: "组设备开启成功！",
+          timeout: 1500,
+          icon: "success"
+        });
+        this.obtainMyDevice();
+      });
+    },
+    closeTeam(teamId) {
+      // 小组设备全部关闭
+      teamControl({
+        funcId: "210",
+        value: "0",
+        teamId
+      }).then(() => {
+        Toast({
+          mes: "组设备关闭成功！",
+          timeout: 1500,
+          icon: "success"
+        });
+        this.obtainMyDevice();
+      });
+    },
     OpenDev(obj, id, type) {
       if (id + "") {
         this.currentTeamId = id;
@@ -494,7 +529,8 @@ export default {
       const query = {
         wxDeviceId: child.wxDeviceId,
         deviceId: child.deviceId,
-        customerId: this.customerId
+        customerId: this.customerId,
+        hasChildren: Boolean(child.childDeviceCount) ? 1 : 0
       };
 
       if (child.formatName === "电子净化器") {
@@ -556,15 +592,10 @@ export default {
                 icon: "success"
               });
             } else {
-              // Toast({
-              //   mes: '绑定失败！',
-              //   timeout: 1500
-              // })
               console.log("绑定失败：", res);
             }
             this.obtainMyDevice();
             // 绑定成功后，删除“绑定相关”数据
-
             Store.remove("obj");
           }
         })

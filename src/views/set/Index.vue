@@ -20,6 +20,13 @@
         <div class="cell-right">
         </div>
       </div>
+      <div v-if='showMasterInfo' class="cell-item border-bottom" @click="intoMasterInfo">
+        <div class="cell-left">
+          <span>主机信息</span>
+        </div>
+        <div class="cell-right">
+        </div>
+      </div>
 
       <div class="cell-item border-bottom" @click="intoShare">
         <div class="cell-left">
@@ -115,13 +122,13 @@
         </div>
         <div class="confim-content">
           <template>
-            <el-select v-model="value" placeholder="请选择"  style="width:125px" @change="changes">
+            <el-select v-model="value" placeholder="请选择" style="width:125px" @change="changes">
               <el-option v-for="item in options" :key="item.id" :label="item.value" :value="item.id">
               </el-option>
             </el-select>
           </template>
           <template>
-            <el-select v-model="value1" placeholder="请选择"  style="width:125px">
+            <el-select v-model="value1" placeholder="请选择" style="width:125px">
               <el-option v-for="item in options1" :key="item.value" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
@@ -199,7 +206,7 @@
 <script type="text/ecmascript-6">
 import { Loading, Toast } from "vue-ydui/dist/lib.rem/dialog";
 import myUrl from "common/js/api";
-import { editDevice ,getModelVo} from "../wenkong/api";
+import { editDevice, getModelVo } from "../wenkong/api";
 import Store from "../wenkong/store";
 import {
   getToken,
@@ -225,6 +232,9 @@ export default {
       setPwdFlag: false,
       deviceId: this.$route.query.deviceId,
       customerId: this.$route.query.customerId,
+      masterFormat: this.$route.query.masterFormat,
+      hasChildren: this.$route.query.hasChildren,
+      hasTwoAbility: this.$route.query.hasTwoAbility,
       pwd: "",
       pwdList: [],
       customer1: "",
@@ -234,8 +244,27 @@ export default {
       options1: [],
       feedBacks: "",
       list: [],
-      screen:false
+      screen: false
     };
+  },
+  computed: {
+    showMasterInfo() {
+      // 展示主机开关和主机模式入口？
+      // 需要：1.目前只能是新风版式跳转过来的 2.用户选择了这两个功能项 3.存在从机
+      if (
+        this.masterFormat == 1 &&
+        this.hasChildren == 1 &&
+        this.hasTwoAbility == 1
+      ) {
+        // 如果是主机版式需满足2,3
+        return true;
+      }
+      if (this.masterFormat == 0 && this.hasTwoAbility == 1) {
+        // 如果不是主机版式需满足2
+        return true;
+      }
+      return false;
+    }
   },
   methods: {
     getIndexAbilityData() {
@@ -243,42 +272,35 @@ export default {
       getModelVo({ deviceId: this.$route.query.deviceId, pageNo: 1 }).then(
         res => {
           if (res.code === 200 && res.data) {
-            const data = res.data.abilitysList
-            for(var i = 0;i<data.length;i++){
-              if(data[i].abilityName == "滤网寿命"){
-                this.screen = true
+            const data = res.data.abilitysList;
+            for (var i = 0; i < data.length; i++) {
+              if (data[i].abilityName == "滤网寿命") {
+                this.screen = true;
               }
             }
           }
         }
-      )
+      );
     },
     getToken() {
       // 高级设置Token
       getToken({
         customerId: this.customerId,
         password: this.pwdList.join("")
-      })
-        .then(res => {
-          if (res.code === 200 && res.data) {
-            this.setPwdFlag = false;
-            this.$router.push({
-              path: "/config",
-              query: {
-                deviceId: this.deviceId,
-                customerId: this.customerId
-              }
-            });
-            Store.save("Token", res.data);
-          }
-        })
-        .catch(err => {
-          Toast({
-            mes: "密码错误！",
-            timeout: 1500,
-            icon: "success"
+      }).then(res => {
+        if (res.code === 200 && res.data) {
+          this.setPwdFlag = false;
+          this.$router.push({
+            path: "/config",
+            query: {
+              deviceId: this.deviceId,
+              customerId: this.customerId,
+              masterFormat: this.masterFormat
+            }
           });
-        });
+          Store.save("Token", res.data);
+        }
+      });
     },
     getServerUser() {
       // 客服
@@ -287,7 +309,7 @@ export default {
       });
     },
     sub() {
-       if (this.feedBacks.length > 0 && this.feedBacks.length < 100) {
+      if (this.feedBacks.length > 0 && this.feedBacks.length < 100) {
         repairInfo({
           deviceId: this.deviceId,
           ruleId: this.value1,
@@ -305,7 +327,7 @@ export default {
             this.feedBacks = "";
           }
         });
-      }else {
+      } else {
         Toast({
           mes: "填写字数在0-50之间，谢谢！",
           timeout: 1500,
@@ -411,11 +433,11 @@ export default {
     },
     record() {
       this.$router.push({
-        path: '/record',
+        path: "/record",
         query: {
           deviceId: this.deviceId
         }
-      })
+      });
     },
     editDev() {
       Loading.open("很快加载好了");
@@ -443,10 +465,19 @@ export default {
           deviceId: this.deviceId
         }
       });
+    },
+    intoMasterInfo() {
+      this.$router.push({
+        path: "/masterinfo",
+        query: {
+          deviceId: this.deviceId,
+          masterFormat: this.masterFormat
+        }
+      });
     }
   },
   created() {
-    this.getIndexAbilityData()
+    this.getIndexAbilityData();
     this.getRuleInfo();
     this.getServerUser();
     Loading.open("很快加载好了");
