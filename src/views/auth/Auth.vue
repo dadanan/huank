@@ -3,8 +3,8 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { auth } from "../wenkong/api";
-import { getQueryString, trusteeTeam } from "utils";
+import { auth, trusteeTeam } from "../wenkong/api";
+import { getQueryString } from "utils";
 import Store from "../wenkong/store";
 
 export default {
