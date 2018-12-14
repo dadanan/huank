@@ -236,7 +236,7 @@ export default {
         isTopCold: false,
         isTopHot: false
       },
-      hasSetted: false // 保证一些数据每次进入页面只刷新一次。
+      hasSet: false // 保证一些数据每次进入页面只刷新一次。
     };
   },
   computed: {
@@ -350,7 +350,7 @@ export default {
     },
     setTemperature() {
       // 保证每次进入页面只初始化一次。不随newQuery接口定时刷新
-      if (this.hasSetted) {
+      if (this.hasSet) {
         return;
       }
       // 动态初始化环境设置的温度、湿度数值
@@ -376,7 +376,7 @@ export default {
           this.humNumber = Number(ability.currValue);
         }
       });
-      this.hasSetted = true;
+      this.hasSet = true;
     },
     switchHandler() {
       // 开关机初始化
@@ -697,10 +697,13 @@ export default {
         data.forEach((item, index) => {
           if (item.isSelect == 1) {
             this.currFunction = index;
+
             // 将模式的下标设置成致热
             modeData.abilityOptionList.forEach((item, index) => {
               if (item.optionValue === "2") {
                 this.modeCurrent = index;
+                this.modeCurrentLabel =
+                  item.optionDefinedName || item.optionName;
               }
             });
             // 启用对应图标
@@ -885,7 +888,7 @@ export default {
     this.getLocation();
     this.getWeather();
     this.initBackground();
-    this.hasSetted = false;
+    this.hasSet = false;
   },
   destroyed() {
     clearInterval(this.setInter);
@@ -1243,9 +1246,8 @@ export default {
   .right-side {
     position: fixed;
     width: tvw(600);
-    height: tvw(1072);
     right: tvw(100);
-    top: 28%;
+    top: 33.2%;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
