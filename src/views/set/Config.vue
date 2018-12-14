@@ -20,7 +20,7 @@
           <input type="text" placeholder="请输入用户名">
         </div>
       </yd-accordion-item> -->
-      <yd-accordion-item title="转速配置">
+      <yd-accordion-item title="转速配置" v-if="FsShow">
         <div class="ipt" slot="txt" style="color:#20aaf8; position: absolute; right: 30px;" @click="sendParamFunc(1)">保存</div>
         <div slot="txt" style="color:#20aaf8; position: absolute; right: 70px;" @click="sendParamFunc(2)">恢复默认</div>
         <div v-for="item in dirValueList1">
@@ -43,14 +43,14 @@
           </div>
         </div>
       </yd-accordion-item>
-      <yd-accordion-item title="智能逻辑设置">
-        <div style="padding: .24rem;">
+      <!-- <yd-accordion-item title="智能逻辑设置">
+        <div style="padding: .24rem;"> -->
           <!-- <p>岱宗夫如何，齐鲁青未了。</p>
           <p>造化钟神秀，阴阳割昏晓。</p>
           <p>荡胸生层云，决眦入归鸟。</p>
           <p>会当凌绝顶，一览众山小。</p> -->
-        </div>
-      </yd-accordion-item>
+        <!-- </div>
+      </yd-accordion-item> -->
       <yd-accordion-item title="智能算法设置">
         <div style="padding: .24rem;background: #f2f2f2; ">
           <yd-checkbox-group v-model="checkbox2">
@@ -235,6 +235,7 @@ export default {
       switch1: true,
       delDevFlag: false,
       addDevFlag: false,
+      FsShow:true,
       pwd: '',
       pwdList: [],
       childDeviceArray: [],
@@ -357,6 +358,9 @@ export default {
         .then(res => {
           Loading.close()
           this.dirValueList1 = res.data
+          if(this.dirValueList1.length == 0){
+            this.FsShow = false
+          }
           for (var i = 0; i < this.dirValueList.length; i++) {
             this.dirValueList1[i].abilityName = this.dirValueList[i].abilityName
           }
