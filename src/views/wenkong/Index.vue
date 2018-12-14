@@ -129,10 +129,14 @@
     </yd-popup>
     <yd-popup v-model="temperatureVisible" position="bottom" width="90%">
       <div class="content">
-        <div class="title">环境设定</div>
+        <div class="title">
+          <span>环境设定</span>
+          <span @click='confirmSetting'>确定</span>
+        </div>
         <div class="list">
           <div class='inside'>
             <div>
+              <span class='info'>温度</span>
               <img @click='reduceTem' src='@/assets/reduce.png'>
               <div>
                 <span class='number'>{{temNumber}}</span>
@@ -141,6 +145,7 @@
               <img @click='increaseTem' src='@/assets/add.png'>
             </div>
             <div>
+              <span class='info'>湿度</span>
               <img @click='reduceHum' src='@/assets/reduce.png'>
               <div>
                 <span class='number'>{{humNumber}}</span>
@@ -185,13 +190,13 @@ export default {
       img: img4,
       toolColor: {
         // 不同的天气下，小工具的背景颜色改变
-        cloudyDay: "#385994",
-        sunnyDay: "#0c9dd8",
-        cloudyNight: "#004696",
-        sunnyNight: "#383b89",
-        shutdown: "grey"
+        cloudyDay: "transparent",
+        sunnyDay: "transparent",
+        cloudyNight: "transparent",
+        sunnyNight: "transparent",
+        shutdown: "transparent"
       },
-      leftSideColor: "#205483",
+      leftSideColor: "transparent",
       modelVisible: false,
       windVisible: false,
       pageIsShow: false,
@@ -230,7 +235,8 @@ export default {
         isAuxiliaryHot: false,
         isTopCold: false,
         isTopHot: false
-      }
+      },
+      hasSetted: false // 保证一些数据每次进入页面只刷新一次。
     };
   },
   computed: {
@@ -343,6 +349,10 @@ export default {
       );
     },
     setTemperature() {
+      // 保证每次进入页面只初始化一次。不随newQuery接口定时刷新
+      if (this.hasSetted) {
+        return;
+      }
       // 动态初始化环境设置的温度、湿度数值
       if (
         !this.formatItemsList[0] ||
@@ -366,6 +376,7 @@ export default {
           this.humNumber = Number(ability.currValue);
         }
       });
+      this.hasSetted = true;
     },
     switchHandler() {
       // 开关机初始化
@@ -457,25 +468,27 @@ export default {
     },
     increaseTem() {
       this.temNumber += 1;
-      this.sendFunc("2DD.0", this.temNumber);
     },
     reduceTem() {
       if (this.temNumber <= 0) {
         return;
       }
       this.temNumber -= 1;
-      this.sendFunc("2DD.0", this.temNumber);
     },
+
     increaseHum() {
       this.humNumber += 1;
-      this.sendFunc("2DE.0", this.humNumber);
     },
     reduceHum() {
       if (this.humNumber <= 0) {
         return;
       }
       this.humNumber -= 1;
+    },
+    confirmSetting() {
+      this.sendFunc("2DD.0", this.temNumber);
       this.sendFunc("2DE.0", this.humNumber);
+      this.temperatureVisible = false;
     },
     intoSet() {
       if (!this.isOpen) {
@@ -872,6 +885,7 @@ export default {
     this.getLocation();
     this.getWeather();
     this.initBackground();
+    this.hasSetted = false;
   },
   destroyed() {
     clearInterval(this.setInter);
@@ -1112,6 +1126,9 @@ export default {
       font-size: 16px;
       padding-bottom: 10px;
       border-bottom: 1px solid #dfdfdf;
+      span:last-child {
+        float: right;
+      }
     }
     .list {
       & ul li {
@@ -1160,6 +1177,11 @@ export default {
             width: tvw(141);
             height: tvw(141);
           }
+          .info {
+            margin: 0;
+            margin-right: 30px;
+            color: grey;
+          }
         }
       }
     }
@@ -1190,7 +1212,7 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: space-around;
-    background: #217dea;
+    background: transparent;
     opacity: 0.9;
     border-radius: 0 3vw 3vw 0;
     > div {
