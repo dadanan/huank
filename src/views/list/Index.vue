@@ -1,7 +1,7 @@
 <template>
   <div class="list-wrapper">
     <yd-accordion style="position: relative;padding-bottom: 50px;" v-if="teamList.length">
-      <yd-accordion-item open="open" v-for="(item,index) in teamList" :key="index" v-swipeleft="swipeTeamLeft">
+      <yd-accordion-item open="open" v-for="(item,index) in teamList" :key="index" v-swipeleft="swipeTeamLeft" v-swiperight="swipeTeamRight">
         <div slot="title">
           <img class='team-icon' :src="item.icon" />
           <span>{{item.teamName}}</span>
@@ -270,6 +270,9 @@ export default {
     },
     swipeTeamLeft(s, e) {
       this.groupFlag = true;
+    },
+    swipeTeamRight(s,e){
+      this.groupFlag = false;
     },
     returnMethod() {
       this.$router.back(-1);
