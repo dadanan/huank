@@ -467,7 +467,17 @@ export function getRepairInfoLog(data) {
 // 设备组的开和关
 export function teamControl(data) {
   return http({
-    url: `${BASE_URL}//api/h5/api/team/occ`,
+    url: `${BASE_URL}/api/h5/api/team/occ`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+
+// 设备组的开和关
+export function trusteeTeam(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/team/trusteeTeam`,
     method: 'post',
     data,
     headers: { Ticket: Store.fetch('Ticket') }
