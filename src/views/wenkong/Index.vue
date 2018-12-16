@@ -13,9 +13,9 @@
       <span v-show='formatItemsList[12] && formatItemsList[12].showStatus'>PM2.5: {{outerPm}}ug/m3</span>
     </div>
     <div class='switch'>
-      <div v-show='formatItemsList[7] && formatItemsList[7].showStatus'>
+      <div v-show='formatItemsList[7] && formatItemsList[7].showStatus && formatItemsList[7].abilityId'>
         <div class='left'>
-          <img src='@/assets/wenkong/host-status-open.png' v-if='status'>
+          <img src='@/assets/wenkong/host-status-open.png' v-if='hostIsOpen()'>
           <img src='@/assets/wenkong/host-status-close.png' v-else>
         </div>
         <p>{{formatItemsList[7] && formatItemsList[7].showName}}</p>
@@ -224,8 +224,10 @@ export default {
       outerHum: "", // 湿度
       outerPm: "", // PM2.5
       deviceId: this.$route.query.deviceId,
-      wxDeviceId: this.$route.query.wxDeviceId,
+      deviceId: this.$route.query.deviceId,
+      masterDeviceId: this.$route.query.masterDeviceId,
       customerId: this.$route.query.customerId,
+      hostPowerStatus: this.$route.query.hostPowerStatus,
       setInter: undefined, // 定时器的id
       isOpen: null, // 开机状态？
       status: true, // 主机状态
@@ -270,6 +272,21 @@ export default {
   },
   methods: {
     /**
+     * 温控器的主机，目前正在开机状态
+     * 如果用户选择了‘主机状态功能项’，获取它的主机的‘主机状态功能项’的值
+     */
+    hostIsOpen() {
+      if (
+        !this.formatItemsList[7] ||
+        !this.formatItemsList[7].showStatus ||
+        !this.formatItemsList[7].abilityId
+      ) {
+        return false;
+      }
+      // 从路径参数中获取传过来的主机状态值
+      return this.hostPowerStatus == 1;
+    },
+    /**
      * 用户配置了打开了次级模式并且配置了数据?
      */
     hasOptionalFunction() {
@@ -298,7 +315,7 @@ export default {
       const option = data.abilityOptionList;
       let value = option[index].optionValue;
       // 如果是致热模式，默认打开选项值为6的次级模式
-      if (value == "2") {
+      if (value == "4") {
         if (this.hasOptionalFunction()) {
           value = 41;
         }
@@ -700,7 +717,7 @@ export default {
 
             // 将模式的下标设置成致热
             modeData.abilityOptionList.forEach((item, index) => {
-              if (item.optionValue === "2") {
+              if (item.optionValue === "4") {
                 this.modeCurrent = index;
                 this.modeCurrentLabel =
                   item.optionDefinedName || item.optionName;
@@ -756,7 +773,7 @@ export default {
       });
     },
     getWeather() {
-      getWeather(this.deviceId).then(res => {
+      getWeather(this.masterDeviceId).then(res => {
         const data = res.data;
 
         this.weather = data.weather;

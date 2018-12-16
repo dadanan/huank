@@ -527,6 +527,8 @@ export default {
         wxDeviceId: child.wxDeviceId,
         deviceId: child.deviceId || child.id,
         customerId: this.customerId,
+        masterDeviceId: child.masterDeviceId,
+        hostPowerStatus: child.hostPowerStatus,
         hasChildren: Boolean(child.childDeviceCount) ? 1 : 0
       };
 
