@@ -13,9 +13,9 @@
       <span v-show='formatItemsList[12] && formatItemsList[12].showStatus'>PM2.5: {{outerPm}}ug/m3</span>
     </div>
     <div class='switch'>
-      <div v-show='formatItemsList[7] && formatItemsList[7].showStatus'>
+      <div v-show='formatItemsList[7] && formatItemsList[7].showStatus && formatItemsList[7].abilityId'>
         <div class='left'>
-          <img src='@/assets/wenkong/host-status-open.png' v-if='status'>
+          <img src='@/assets/wenkong/host-status-open.png' v-if='hostIsOpen()'>
           <img src='@/assets/wenkong/host-status-close.png' v-else>
         </div>
         <p>{{formatItemsList[7] && formatItemsList[7].showName}}</p>
@@ -129,10 +129,14 @@
     </yd-popup>
     <yd-popup v-model="temperatureVisible" position="bottom" width="90%">
       <div class="content">
-        <div class="title">环境设定</div>
+        <div class="title">
+          <span>环境设定</span>
+          <span @click='confirmSetting'>确定</span>
+        </div>
         <div class="list">
           <div class='inside'>
             <div>
+              <span class='info'>温度</span>
               <img @click='reduceTem' src='@/assets/reduce.png'>
               <div>
                 <span class='number'>{{temNumber}}</span>
@@ -141,6 +145,7 @@
               <img @click='increaseTem' src='@/assets/add.png'>
             </div>
             <div>
+              <span class='info'>湿度</span>
               <img @click='reduceHum' src='@/assets/reduce.png'>
               <div>
                 <span class='number'>{{humNumber}}</span>
@@ -174,8 +179,6 @@ import img2 from "../../assets/bak2.jpg"; // 夜晚阴
 import img3 from "../../assets/bak1.jpg"; // 夜晚晴
 import img4 from "../../assets/bak4.jpg"; // 白天晴
 
-let isInited = false; // 是否已经被初始化了
-
 export default {
   data() {
     return {
@@ -187,13 +190,13 @@ export default {
       img: img4,
       toolColor: {
         // 不同的天气下，小工具的背景颜色改变
-        cloudyDay: "#385994",
-        sunnyDay: "#0c9dd8",
-        cloudyNight: "#004696",
-        sunnyNight: "#383b89",
-        shutdown: "grey"
+        cloudyDay: "transparent",
+        sunnyDay: "transparent",
+        cloudyNight: "transparent",
+        sunnyNight: "transparent",
+        shutdown: "transparent"
       },
-      leftSideColor: "#205483",
+      leftSideColor: "transparent",
       modelVisible: false,
       windVisible: false,
       pageIsShow: false,
@@ -221,8 +224,10 @@ export default {
       outerHum: "", // 湿度
       outerPm: "", // PM2.5
       deviceId: this.$route.query.deviceId,
-      wxDeviceId: this.$route.query.wxDeviceId,
+      deviceId: this.$route.query.deviceId,
+      masterDeviceId: this.$route.query.masterDeviceId,
       customerId: this.$route.query.customerId,
+      hostPowerStatus: this.$route.query.hostPowerStatus,
       setInter: undefined, // 定时器的id
       isOpen: null, // 开机状态？
       status: true, // 主机状态
@@ -232,7 +237,8 @@ export default {
         isAuxiliaryHot: false,
         isTopCold: false,
         isTopHot: false
-      }
+      },
+      hasSet: false // 保证一些数据每次进入页面只刷新一次。
     };
   },
   computed: {
@@ -266,6 +272,21 @@ export default {
   },
   methods: {
     /**
+     * 温控器的主机，目前正在开机状态
+     * 如果用户选择了‘主机状态功能项’，获取它的主机的‘主机状态功能项’的值
+     */
+    hostIsOpen() {
+      if (
+        !this.formatItemsList[7] ||
+        !this.formatItemsList[7].showStatus ||
+        !this.formatItemsList[7].abilityId
+      ) {
+        return false;
+      }
+      // 从路径参数中获取传过来的主机状态值
+      return this.hostPowerStatus == 1;
+    },
+    /**
      * 用户配置了打开了次级模式并且配置了数据?
      */
     hasOptionalFunction() {
@@ -294,7 +315,7 @@ export default {
       const option = data.abilityOptionList;
       let value = option[index].optionValue;
       // 如果是致热模式，默认打开选项值为6的次级模式
-      if (value == "2") {
+      if (value == "4") {
         if (this.hasOptionalFunction()) {
           value = 41;
         }
@@ -345,6 +366,10 @@ export default {
       );
     },
     setTemperature() {
+      // 保证每次进入页面只初始化一次。不随newQuery接口定时刷新
+      if (this.hasSet) {
+        return;
+      }
       // 动态初始化环境设置的温度、湿度数值
       if (
         !this.formatItemsList[0] ||
@@ -368,12 +393,9 @@ export default {
           this.humNumber = Number(ability.currValue);
         }
       });
+      this.hasSet = true;
     },
     switchHandler() {
-      // 保证只初始化一次
-      if (isInited) {
-        return;
-      }
       // 开关机初始化
       const tempArray = this.abilitysList.filter(
         item => item.abilityId == this.formatItemsList[8].abilityId
@@ -408,8 +430,6 @@ export default {
           this.status = true;
         }
       }
-
-      isInited = true;
     },
     onOffMethod() {
       // 开关机
@@ -465,25 +485,27 @@ export default {
     },
     increaseTem() {
       this.temNumber += 1;
-      this.sendFunc("2DD.0", this.temNumber);
     },
     reduceTem() {
       if (this.temNumber <= 0) {
         return;
       }
       this.temNumber -= 1;
-      this.sendFunc("2DD.0", this.temNumber);
     },
+
     increaseHum() {
       this.humNumber += 1;
-      this.sendFunc("2DE.0", this.humNumber);
     },
     reduceHum() {
       if (this.humNumber <= 0) {
         return;
       }
       this.humNumber -= 1;
+    },
+    confirmSetting() {
+      this.sendFunc("2DD.0", this.temNumber);
       this.sendFunc("2DE.0", this.humNumber);
+      this.temperatureVisible = false;
     },
     intoSet() {
       if (!this.isOpen) {
@@ -692,10 +714,13 @@ export default {
         data.forEach((item, index) => {
           if (item.isSelect == 1) {
             this.currFunction = index;
+
             // 将模式的下标设置成致热
             modeData.abilityOptionList.forEach((item, index) => {
-              if (item.optionValue === "2") {
+              if (item.optionValue === "4") {
                 this.modeCurrent = index;
+                this.modeCurrentLabel =
+                  item.optionDefinedName || item.optionName;
               }
             });
             // 启用对应图标
@@ -748,7 +773,7 @@ export default {
       });
     },
     getWeather() {
-      getWeather(this.deviceId).then(res => {
+      getWeather(this.masterDeviceId).then(res => {
         const data = res.data;
 
         this.weather = data.weather;
@@ -880,6 +905,7 @@ export default {
     this.getLocation();
     this.getWeather();
     this.initBackground();
+    this.hasSet = false;
   },
   destroyed() {
     clearInterval(this.setInter);
@@ -1120,6 +1146,9 @@ export default {
       font-size: 16px;
       padding-bottom: 10px;
       border-bottom: 1px solid #dfdfdf;
+      span:last-child {
+        float: right;
+      }
     }
     .list {
       & ul li {
@@ -1168,6 +1197,11 @@ export default {
             width: tvw(141);
             height: tvw(141);
           }
+          .info {
+            margin: 0;
+            margin-right: 30px;
+            color: grey;
+          }
         }
       }
     }
@@ -1198,7 +1232,7 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: space-around;
-    background: #217dea;
+    background: transparent;
     opacity: 0.9;
     border-radius: 0 3vw 3vw 0;
     > div {
@@ -1229,9 +1263,8 @@ export default {
   .right-side {
     position: fixed;
     width: tvw(600);
-    height: tvw(1072);
     right: tvw(100);
-    top: 28%;
+    top: 33.2%;
     display: flex;
     flex-wrap: wrap;
     align-items: center;

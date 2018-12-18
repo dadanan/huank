@@ -287,7 +287,6 @@ export default {
       })
         .then(res => {
           if (res.code === 200) {
-            console.log(res.data);
             Loading.close();
             this.teamNameFlag = false;
             this.teamList.forEach(item => {
@@ -340,7 +339,6 @@ export default {
         })
           .then(res => {
             if (res.code === 200) {
-              console.log(res.data);
               Toast({
                 mes: "分组成功",
                 timeout: 1500,
@@ -532,6 +530,8 @@ export default {
         wxDeviceId: child.wxDeviceId,
         deviceId: child.deviceId || child.id,
         customerId: this.customerId,
+        masterDeviceId: child.masterDeviceId,
+        hostPowerStatus: child.hostPowerStatus,
         hasChildren: Boolean(child.childDeviceCount) ? 1 : 0
       };
 

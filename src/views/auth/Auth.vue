@@ -3,79 +3,56 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { auth } from '../wenkong/api'
-import { getQueryString } from 'utils'
-import Store from '../wenkong/store'
+import { auth, trusteeTeam } from "../wenkong/api";
+import { getQueryString } from "utils";
+import Store from "../wenkong/store";
 
 export default {
   created() {
-    this.authMethod()
+    this.authMethod();
   },
   methods: {
     authMethod() {
-      auth(Store.fetch('customerId'), getQueryString('code'))
+      // 因为如果用户来自扫描托管二维码，那么customerId就在路径参数里而不是Init.vue页面存储的
+      auth(
+        Store.fetch("customerId") || getQueryString("customerId"),
+        getQueryString("code")
+      )
         .then(res => {
           // 拿到微信openid
-          Store.save('Ticket', res.data)
+          Store.save("Ticket", res.data);
+          // 如果参数中有teamId，说明用户是扫设备组的托管二维码进来的，那么调用托管组接口
+          if (getQueryString("teamId")) {
+            this.trusteeTeam(getQueryString("teamId"), res.data);
+          }
           this.$router.push({
-            path: '/list',
+            path: "/list",
             query: {
-              customerId: Store.fetch('customerId')
+              customerId: Store.fetch("customerId")
             }
-          })
+          });
         })
         .catch(err => {
-          console.error('auth-error-->', err)
-        })
+          console.error("auth-error-->", err);
+        });
     },
-    getAppId(id) {
-      appid({
-        value: id
+    /**
+     * teamId: 设备组id
+     * openId: 用户关注公众号后产生的openId
+     */
+    trusteeTeam(teamId, openId) {
+      trusteeTeam({
+        teamId,
+        openId
       }).then(res => {
-        // 用拿到appid，换微信code
-        this.redireact(res.data)
-      })
-    },
-    redireact(id) {
-      let baseUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize'
-      let params = {
-        appid: id,
-        redirect_uri: this.GLOBAL.redUrl,
-        response_type: 'code',
-        scope: 'snsapi_userinfo',
-        state: 'STATE#wechat_redirect'
-      }
-      if (getQueryString('masterOpenId')) {
-        console.log('query', getQueryString('masterOpenId'))
-        // 从分享进入,存储分享人信息
-        let obj = {
-          deviceId: getQueryString('deviceId'),
-          masterOpenId: getQueryString('masterOpenId'),
-          token: getQueryString('token'),
-          customerId: getQueryString('customerId')
-        }
-        Store.save('obj', JSON.stringify(obj))
-      }
-
-      let redirectUrl =
-        baseUrl +
-        '?appid=' +
-        params.appid +
-        '&redirect_uri=' +
-        params.redirect_uri +
-        '&response_type=' +
-        params.response_type +
-        '&scope=' +
-        params.scope +
-        '&state=' +
-        params.state
-      window.location.href = redirectUrl
+        console.log("设备组托管成功！");
+      });
     }
   }
-}
+};
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-@import 'src/common/scss/variable.scss';
-@import 'src/common/scss/mixins.scss';
+@import "src/common/scss/variable.scss";
+@import "src/common/scss/mixins.scss";
 </style>
 
