@@ -525,13 +525,12 @@ export default {
       Store.save("teamId", team.teamId);
       Store.save("icon", child.icon);
 
-      Store.save("deviceId", child.deviceId);
+      Store.save("deviceId", child.deviceId || child.id);
       Store.save("MAC", child.mac);
       Store.save("wxDeviceId", child.wxDeviceId);
-
       const query = {
         wxDeviceId: child.wxDeviceId,
-        deviceId: child.deviceId,
+        deviceId: child.deviceId || child.id,
         customerId: this.customerId,
         hasChildren: Boolean(child.childDeviceCount) ? 1 : 0
       };

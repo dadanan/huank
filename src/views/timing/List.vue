@@ -137,7 +137,7 @@ export default {
     getTimeList() {
       Loading.open('很快加载好了')
       queryTimerList({
-        wxDeviceId: this.wxDeviceId
+        deviceId: this.deviceId
       })
         .then(res => {
           if (res.code === 200) {
