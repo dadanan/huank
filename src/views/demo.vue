@@ -16,13 +16,13 @@ export default {
       const attach = JSON.stringify({
         test: "可以在这里带上任何附加信息"
       });
-      getPayParams(
-        Store.fetch("Ticket"), // openId
-        price * 100, // 钱（不知道为什么要乘以100，之前项目说过为啥但我忘了）
-        "订单主体描述test",
-        "订单详细描述test",
-        attach
-      )
+      getPayParams({
+        openId: Store.fetch("Ticket"), // openId
+        price: price * 100, // 钱（不知道为什么要乘以100，之前项目说过为啥但我忘了）
+        orderBodyDesc: "订单主体描述test",
+        orderDetail: "订单详细描述test",
+        attach: attach
+      })
         .then(res => {
           this.invokeWXPay(
             res.appId,
