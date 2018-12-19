@@ -69,7 +69,8 @@ export function sign() {
             'openLocation',
             'getLocation',
             'showMenuItems',
-            'scanQRCode'
+            'scanQRCode',
+            'chooseWXPay'
           ] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
         })
       }
@@ -189,4 +190,80 @@ export function openMap(city, address, lat, lng) {
       infoUrl: '' // 在查看位置界面底部显示的超链接,可点击跳转
     })
   })
+}
+
+/**
+ * 唤起微信支付
+ * @param appId  公众号名称
+ * @param timeStamp 时间戳
+ * @param nonceStr 随机串
+ * @param packageArg 订单详情扩展字符串
+ * @param signType 微信签名方式
+ * @param paySign 微信签名
+ * @author shuiRong
+ */
+export function pay(appId, timeStamp, nonceStr, packageArg, signType, paySign) {
+  wx.config({
+    debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+    // appId: 'wx4dfbe03e963f3d1f',   // 必填，公众号的唯一标识 wx292d0902bf9841d6
+    appId: data.appId,
+    timestamp: data.timestamp, // 必填，生成签名的时间戳
+    nonceStr: data.nonceStr, // 必填，生成签名的随机串
+    signature: data.signature, // 必填，签名，见附录1
+    jsApiList: [
+      'onMenuShareAppMessage',
+      'onMenuShareTimeline',
+      'hideMenuItems',
+      'openLocation',
+      'getLocation',
+      'showMenuItems',
+      'scanQRCode',
+      'chooseWXPay'
+    ] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+  })
+
+  wx.ready(() => {
+    wx.chooseWXPay(
+      {
+        appId: appId,
+        timeStamp: timeStamp,
+        nonceStr: nonceStr,
+        package: packageArg,
+        signType: signType,
+        paySign: paySign
+      },
+      res => {
+        console.log('1', res)
+        /** 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。 */
+        if (res.err_msg === 'get_brand_wcpay_request:ok') {
+          /** 设置价格为-1，页面就会显示“已付费” */
+        }
+      },
+      err => {
+        console.log('2', err)
+      }
+    )
+  })
+
+  // WeixinJSBridge.invoke(
+  //   'getBrandWCPayRequest',
+  //   {
+  //     appId: appId,
+  //     timeStamp: timeStamp,
+  //     nonceStr: nonceStr,
+  //     package: packageArg,
+  //     signType: signType,
+  //     paySign: paySign
+  //   },
+  //   res => {
+  //     console.log('1', res)
+  //     /** 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。 */
+  //     if (res.err_msg === 'get_brand_wcpay_request:ok') {
+  //       /** 设置价格为-1，页面就会显示“已付费” */
+  //     }
+  //   },
+  //   err => {
+  //     console.log('2', err)
+  //   }
+  // )
 }
