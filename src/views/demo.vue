@@ -28,7 +28,7 @@ export default {
             res.appId,
             res.timeStamp,
             res.nonceStr,
-            res.package,
+            res.package1,
             res.signType,
             res.paySign
           );
