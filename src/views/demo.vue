@@ -17,20 +17,20 @@ export default {
         test: "可以在这里带上任何附加信息"
       });
       getPayParams({
-        openId: Store.fetch("Ticket"), // openId
-        price: price * 100, // 钱（不知道为什么要乘以100，之前项目说过为啥但我忘了）
+        openId: "oOSkz0fTjfcL-DHr4YNrsABdRFKU", // openId
+        price: price*100, // 钱（不知道为什么要乘以100，之前项目说过为啥但我忘了）
         orderBodyDesc: "订单主体描述test",
         orderDetail: "订单详细描述test",
         attach: attach
       })
         .then(res => {
           this.invokeWXPay(
-            res.appId,
-            res.timeStamp,
-            res.nonceStr,
-            res.package1,
-            res.signType,
-            res.paySign
+            res.data.appId,
+            res.data.timeStamp,
+            res.data.nonceStr,
+            res.data.package1,
+            res.data.signType,
+            res.data.paySign
           );
         })
         .catch(err => {

@@ -493,3 +493,12 @@ export function getPayParams(data) {
     headers: { Ticket: Store.fetch('Ticket') }
   })
 }
+
+// 个性设置
+export function queryDeviceIconList(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/high/queryDeviceIconList/${data}`,
+    method: 'get',
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}

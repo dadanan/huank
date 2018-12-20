@@ -218,7 +218,8 @@ import {
   sendParamFunc,
   paramList,
   queryDeviceBack,
-  editManageName
+  editManageName,
+  queryDeviceIconList
 } from "../wenkong/api";
 import Store from "../wenkong/store";
 export default {
@@ -309,21 +310,6 @@ export default {
     returnMethod() {
       this.$router.back(-1);
     },
-    getConfigInfo() {
-      Loading.open("很快加载好了");
-      this.$http
-        .post(myUrl.getSpeedConfig + "?deviceId=" + this.deviceId)
-        .then(res => {
-          if (res.code == 200) {
-            Loading.close();
-            this.inItems = res.data.inItems;
-            this.outItems = res.data.outItems;
-          }
-        })
-        .catch(error => {
-          Loading.close();
-        });
-    },
     addDev() {
       this.addDevFlag = true;
     },
@@ -333,6 +319,11 @@ export default {
     childDeviceList() {
       childDeviceList(this.deviceId).then(res => {
         this.childDeviceArray = res.data;
+      });
+    },
+    queryDeviceIconList() {
+      queryDeviceIconList(this.deviceId).then(res => {
+        console.log(res.data)
       });
     },
     getModelList() {
@@ -518,6 +509,7 @@ export default {
     this.childDeviceList();
     this.getModelList();
     this.getModelVo();
+    this.queryDeviceIconList()
   },
   components: {
     "yd-accordion": Accordion,
