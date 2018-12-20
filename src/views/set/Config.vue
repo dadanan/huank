@@ -233,7 +233,7 @@ export default {
       modelList: [],
       modelSelected: "1",
       deviceChildId: "",
-      deviceId: "",
+      deviceId: this.$route.query.deviceId,
       customerId: this.$route.query.customerId || Store.fetch("customerId"),
       deviceName: "",
       deleteTheDevice: "",
@@ -520,7 +520,6 @@ export default {
     setTimeout(() => {
       Loading.close();
     }, 300);
-    this.deviceId = this.$route.query.deviceId;
     this.childDeviceList();
     this.getModelList();
     this.getModelVo();
