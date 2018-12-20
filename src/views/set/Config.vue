@@ -23,7 +23,7 @@
       <yd-accordion-item title="转速配置" v-if="FsShow">
         <div class="ipt" slot="txt" style="color:#20aaf8; position: absolute; right: 30px;" @click="sendParamFunc(1)">保存</div>
         <div slot="txt" style="color:#20aaf8; position: absolute; right: 70px;" @click="sendParamFunc(2)">恢复默认</div>
-        <div v-for="item in dirValueList1">
+        <div v-for="item in dirValueList1" :key="item.id">
           <div style="padding: .24rem; background: #f2f2f2;">
             <p>{{item.abilityName}}</p>
             <div>
@@ -33,7 +33,7 @@
                   <th>转数</th>
                   <th>默认值</th>
                 </tr>
-                <tr v-for="ls in item.configValuesList">
+                <tr v-for="ls in item.configValuesList" :key="ls.id">
                   <td>{{ls.definedName}}</td>
                   <td><input type="number" placeholder="请输入档位" v-model="ls.currentValue"></td>
                   <td>{{ls.defaultValue}}</td>
@@ -106,8 +106,11 @@
       <yd-accordion-item title="设备个性设置">
         <div style="padding: .24rem;background: #f2f2f2;">
           <ul class="imglist">
-            <li><img src="../../assets/dev.png" /></li>
+            <li @click="imgLi(item)" v-for='item in ingList' :class={border:item.isSelect} :key="item.sort"><img :src="item.icon"></li>
           </ul>
+          <template>
+            
+          </template>
         </div>
       </yd-accordion-item>
       <yd-accordion-item title="软件更新">
@@ -219,12 +222,14 @@ import {
   paramList,
   queryDeviceBack,
   editManageName,
-  queryDeviceIconList
+  queryDeviceIconList,
+  setDeviceIcon
 } from "../wenkong/api";
 import Store from "../wenkong/store";
 export default {
   data() {
     return {
+      radio:"1",
       editDevFlag: false,
       manageName: "",
       inItems: [],
@@ -250,10 +255,23 @@ export default {
       dirValueList: [],
       dirValueList1: [],
       status: true,
-      deviceName: ""
+      deviceName: "",
+      ingList:[]
     };
   },
   methods: {
+    imgLi(val){
+      setDeviceIcon({'deviceId':this.deviceId,"iconSelect":val.sort}).then(res=>{
+        if(res.code == 200){
+           Toast({
+            mes: "设置成功",
+            timeout: 1500,
+            icon: "success"
+          });
+          this.queryDeviceIconList()
+        }
+      })
+    },
     showAccordion() {
       // 显示从设备添加入口？
       // 如果从主设备版式（目前是新风版式）跳转过来，则显示；其他情况不显示
@@ -323,7 +341,8 @@ export default {
     },
     queryDeviceIconList() {
       queryDeviceIconList(this.deviceId).then(res => {
-        console.log(res.data)
+        // console.log(res.data)
+        this.ingList = res.data
       });
     },
     getModelList() {
@@ -535,7 +554,7 @@ export default {
     }
   },
   mounted() {
-    this.getConfigInfo();
+    // this.getConfigInfo();
   }
 };
 </script>
@@ -849,16 +868,20 @@ export default {
     }
   }
   .imglist li {
-    height: 50px;
-    width: 50px;
+    height: 60px;
+    width: 60px;
     border-radius: 100%;
     overflow: hidden;
     background: #fff;
     display: inline-block;
+    margin-right: 20px;
   }
   .imglist li img {
     display: block;
     width: 100%;
   }
+}
+.border{
+  border: 2px solid #67c23a
 }
 </style>
