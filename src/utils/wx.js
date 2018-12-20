@@ -69,7 +69,8 @@ export function sign() {
             'openLocation',
             'getLocation',
             'showMenuItems',
-            'scanQRCode'
+            'scanQRCode',
+            'chooseWXPay'
           ] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
         })
       }
@@ -187,6 +188,51 @@ export function openMap(city, address, lat, lng) {
       address: address, // 地址详情说明
       scale: 28, // 地图缩放级别,整形值,范围从1~28。默认为最大
       infoUrl: '' // 在查看位置界面底部显示的超链接,可点击跳转
+    })
+  })
+}
+
+/**
+ * 唤起微信支付
+ * @param appId  公众号名称
+ * @param timeStamp 时间戳
+ * @param nonceStr 随机串
+ * @param packageArg 订单详情扩展字符串
+ * @param signType 微信签名方式
+ * @param paySign 微信签名
+ * @param signature
+ * @author shuiRong
+ */
+export function wxPay(
+  appId,
+  timestamp,
+  nonceStr,
+  packageArg,
+  signType,
+  paySign,
+  signature
+) {
+  wx.config({
+    debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+    // appId: 'wx4dfbe03e963f3d1f',   // 必填，公众号的唯一标识 wx292d0902bf9841d6
+    appId: appId,
+    timestamp: timestamp, // 必填，生成签名的时间戳
+    nonceStr: nonceStr, // 必填，生成签名的随机串
+    signature: signature, // 必填，签名，见附录1
+    jsApiList: ['chooseWXPay']
+  })
+
+  wx.ready(() => {
+    wx.chooseWXPay({
+      appId: appId,
+      timestamp: timestamp,
+      nonceStr: nonceStr,
+      package: packageArg,
+      signType: signType,
+      paySign: paySign,
+      success: function(res) {
+        console.log('success:', res)
+      }
     })
   })
 }

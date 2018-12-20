@@ -36,7 +36,7 @@
             PM2.5
             <span>{{AQI}}</span>
           </p>
-          <p v-if='formatItemsList[15] && formatItemsList[15].abilityId' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[15].abilityId).currValue}}</p>
+          <p v-if='formatItemsList[16] && formatItemsList[16].abilityId' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[16].abilityId).currValue}}</p>
           <p></p>
           <p>ug/m3</p>
         </div>
