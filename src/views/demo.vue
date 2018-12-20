@@ -8,8 +8,8 @@
 
 <script>
 import { getPayParams } from "./wenkong/api";
-import { pay } from "../utils/wx.js";
 import Store from "./wenkong/store";
+import { wxPay } from "../utils/wx.js";
 
 export default {
   methods: {
@@ -19,24 +19,22 @@ export default {
       });
       getPayParams({
         openId: Store.fetch("Ticket"), // openId
-        price: price * 100, // 钱（不知道为什么要乘以100，之前项目说过为啥但我忘了）
+        price: price, // 钱
         orderBodyDesc: "订单主体描述test",
         orderDetail: "订单详细描述test",
         attach: attach
-      })
-        .then(res => {
-          pay(
-            res.appId,
-            res.timeStamp,
-            res.nonceStr,
-            res.package1,
-            res.signType,
-            res.paySign
-          );
-        })
-        .catch(err => {
-          console.log(3, err);
-        });
+      }).then(res => {
+        res = res.data;
+        wxPay(
+          res.appId,
+          res.timeStamp,
+          res.nonceStr,
+          res.package1,
+          res.signType,
+          res.paySign,
+          res.signature
+        );
+      });
     }
   }
 };

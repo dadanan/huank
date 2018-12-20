@@ -2,17 +2,17 @@
   <div></div>
 </template>
 
-<script type="text/ecmascript-6">
-import { appid } from '../wenkong/api'
-import Store from '../wenkong/store'
-import { getQueryString } from 'utils'
+<script>
+import { appid } from "../wenkong/api";
+import Store from "../wenkong/store";
+import { getQueryString } from "utils";
 
 export default {
   created() {
-    const customerId = getQueryString('customerId')
+    const customerId = getQueryString("customerId");
     if (customerId) {
-      Store.save('customerId', customerId)
-      this.getAppId(customerId)
+      Store.save("customerId", customerId);
+      this.getAppId(customerId);
     }
   },
   methods: {
@@ -21,50 +21,51 @@ export default {
         value: id
       }).then(res => {
         // 用拿到appid，换微信code
-        this.redireact(res.data)
-      })
+        this.redireact(res.data);
+      });
     },
     redireact(id) {
-      let baseUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize'
+      let baseUrl = "https://open.weixin.qq.com/connect/oauth2/authorize";
       let params = {
         appid: id,
         redirect_uri: this.GLOBAL.redUrl,
-        response_type: 'code',
-        scope: 'snsapi_userinfo',
-        state: 'STATE#wechat_redirect'
-      }
-      if (getQueryString('masterOpenId')) {
+        response_type: "code",
+        scope: "snsapi_userinfo",
+        state: "STATE#wechat_redirect"
+      };
+      if (getQueryString("masterOpenId")) {
         // 从分享进入,存储分享人信息
         let obj = {
-          deviceId: getQueryString('deviceId'),
-          masterOpenId: getQueryString('masterOpenId'),
-          token: getQueryString('token'),
-          customerId: getQueryString('customerId')
-        }
-        Store.save('obj', JSON.stringify(obj))
+          deviceId: getQueryString("deviceId"),
+          masterOpenId: getQueryString("masterOpenId"),
+          token: getQueryString("token"),
+          customerId: getQueryString("customerId")
+        };
+        Store.save("obj", JSON.stringify(obj));
+      }
+
+      // 如果参数带有pay，说明是需要引导用户进入付款页面
+      if(getQueryString("pay")){
+        params.redirect_uri += '?pay=1'
       }
 
       let redirectUrl =
         baseUrl +
-        '?appid=' +
+        "?appid=" +
         params.appid +
-        '&redirect_uri=' +
+        "&redirect_uri=" +
         params.redirect_uri +
-        '&response_type=' +
+        "&response_type=" +
         params.response_type +
-        '&scope=' +
+        "&scope=" +
         params.scope +
-        '&state=' +
+        "&state=" +
         params.state +
-        '&customerId=' +
-        getQueryString('customerId')
-      window.location.href = redirectUrl
+        "&customerId=" +
+        getQueryString("customerId");
+      window.location.href = redirectUrl;
     }
   }
-}
+};
 </script>
-<style rel="stylesheet/scss" lang="scss" scoped>
-@import 'src/common/scss/variable.scss';
-@import 'src/common/scss/mixins.scss';
-</style>
 
