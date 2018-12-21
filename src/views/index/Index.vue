@@ -143,7 +143,7 @@
         <div class="title">其它功能设定</div>
         <div class="list">
           <ul v-if='formatItemsList[3] && formatItemsList[3].abilityId'>
-            <li v-if='item.status !== 2' v-for="item in getListData(formatItemsList[3].abilityId,'func')" :class="{ active: item.isChecked}" @click="nodeClicked(item,'',3)" :key='item.abilityId'>
+            <li v-if='item && item.status !== 2' v-for="item in getListData(formatItemsList[3].abilityId,'func')" :class="{ active: item.isChecked}" @click="nodeClicked(item,'',3)" :key='item.abilityId'>
               <span>{{ item.definedName || item.abilityName }}</span>
               <div class="icon"></div>
             </li>
@@ -347,11 +347,14 @@ export default {
         this.formatItemsList[3].abilityId,
         "func"
       );
-      // console.log(modelData)
       if (!modelData) {
         return false;
       }
-      const cycleSwitch = modelData.filter(item => item.dirValue === "290")[0];
+
+      // item可能为undefined
+      const cycleSwitch = modelData.filter(
+        item => item && item.dirValue === "290"
+      )[0];
       return cycleSwitch && cycleSwitch.isChecked;
     },
     leftStep() {
@@ -595,6 +598,7 @@ export default {
           "func"
         );
         data.forEach(ability => {
+          if (!ability) return;
           const options = ability.abilityOptionList;
           if (!options) {
             return;
