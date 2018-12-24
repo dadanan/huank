@@ -1,57 +1,58 @@
 <template>
-	<div class="set-wrapper">
-		<div class="header">
-			<div class="return" @click="returnMethod"></div>
-			<span>滤芯寿命</span>
-		</div>
-		<!--总共3000小时-->
-		<div class="cell-list" v-for="(item,index) in batteryList" :key="index">
-			<div class="name">滤网{{ index + 1 }}</div>
-			<div class="cell-content">
-				<div class="progress">
-					<div class="trail">
-						<!--<span :style="{ width:((item.value / 3600) / 30) + '%' }">-->
-						<span :style="{ width:((item.value / 3000)*100) + '%' }">
-							<p :style="{ left:((item.value / 3000)*100) + '%' }">
-								<!--剩余{{ (item.value/3600).toFixed(2) }}h-->
-								<label v-if="setType==='1'">剩余{{item.value}}h</label>
-								<label v-if="setType!=='1'">剩余{{item.value/30}}%</label>
-							</p>
-						</span>
-					</div>
-				</div>
-				<!--<div class="recove" @click="recove(item.type,index)">滤网复位</div>-->
-				<div class="recove" @click="showRecove(item.type,index)">滤网复位</div>
+  <div class="set-wrapper">
+    <div class="header">
+      <div class="return" @click="returnMethod"></div>
+      <span>滤芯寿命</span>
+    </div>
+    <!--总共3000小时-->
+    <div class="cell-list" v-for="(item,index) in batteryList" :key="index">
+      <div class="name">{{ item.optionName }}</div>
+      <div class="cell-content">
+        <div class="progress">
+          <div class="trail">
+            <!--<span :style="{ width:((item.value / 3600) / 30) + '%' }">-->
+            <span :style="{ width:((item.value /item.maxVal)*100) + '%' }">
+              <p :style="{ left:((item.value / item.maxVal)*100) + '%' }">
+                <!--剩余{{ (item.value/3600).toFixed(2) }}h-->
+                <label v-if="setType==='1'">剩余{{item.value}}h</label>
+                <label v-if="setType!=='1'">剩余{{(item.value/item.maxVal*100)}}%</label>
+              </p>
+            </span>
+          </div>
+        </div>
+        <!--<div class="recove" @click="recove(item.type,index)">滤网复位</div>-->
+        <div class="recove" @click="showRecove(item.optionValue,item.maxVal)">滤网复位</div>
 
-			</div>
-		</div>
-		<div class="switch-box  flex flex-pack-justify flex-align-center">
-			<span>显示设置</span>
-			<div>
-				<span>{{ setType === '1' ? '小时': '百分比' }}</span>
-				<yd-switch @click.native="switchMethod()"></yd-switch>
-			</div>
+      </div>
+    </div>
+    <div class="switch-box  flex flex-pack-justify flex-align-center">
+      <span>显示设置</span>
+      <div>
+        <span>{{ setType === '1' ? '小时': '百分比' }}</span>
+        <yd-switch @click.native="switchMethod()"></yd-switch>
+      </div>
 
-		</div>
-		<div class="create-dialog dialog" v-if="recoveFlag">
-			<div class="confirm">
-				<div class="confim-top">
-					<h4 class="title">复位分子滤芯</h4>
-					<p>当您更换或清洁滤芯后， 请按确认</p>
-				</div>
-				<div class="confim-bottom">
-					<div class="but" @click="recoveFlag = false">取消</div>
-					<div class="but create" @click="recove()">确定</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    </div>
+    <div class="create-dialog dialog" v-if="recoveFlag">
+      <div class="confirm">
+        <div class="confim-top">
+          <h4 class="title">复位分子滤芯</h4>
+          <p>当您更换或清洁滤芯后， 请按确认</p>
+        </div>
+        <div class="confim-bottom">
+          <div class="but" @click="recoveFlag = false">取消</div>
+          <div class="but create" @click="recove()">确定</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script type="text/ecmascript-6">
 import { Loading } from 'vue-ydui/dist/lib.rem/dialog'
 import myUrl from 'common/js/api'
 import { Switch } from 'vue-ydui/dist/lib.rem/switch'
+import { getModelVo, getStrainerData , sendFunc} from '../wenkong/api'
 export default {
   data() {
     return {
@@ -61,30 +62,61 @@ export default {
       recoveFlag: false,
       selectType: '',
       selectIndex: '',
-      setType: '1'
+      setType: '1',
+      dirValueList: [],
+      batteryList1: []
     }
   },
   components: {
     'yd-switch': Switch
   },
   created() {
-    Loading.open('很快加载好了')
-    setTimeout(() => {
-      Loading.close()
-    }, 300)
+    // Loading.open('很快加载好了')
+    this.getIndexAbilityData()
   },
   mounted() {
-    this.pw = 80
-    if (sessionStorage.getItem('screens')) {
-      this.batteryList = JSON.parse(sessionStorage.getItem('screens'))
-
-      console.log(this.batteryList)
-    }
   },
   methods: {
     returnMethod() {
       this.$router.back(-1)
     },
+    getIndexAbilityData() {
+      // 获取H5控制页面功能项数据，带isSelect参数
+      getModelVo({ deviceId: this.$route.query.deviceId, pageNo: 1 }).then(
+        res => {
+          if (res.code === 200 && res.data) {
+            const data = res.data.abilitysList
+            for (var i = 0; i < data.length; i++) {
+              if (data[i].dirValue == '-1') {
+                this.batteryList1 = data[i].abilityOptionList
+                this.getStrainerData()
+              }
+            }
+          }
+        }
+      )
+    },
+    getStrainerData() {
+      for (var i = 0;i< this.batteryList1.length; i++) {
+        this.dirValueList.push(this.batteryList1[i].optionValue)
+      }
+      getStrainerData({
+        deviceId: this.$route.query.deviceId,
+        dirValueList: this.dirValueList
+      }).then(res => {
+        if (res.code === 200 && res.data) {
+          for(var i = 0;i<this.batteryList1.length;i++){
+            var s =+this.batteryList1[i].optionValue;
+            var d = (res.data)[s]
+            this.batteryList1[i].value = d
+          }
+          this.batteryList = this.batteryList1
+        }
+      }).catch(error => {
+          console.log(error)
+        })
+    },
+
     // 打开滤网复位弹出框
     showRecove(type, index) {
       this.recoveFlag = true
@@ -92,28 +124,18 @@ export default {
       this.selectIndex = index
     },
     recove() {
-      let data = {}
-      let index = this.selectIndex
-      data.deviceId = this.$route.query.deviceId
-      data.funcId = this.selectType
-      Loading.open('很快加载好了')
-      this.$http
-        .post(myUrl.sendFunc, data)
-        .then(res => {
+      // 获取H5控制页面功能项数据，带isSelect参数
+    Loading.open('很快加载好了')
+      sendFunc({ deviceId: this.$route.query.deviceId, funcId: this.selectType ,value:this.selectIndex}).then(
+        res => {
           if (res.code === 200) {
-            Loading.close()
-            // this.batteryList[index].value = 10800000;
-            this.batteryList[index].value = 3000
-            sessionStorage.setItem('screens', JSON.stringify(this.batteryList))
+              Loading.close()
+            // console.log(res)
+            this.getIndexAbilityData()
             this.recoveFlag = false
-            Toast({
-              mes: '恢复成功',
-              timeout: 1500,
-              icon: 'success'
-            })
           }
-        })
-        .catch(error => {
+        }
+      ).catch(error => {
           Loading.close()
         })
     },

@@ -3,20 +3,23 @@
  * author by kairry 2017年11月20日
  */
 const Index = resolve => require(['@/views/index/Index'], resolve)
+const IndexSingle = resolve => require(['@/views/IndexSingle/Index'], resolve)
+const Detection = resolve => require(['@/views/detection/Index'], resolve)
 
 const Auth = resolve => require(['@/views/auth/Auth'], resolve)
 const Init = resolve => require(['@/views/init/Init'], resolve)
 const TimingList = resolve => require(['@/views/timing/List'], resolve)
 const TimingEdet = resolve => require(['@/views/timing/Edit'], resolve)
 const Set = resolve => require(['@/views/set/Index'], resolve)
-const WenkongSet = resolve => require(['@/views/wenongSet/Index'], resolve)
 const DevInfo = resolve => require(['@/views/set/DevInfo'], resolve)
+const MasterInfo = resolve => require(['@/views/set/MasterInfo'], resolve)
 const Share = resolve => require(['@/views/set/Share'], resolve)
-const WKShare = resolve => require(['@/views/wenongSet/Share'], resolve)
 const Data = resolve => require(['@/views/set/Data'], resolve)
+const Record = resolve => require(['@/views/set/Record'], resolve)
+
+const AMap = resolve => require(['@/views/set/Map'], resolve)
 const Battery = resolve => require(['@/views/set/Battery'], resolve)
 const Config = resolve => require(['@/views/set/Config'], resolve)
-const WKConfig = resolve => require(['@/views/wenongSet/Config'], resolve)
 const List = resolve => require(['@/views/list/Index'], resolve)
 const Demo = resolve => require(['@/views/demo'], resolve)
 const Permissions = resolve => require(['@/views/set/Permissions'], resolve)
@@ -73,6 +76,20 @@ let routes = [
     }
   },
   {
+    path: '/indexsingle',
+    component: IndexSingle,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/detection',
+    component: Detection,
+    meta: {
+      title: ''
+    }
+  },
+  {
     path: '/timinglist',
     component: TimingList,
     meta: {
@@ -94,15 +111,15 @@ let routes = [
     }
   },
   {
-    path: '/wenkongset',
-    component: WenkongSet,
+    path: '/devinfo',
+    component: DevInfo,
     meta: {
       title: ''
     }
   },
   {
-    path: '/devinfo',
-    component: DevInfo,
+    path: '/masterinfo',
+    component: MasterInfo,
     meta: {
       title: ''
     }
@@ -115,15 +132,22 @@ let routes = [
     }
   },
   {
-    path: '/wkshare',
-    component: WKShare,
+    path: '/data',
+    component: Data,
     meta: {
       title: ''
     }
   },
   {
-    path: '/data',
-    component: Data,
+    path: '/record',
+    component: Record,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/map',
+    component: AMap,
     meta: {
       title: ''
     }
@@ -138,13 +162,6 @@ let routes = [
   {
     path: '/config',
     component: Config,
-    meta: {
-      title: ''
-    }
-  },
-  {
-    path: '/wkconfig',
-    component: WKConfig,
     meta: {
       title: ''
     }

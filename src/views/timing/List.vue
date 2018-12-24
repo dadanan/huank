@@ -11,14 +11,15 @@
         <div class="box-left" :ref="'boxref'+(index)">
           <div class="del" style="float:left" @click="delTimer(item.id)">删除</div>
           <div class="c-text">
-            <p v-if="item.remainTime">{{ MillisecondToDate(item.remainTime) }}后关闭</p>
-            <p v-else>{{ item.hour }}:{{ item.minute}} 关闭</p>
+            <p v-if="item.remainTime">
+              <yd-countdown :callback='finishTime' :time="item.remainTime / 1000" timetype="second"></yd-countdown>
+            </p>
+            <p v-else>{{ item.hour }}:{{ item.minute}} </p>
             <p>{{ item.name }}</p>
           </div>
         </div>
         <div class="box-right" v-if="!isEdit">
           <div class="switch-box">
-            <span>定时{{ item.timerType === 1 ? '开': '关' }}</span>
             <yd-switch v-model="item.switch" @click.native="switchMethod(item)"></yd-switch>
           </div>
         </div>
@@ -34,6 +35,7 @@
 
 <script type="text/ecmascript-6">
 import { Switch } from 'vue-ydui/dist/lib.rem/switch'
+import { CountDown } from 'vue-ydui/dist/lib.rem/countdown'
 import { addClass, removeClass } from 'utils/dom'
 import { Loading, Toast, Confirm } from 'vue-ydui/dist/lib.rem/dialog'
 import { queryTimerList, cancelTimer, deleteTimer } from '../wenkong/api'
@@ -46,10 +48,18 @@ export default {
       timeList: [],
       value: '',
       wxDeviceId: this.$route.query.wxDeviceId,
-      deviceId: this.$route.query.deviceId
+      deviceId: this.$route.query.deviceId,
+      etInter2:''
     }
   },
   methods: {
+    finishTime() {
+      Toast({
+        mes: `定时已生效`,
+        timeout: 1500,
+        icon: 'success'
+      })
+    },
     delTimer(id) {
       Confirm({
         title: '删除组',
@@ -77,7 +87,7 @@ export default {
     returnMethod() {
       // this.$router.back(-1)
       const formatName = Store.fetch('formatName')
-
+      // console.log(formatName)
       if (formatName === '电子净化器') {
         this.$router.push({
           path: '/air-purifier',
@@ -94,8 +104,16 @@ export default {
             deviceId: this.deviceId
           }
         })
-      } else {
+      } else if(formatName === '智慧新风-单风机') {
         // 智慧新风
+        this.$router.push({
+          path: '/indexsingle',
+          query: {
+            wxDeviceId: this.wxDeviceId,
+            deviceId: this.deviceId
+          }
+        })
+      }else{
         this.$router.push({
           path: '/index',
           query: {
@@ -119,7 +137,7 @@ export default {
     getTimeList() {
       Loading.open('很快加载好了')
       queryTimerList({
-        wxDeviceId: this.wxDeviceId
+        deviceId: this.deviceId
       })
         .then(res => {
           if (res.code === 200) {
@@ -206,18 +224,20 @@ export default {
     }
   },
   components: {
-    'yd-switch': Switch
+    'yd-switch': Switch,
+    'yd-countdown': CountDown
   },
   watch: {
     timeList: {
       handler: function(val) {
-        // console.log(val);
+        
       },
       deep: true
     }
   },
   mounted() {
     this.getTimeList()
+
   }
 }
 </script>

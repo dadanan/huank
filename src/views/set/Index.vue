@@ -20,6 +20,13 @@
         <div class="cell-right">
         </div>
       </div>
+      <div v-if='showMasterInfo' class="cell-item border-bottom" @click="intoMasterInfo">
+        <div class="cell-left">
+          <span>主机信息</span>
+        </div>
+        <div class="cell-right">
+        </div>
+      </div>
 
       <div class="cell-item border-bottom" @click="intoShare">
         <div class="cell-left">
@@ -39,23 +46,28 @@
         </div>
         <div class="cell-right"></div>
       </div>
-      <div class="cell-item white" @click.stop="show2 = true">
+      <div class="cell-item white" @click="intoMap">
         <div class="cell-left">
           <span>手动设置位置</span>
         </div>
         <div class="cell-right">
-          <span style="color:rgb(63, 169, 245)">{{ model2 }}
-            <!--{{ (batteryList[0].value/3600).toFixed(2) }}h-->
-          </span>
         </div>
       </div>
-      <div class="cell-item white" @click="intoBattery">
+      <div class="cell-item white" @click="intoBattery" v-if="screen">
         <div class="cell-left">
           <span>滤芯寿命</span>
         </div>
         <div class="cell-right">
           <span></span>
         </div>
+      </div>
+      <div class="cell-item white" v-else>
+        <div class="cell-left">
+          <span>该设备没有滤网</span>
+        </div>
+        <!-- <div class="cell-right">
+          <span></span>
+        </div> -->
       </div>
       <div class="cell-item white" v-if="1===2">
         <div class="cell-left">
@@ -69,19 +81,99 @@
         </div>
         <div class="cell-right"></div>
       </div>
-      <div class="cell-item white">
-        <a href="tel:88888888">
+      <div class="cell-item white" @click="customer = true">
+        <a>
           <div class="cell-left">
             <span>联系客服</span>
           </div>
           <div class="cell-right"></div>
         </a>
       </div>
+      <div class="cell-item white" @click="UserFeedBack = true">
+        <a>
+          <div class="cell-left">
+            <span>用户反馈</span>
+          </div>
+          <div class="cell-right"></div>
+        </a>
+      </div>
+      <div class="cell-item white" @click="warranty = true">
+        <a>
+          <div class="cell-left">
+            <span>保修反馈</span>
+          </div>
+          <div class="cell-right"></div>
+        </a>
+      </div>
+      <div class="cell-item white" @click="record">
+        <a>
+          <div class="cell-left">
+            <span>反馈记录</span>
+          </div>
+          <div class="cell-right"></div>
+        </a>
+      </div>
+    </div>
+    <!-- 保修反馈 -->
+    <div class="create-dialog dialog" v-if="warranty">
+      <div class="confirm">
+        <div class="confim-top">
+          <p>保修反馈</p>
+        </div>
+        <div class="confim-content">
+          <template>
+            <el-select v-model="value" placeholder="请选择" style="width:125px" @change="changes">
+              <el-option v-for="item in options" :key="item.id" :label="item.value" :value="item.id">
+              </el-option>
+            </el-select>
+          </template>
+          <template>
+            <el-select v-model="value1" placeholder="请选择" style="width:125px">
+              <el-option v-for="item in options1" :key="item.value" :label="item.name" :value="item.id">
+              </el-option>
+            </el-select>
+          </template>
+          <textarea v-model="feedBacks" placeholder="请输入您的宝贵意见..." style="margin-top:20px"></textarea>
+        </div>
+        <div class="confim-bottom">
+          <div class="but1" @click="sub">确定</div>
+          <div class="but1" @click="warranty = false" style="margin-top:10px">取消</div>
+        </div>
+      </div>
+    </div>
+    <!-- 客户反馈 -->
+    <div class="create-dialog dialog" v-if="UserFeedBack">
+      <div class="confirm">
+        <div class="confim-top">
+          <p>用户反馈</p>
+        </div>
+        <div class="confim-content">
+          <textarea v-model="feedBack" placeholder="请输入您的宝贵意见..."></textarea>
+        </div>
+        <div class="confim-bottom">
+          <div class="but1" @click="customMessage">确定</div>
+          <div class="but1" @click="UserFeedBack = false" style="margin-top:10px">取消</div>
+        </div>
+      </div>
+    </div>
+    <!-- 联系客服 -->
+    <div class="create-dialog dialog" v-if="customer">
+      <div class="confirm">
+        <div class="confim-top">
+          <p>联系客服</p>
+        </div>
+        <div class="confim-content">
+          <p>{{ customer1 }}</p>
+        </div>
+        <div class="confim-bottom">
+          <div class="but1" @click="customer = false">确定</div>
+        </div>
+      </div>
     </div>
     <div class="create-dialog dialog" v-if="editDevFlag">
       <div class="confirm">
         <div class="confim-top">
-          <textarea class="name" placeholder="输入新设备的名称" v-model="setDeviceName"></textarea>
+          <textarea class="name" v-model="setDeviceName" v-text="deviceName"></textarea>
         </div>
         <div class="confim-bottom">
           <div class="but" @click="editDevFlag = false">取消</div>
@@ -108,195 +200,314 @@
         </div>
       </div>
     </div>
-
-    <yd-cityselect v-model="show2" ref="cityselectDemo" :callback="updateLocation" :items="district" :provance="province" :city="city" :area="area"></yd-cityselect>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
-import District from 'ydui-district/dist/jd_province_city_area_id'
-import myUrl from 'common/js/api'
-import { editDevice } from '../wenkong/api'
-import { CitySelect } from 'vue-ydui/dist/lib.rem/cityselect'
-import Store from '../wenkong/store'
-import { updateDeviceLocation, getToken } from '../wenkong/api'
+import { Loading, Toast } from "vue-ydui/dist/lib.rem/dialog";
+import myUrl from "common/js/api";
+import { editDevice, getModelVo } from "../wenkong/api";
+import Store from "../wenkong/store";
+import {
+  getToken,
+  getServerUser,
+  customMessage,
+  getRuleInfo,
+  repairInfo
+} from "../wenkong/api";
 
 export default {
   data() {
     return {
-      province: '',
-      city: '',
-      area: '',
       switch1: false,
       switch2: false,
       editDevFlag: false,
-      setPwdFlag: false,
-      deviceName: '',
-      setDeviceName: '',
+      customer: false,
+      UserFeedBack: false,
+      warranty: false,
+      deviceName: "",
+      feedBack: "",
+      setDeviceName: "",
       batteryList: [],
-      show2: false,
-      model2: '',
-      district: District,
+      setPwdFlag: false,
       deviceId: this.$route.query.deviceId,
       customerId: this.$route.query.customerId,
-      pwd: '',
-      pwdList: []
+      masterFormat: this.$route.query.masterFormat,
+      hasChildren: this.$route.query.hasChildren,
+      hasTwoAbility: this.$route.query.hasTwoAbility,
+      pwd: "",
+      pwdList: [],
+      customer1: "",
+      value: "",
+      value1: "",
+      options: [],
+      options1: [],
+      feedBacks: "",
+      list: [],
+      screen: false
+    };
+  },
+  computed: {
+    showMasterInfo() {
+      // 展示主机开关和主机模式入口？
+      // 需要：1.目前只能是新风版式跳转过来的 2.用户选择了这两个功能项 3.存在从机
+      if (
+        this.masterFormat == 1 &&
+        this.hasChildren == 1 &&
+        this.hasTwoAbility == 1
+      ) {
+        // 如果是主机版式需满足2,3
+        return true;
+      }
+      if (this.masterFormat == 0 && this.hasTwoAbility == 1) {
+        // 如果不是主机版式需满足2
+        return true;
+      }
+      return false;
     }
   },
   methods: {
+    getIndexAbilityData() {
+      // 获取H5控制页面功能项数据，带isSelect参数
+      getModelVo({ deviceId: this.$route.query.deviceId, pageNo: 1 }).then(
+        res => {
+          if (res.code === 200 && res.data) {
+            const data = res.data.abilitysList;
+            for (var i = 0; i < data.length; i++) {
+              if (data[i].abilityName == "滤网寿命") {
+                this.screen = true;
+              }
+            }
+          }
+        }
+      );
+    },
     getToken() {
       // 高级设置Token
       getToken({
         customerId: this.customerId,
-        password: this.pwdList.join('')
-      })
-        .then(res => {
-          if (res.code === 200 && res.data) {
-            this.setPwdFlag = false
-            this.$router.push({
-              path: '/config',
-              query: {
-                deviceId: this.deviceId,
-                customerId: this.customerId
-              }
-            })
-            Store.save('Token', res.data)
-          }
-        })
-        .catch(err => {
-          Toast({
-            mes: '密码错误！',
-            timeout: 1500,
-            icon: 'success'
-          })
-        })
+        password: this.pwdList.join("")
+      }).then(res => {
+        if (res.code === 200 && res.data) {
+          this.setPwdFlag = false;
+          this.$router.push({
+            path: "/config",
+            query: {
+              deviceId: this.deviceId,
+              customerId: this.customerId,
+              masterFormat: this.masterFormat
+            }
+          });
+          Store.save("Token", res.data);
+        }
+      });
     },
-    updateLocation(ret) {
-      this.model2 = ret.itemName1 + ',' + ret.itemName2 + ',' + ret.itemName3
-      // 发送服务端
-      // Loading.open('很快加载好了')
-      updateDeviceLocation({
-        deviceId: this.deviceId,
-        location: this.model2
-      })
-        .then(res => {
-          Loading.close()
-          sessionStorage.setItem('location', this.model2)
-        })
-        .catch(error => {
-          Loading.close()
-          this.$toast(error.msg, 'bottom')
-        })
+    getServerUser() {
+      // 客服
+      getServerUser().then(res => {
+        this.customer1 = res.data;
+      });
+    },
+    sub() {
+      if (this.feedBacks.length > 0 && this.feedBacks.length < 100) {
+        repairInfo({
+          deviceId: this.deviceId,
+          ruleId: this.value1,
+          description: this.feedBacks
+        }).then(res => {
+          if (res.code == 200) {
+            this.warranty = false;
+            Toast({
+              mes: res.data,
+              timeout: 1500,
+              icon: "success"
+            });
+            this.value = "";
+            this.value1 = "";
+            this.feedBacks = "";
+          }
+        });
+      } else {
+        Toast({
+          mes: "填写字数在0-50之间，谢谢！",
+          timeout: 1500,
+          icon: "error"
+        });
+      }
+    },
+    changes(val) {
+      this.value1 = "";
+      for (var i = 0; i < this.list.length; i++) {
+        if (val == this.list[i].dictId) {
+          this.options1 = Object.assign([], this.list[i].rules, []);
+        }
+      }
+    },
+    getRuleInfo() {
+      // 保修反馈
+      getRuleInfo().then(res => {
+        if (res.code == 200) {
+          if (!res.data) {
+            return;
+          }
+          this.list = res.data;
+          for (var i = 0; i < this.list.length; i++) {
+            this.options.push({
+              value: this.list[i].dictName,
+              id: this.list[i].dictId
+            });
+          }
+          this.options1 = Object.assign([], this.list[0].rules, []);
+        }
+      });
+    },
+    customMessage() {
+      // 反馈意见
+      if (this.feedBack.length > 0 && this.feedBack.length < 100) {
+        this.UserFeedBack = false;
+        customMessage({
+          deviceId: this.deviceId,
+          feedbackInfo: this.feedBack
+        }).then(res => {
+          Toast({
+            mes: res.data,
+            timeout: 1500,
+            icon: "success"
+          });
+        });
+      } else {
+        Toast({
+          mes: "填写字数在0-50之间，谢谢！",
+          timeout: 1500,
+          icon: "error"
+        });
+      }
     },
     returnMethod() {
-      this.$router.back(-1)
+      this.$router.back(-1);
     },
     intoShare() {
       this.$router.push({
-        path: '/share',
+        path: "/share",
         query: {
           deviceId: this.deviceId,
           customerId: this.customerId
         }
-      })
+      });
+    },
+    intoMap() {
+      this.$router.push({
+        path: "/map",
+        query: {
+          deviceId: this.deviceId,
+          customerId: this.customerId
+        }
+      });
     },
     intoPermissions() {
       this.$router.push({
-        path: '/permissions',
+        path: "/permissions",
         query: {
           deviceId: this.deviceId
         }
-      })
+      });
     },
     intoConfig() {
-      this.setPwdFlag = true
+      this.setPwdFlag = true;
     },
     intoBattery() {
       this.$router.push({
-        path: '/battery',
+        path: "/battery",
         query: {
           deviceId: this.deviceId
         }
-      })
+      });
     },
     intoData() {
       this.$router.push({
-        path: '/data',
+        path: "/data",
         query: {
           deviceId: this.deviceId
         }
-      })
+      });
+    },
+    record() {
+      this.$router.push({
+        path: "/record",
+        query: {
+          deviceId: this.deviceId
+        }
+      });
     },
     editDev() {
-      Loading.open('很快加载好了')
+      Loading.open("很快加载好了");
       editDevice({
         deviceId: this.deviceId,
         deviceName: this.setDeviceName
       })
         .then(res => {
           if (res.code === 200) {
-            Loading.close()
-            this.editDevFlag = false
-            Store.save('deviceName', this.setDeviceName)
-            this.deviceName = this.setDeviceName
+            Loading.close();
+            this.editDevFlag = false;
+            Store.save("deviceName", this.setDeviceName);
+            this.deviceName = this.setDeviceName;
           }
         })
         .catch(error => {
-          Loading.close()
-          this.$toast(error.msg, 'bottom')
-        })
+          Loading.close();
+          this.$toast(error.msg, "bottom");
+        });
     },
     intoInfo() {
       this.$router.push({
-        path: '/devinfo',
+        path: "/devinfo",
         query: {
           deviceId: this.deviceId
         }
-      })
+      });
+    },
+    intoMasterInfo() {
+      this.$router.push({
+        path: "/masterinfo",
+        query: {
+          deviceId: this.deviceId,
+          masterFormat: this.masterFormat
+        }
+      });
     }
   },
   created() {
-    Loading.open('很快加载好了')
-    if (Store.fetch('location')) {
-      this.model2 = Store.fetch('location')
-      let arr = this.model2.split(',')
-      if (arr.length === 3) {
-        this.province = arr[0]
-        this.city = arr[1]
-        this.area = arr[2]
-      }
-    }
-    if (Store.fetch('screens')) {
-      this.batteryList = JSON.parse(Store.fetch('screens'))
+    this.getIndexAbilityData();
+    this.getRuleInfo();
+    this.getServerUser();
+    Loading.open("很快加载好了");
+    if (Store.fetch("screens")) {
+      this.batteryList = JSON.parse(Store.fetch("screens"));
     }
     setTimeout(() => {
-      Loading.close()
-    }, 300)
-  },
-  components: {
-    'yd-cityselect': CitySelect
+      Loading.close();
+    }, 300);
   },
   mounted() {
-    this.deviceName = Store.fetch('deviceName')
+    this.deviceName = Store.fetch("deviceName");
   },
   watch: {
     pwd: function() {
       if (this.pwd && this.pwd.length > 0) {
         if (this.pwd.length >= 4) {
-          this.pwd = this.pwd.slice(0, 4)
+          this.pwd = this.pwd.slice(0, 4);
         }
-        this.pwdList = this.pwd.split('')
+        this.pwdList = this.pwd.split("");
       } else {
-        this.pwdList = []
+        this.pwdList = [];
       }
     }
   }
-}
+};
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-@import 'src/common/scss/variable.scss';
-@import 'src/common/scss/mixins.scss';
+@import "src/common/scss/variable.scss";
+@import "src/common/scss/mixins.scss";
 .set-wrapper {
   position: absolute;
   width: 100%;
@@ -360,6 +571,14 @@ export default {
           }
         }
       }
+      .confim-content {
+        padding: 20px 10px;
+        textarea {
+          width: 100%;
+          height: 100px;
+          border: none;
+        }
+      }
       .confim-bottom {
         background: #ffffff;
         padding: 20px 20px;
@@ -383,6 +602,15 @@ export default {
             }
           }
         }
+        .but1 {
+          width: 100%;
+          height: 40px;
+          line-height: 40px;
+          text-align: center;
+          border: 1px solid #2689ee;
+          color: #2689ee;
+          border-radius: 5px;
+        }
       }
     }
   }
@@ -395,7 +623,7 @@ export default {
     .return {
       position: absolute;
       left: 0px;
-      background: url('../../assets/arr-left.png') no-repeat center center;
+      background: url("../../assets/arr-left.png") no-repeat center center;
       background-size: 8px 16px;
       width: 40px;
       height: 40px;
@@ -425,7 +653,7 @@ export default {
       &.border-bottom {
         padding-bottom: 15px;
         &::after {
-          content: '';
+          content: "";
           margin-left: 15px;
           position: absolute;
           z-index: 0;
@@ -450,10 +678,10 @@ export default {
         &::after {
           display: block;
           color: #c9c9c9;
-          content: '';
+          content: "";
           width: 8px;
           height: 15px;
-          background: url('../../assets/arr-right.png') no-repeat center center;
+          background: url("../../assets/arr-right.png") no-repeat center center;
           background-size: 8px 15px;
           position: absolute;
           right: 20px;

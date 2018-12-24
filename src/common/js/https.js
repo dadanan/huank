@@ -4,7 +4,6 @@
  */
 
 import axios from 'axios'
-import Qs from 'qs'
 import Vue from 'vue'
 import Toast from 'base/toast'
 Vue.use(Toast)
@@ -12,7 +11,6 @@ Vue.use(Toast)
 const Axios = axios.create({
   timeout: 50000, // 请求超时时间
   responseType: 'json',
-  // withCredentials: true, //是否允许携带cookie
   headers: {
     // "Content-Type": "application/x-www-form-urlencoded"
   }
@@ -56,12 +54,12 @@ Axios.interceptors.request.use(
 Axios.interceptors.response.use(
   res => {
     if (res.data && res.data.code != 200) {
+      Vue.prototype.$toast(`连接错误:${res.data.msg}`, 'bottom')
       return Promise.reject(res.data)
     }
     return res.data
   },
   error => {
-    console.log(error)
     // 服务器异常提示
     if (error && error.response) {
       switch (error.response.status) {
@@ -72,13 +70,13 @@ Axios.interceptors.response.use(
           error.message = '请求错误,未找到该资源'
           break
         case 408:
-          err.message = '请求超时'
+          error.message = '请求超时'
           break
         case 500:
           error.message = '服务器端异常'
           break
         default:
-          error.message = '连接错误${err.response.status}'
+          error.message = `连接错误:${error.response.status}`
       }
     } else {
       error.message = '连接到服务器失败'

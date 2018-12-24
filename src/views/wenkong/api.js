@@ -26,6 +26,18 @@ export function getModelVo(data) {
     }
   })
 }
+// 滤网时间
+export function getStrainerData(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/getStrainerData`,
+    method: 'post',
+    data,
+    headers: {
+      Ticket: Store.fetch('Ticket'),
+      Authorization: Store.fetch('Token')
+    }
+  })
+}
 
 export function editDevice(data) {
   return http({
@@ -265,16 +277,44 @@ export function share(data) {
 
 export function shareList(data) {
   return http({
-    url: `${BASE_URL}/api//h5/api/shareList`,
+    url: `${BASE_URL}/api/h5/api/shareList`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 修改人的权限
+export function updateRelation(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/updateRelation`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 修改所有人的权限
+export function updateAllRelation(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/updateAllRelation`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 获取历史数据
+export function getHistoryData(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/getHistoryData`,
     method: 'post',
     data,
     headers: { Ticket: Store.fetch('Ticket') }
   })
 }
 
+// 删除某人权限
 export function clearRelation(data) {
   return http({
-    url: `${BASE_URL}/api//h5/api/clearRelation`,
+    url: `${BASE_URL}/api/h5/api/clearRelation`,
     method: 'post',
     data,
     headers: { Ticket: Store.fetch('Ticket') }
@@ -287,7 +327,10 @@ export function deleteDevice(data) {
     url: `${BASE_URL}/api/h5/api/deleteDevice`,
     method: 'post',
     data,
-    headers: { Ticket: Store.fetch('Ticket') }
+    headers: {
+      Ticket: Store.fetch('Ticket'),
+      Authorization: Store.fetch('Token')
+    }
   })
 }
 
@@ -319,6 +362,142 @@ export function groupSendFunc(data) {
 export function updateDeviceLocation(data) {
   return http({
     url: `${BASE_URL}/api/h5/api/updateDeviceLocation`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 客服
+export function getServerUser() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/getServerUser`,
+    method: 'get',
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 设备参数修改
+export function sendParamFunc(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/params/sendParamFunc`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 获取转数值
+export function paramList(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/params/paramList`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 判断传参给设备是否成功
+export function queryDeviceBack(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/params/queryDeviceBack`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 设备名称修改
+export function editManageName(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/high/editManageName`,
+    method: 'post',
+    data,
+    headers: {
+      Ticket: Store.fetch('Ticket'),
+      Authorization: Store.fetch('Token')
+    }
+  })
+}
+// 客户反馈
+export function customMessage(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/userFeedback/customMessage`,
+    method: 'post',
+    data,
+    headers: {
+      Ticket: Store.fetch('Ticket'),
+      Authorization: Store.fetch('Token')
+    }
+  })
+}
+
+// 获取客户的背景图册
+export function getBgImgs() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/getBgImgs`,
+    method: 'get',
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+// 保修类型查询
+export function getRuleInfo() {
+  return http({
+    url: `${BASE_URL}/api/h5/api/userFeedback/getRuleInfo`,
+    method: 'get',
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+
+// 保修类型查询
+export function repairInfo(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/userFeedback/repairInfo`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+
+// 客户反馈记录
+export function getRepairInfoLog(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/userFeedback/getRepairInfoLog`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+
+// 设备组的开和关
+export function teamControl(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/team/occ`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+
+// 设备组的开和关
+export function trusteeTeam(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/team/trusteeTeam`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+
+// 微信支付获取支付参数
+export function getPayParams(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/pay/pay`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+
+// 设置设备关联状态
+export function setLinkStatus(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/team/setLinkStatus`,
     method: 'post',
     data,
     headers: { Ticket: Store.fetch('Ticket') }

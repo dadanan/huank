@@ -3,58 +3,43 @@
     <div class="header">
       <div class="return" @click="returnMethod"></div>
       <span>设备配置</span>
-      <span class="edit" @click="save" v-if="isEdit">保存</span>
-      <span class="edit" @click="edit" v-else>编辑</span>
     </div>
-    <!--<div class="config-wrapper">
-      <div class="cell-header">
-        <div class="cell-value"><b>配置信息</b></div>
-        <div class="cell-value"><b>配置值</b></div>
-        <div class="cell-value"><b>默认值</b></div>
-      </div>
-      <div>
-      <div class="cell-content" v-for="(item,index) in inItems">
-        <div class="cell-txt">(内)风速{{ item.level }}档</div>
-        <div class="cell-txt">
-          <span v-if="!isEdit">{{ item.speed }}</span>
-          <input v-else v-model="item.speed" style="width:50px;"/> RPM
+    <div class="set-cell">
+      <div class="cell-item border-bottom" @click="editDevFlag = true">
+        <div class="cell-left">
+          <span>设备管理名称</span>
         </div>
-        <div class="cell-txt"></div>
-      </div>
-      <div class="cell-content" v-for="(item,index) in outItems">
-        <div class="cell-txt">(外)风速{{ item.level }}档</div>
-        <div class="cell-txt">
-          <span v-if="!isEdit">{{ item.speed }}</span>
-          <input v-else v-model="item.speed" style="width:50px;"/> RPM
+        <div class="cell-right">
+          <span>{{ manageName }}</span>
         </div>
-        <div class="cell-txt"></div>
       </div>
-      </div>
-    </div>-->
+    </div>
     <yd-accordion style="background: none;">
       <yd-accordion-item title="转速配置">
-        <div slot="txt" style="color:#20aaf8; position: absolute; right: 30px;">保存</div>
-        <div style="padding: .24rem; background: #f2f2f2; ">
-          <table class="table">
-            <tr>
-              <th>档位</th>
-              <th>转数</th>
-              <th>默认值</th>
-            </tr>
-            <tr>
-              <td>1挡</td>
-              <td>450</td>
-              <td>400</td>
-            </tr>
-          </table>
+        <div class="ipt" slot="txt" style="color:#20aaf8; position: absolute; right: 30px;" @click="sendParamFunc(1)">保存</div>
+        <div slot="txt" style="color:#20aaf8; position: absolute; right: 70px;" @click="sendParamFunc(2)">恢复默认</div>
+        <div v-for="item in dirValueList1">
+          <div style="padding: .24rem; background: #f2f2f2;">
+            <p>{{item.abilityName}}</p>
+            <div>
+              <table class="table">
+                <tr>
+                  <th>档位</th>
+                  <th>转数</th>
+                  <th>默认值</th>
+                </tr>
+                <tr v-for="ls in item.configValuesList">
+                  <td>{{ls.definedName}}</td>
+                  <td><input type="number" placeholder="请输入档位" v-model="ls.currentValue"></td>
+                  <td>{{ls.defaultValue}}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
         </div>
       </yd-accordion-item>
       <yd-accordion-item title="智能逻辑设置">
         <div style="padding: .24rem;">
-          <!-- <p>岱宗夫如何，齐鲁青未了。</p>
-          <p>造化钟神秀，阴阳割昏晓。</p>
-          <p>荡胸生层云，决眦入归鸟。</p>
-          <p>会当凌绝顶，一览众山小。</p> -->
         </div>
       </yd-accordion-item>
       <yd-accordion-item title="智能算法设置">
@@ -71,7 +56,7 @@
       <yd-accordion-item title="关联属性设置">
         <div style="padding: .24rem;background: #f2f2f2;">
           <img src="../../assets/gl.png" style="width: 100%;" />
-          <yd-radio-group v-model="radio1" style="text-align: center; margin-top: 15px;" size='16'>
+          <yd-radio-group v-model="linkAgeStatus" :callback='linkStatusChanged' style="text-align: center; margin-top: 15px;" size='16'>
             <yd-radio val="1">
               <span style="font-size: 12px; ">设置关联</span>
             </yd-radio>
@@ -81,12 +66,12 @@
           </yd-radio-group>
         </div>
       </yd-accordion-item>
-      <yd-accordion-item title="主从设置">
+      <yd-accordion-item v-if='showAccordion()' title="主从设置">
         <div style="padding: .24rem;background: #f2f2f2;">
           <div>
             <span>组网设置:</span>
             <div class="switch-box" style="display: inline-block; margin-left: 20px; vertical-align: middle;">
-              <span style="vertical-align: middle;">{{switch1 === true ? '主设备': '从设备' }}</span>
+              <span style="vertical-align: middle;">{{switch1 == true ? '主设备': '从设备' }}</span>
               <span style="vertical-align: middle;" @click="switch1=!switch1">
                 <img src="../../assets/switch.png" style="height: 20px;vertical-align: middle" v-if="!switch1" />
                 <img src="../../assets/switch2.png" style="height: 20px;vertical-align: middle" v-if="switch1" />
@@ -94,7 +79,6 @@
             </div>
             <span style="float: right; color: #6fbff8; margin-left: 10px;" @click='delDev()' v-show='switch1'>删除</span>
             <span style="float: right; color: #6fbff8;" @click='addDev()' v-show='switch1'>+添加从设备</span>
-
           </div>
           <table class="table" style="margin-top: 5px;">
             <tr>
@@ -149,7 +133,6 @@
         </div>
       </yd-accordion-item>
     </yd-accordion>
-
     <div class="create-dialog dialog" v-if="delDevFlag">
       <div class="confirm" style="padding: 0;">
         <div class="confim-top" style="text-align: left; color: #fff; padding: 0 10px 10px; ">
@@ -165,6 +148,18 @@
         <div class="confim-bottom">
           <div class="but" @click="delDevFlag = false">取消</div>
           <div class="but create" @click="deleteChildDevice">确定</div>
+        </div>
+      </div>
+    </div>
+    <!-- 修改名称 -->
+    <div class="create-dialog dialog" v-if="editDevFlag">
+      <div class="confirm">
+        <div class="confim-top">
+          <textarea class="name" v-model="manageName" v-text="manageName"></textarea>
+        </div>
+        <div class="confim-bottom">
+          <div class="but" @click="editDevFlag = false">取消</div>
+          <div class="but create" @click="editDev">确定</div>
         </div>
       </div>
     </div>
@@ -196,47 +191,67 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { Loading, Alert, Toast } from 'vue-ydui/dist/lib.rem/dialog'
-import myUrl from 'common/js/api'
-import Vue from 'vue'
-import { Accordion, AccordionItem } from 'vue-ydui/dist/lib.rem/accordion'
-import { CheckBox, CheckBoxGroup } from 'vue-ydui/dist/lib.rem/checkbox'
-import { Radio, RadioGroup } from 'vue-ydui/dist/lib.rem/radio'
-import { TimeLine, TimeLineItem } from 'vue-ydui/dist/lib.rem/timeline'
-import { Switch } from 'vue-ydui/dist/lib.rem/switch'
+import { Loading, Alert, Toast } from "vue-ydui/dist/lib.rem/dialog";
+import myUrl from "common/js/api";
+import Vue from "vue";
+import { Accordion, AccordionItem } from "vue-ydui/dist/lib.rem/accordion";
+import { CheckBox, CheckBoxGroup } from "vue-ydui/dist/lib.rem/checkbox";
+import { Radio, RadioGroup } from "vue-ydui/dist/lib.rem/radio";
+import { TimeLine, TimeLineItem } from "vue-ydui/dist/lib.rem/timeline";
+import { Switch } from "vue-ydui/dist/lib.rem/switch";
 import {
   childDeviceList,
   getToken,
   addChildDevice,
   delChildDevice,
-  modelList
-} from '../wenkong/api'
-import Store from '../wenkong/store'
+  modelList,
+  getModelVo,
+  sendParamFunc,
+  paramList,
+  queryDeviceBack,
+  editManageName,
+  setLinkStatus
+} from "../wenkong/api";
+import Store from "../wenkong/store";
 export default {
   data() {
     return {
+      editDevFlag: false,
+      manageName: "",
       inItems: [],
       outItems: [],
       isEdit: false,
       open: 0,
       checkbox2: [],
-      radio1: 1,
+      linkAgeStatus: 1,
       switch1: true,
       delDevFlag: false,
       addDevFlag: false,
-      pwd: '',
+      pwd: "",
       pwdList: [],
       childDeviceArray: [],
       modelList: [],
-      modelSelected: '1',
-      deviceChildId: '',
-      deviceId: '',
-      customerId: Store.fetch('customerId') || this.$route.query.customerId,
-      deviceName: '',
-      deleteTheDevice: ''
-    }
+      modelSelected: "1",
+      deviceChildId: "",
+      deviceId: this.$route.query.deviceId,
+      customerId: this.$route.query.customerId || Store.fetch("customerId"),
+      deviceName: "",
+      deleteTheDevice: "",
+      dirValueList: [],
+      dirValueList1: [],
+      status: true,
+      deviceName: ""
+    };
   },
   methods: {
+    showAccordion() {
+      // 显示从设备添加入口？
+      // 如果从主设备版式（目前是新风版式）跳转过来，则显示；其他情况不显示
+      return this.$route.query.masterFormat == 1;
+    },
+    goBack() {
+      history.back();
+    },
     createChildDevice() {
       addChildDevice({
         hostDeviceId: this.deviceId,
@@ -246,152 +261,369 @@ export default {
       })
         .then(res => {
           Toast({
-            mes: '添加成功！',
+            mes: "添加成功！",
             timeout: 1500,
-            icon: 'success'
-          })
+            icon: "success"
+          });
           this.childDeviceArray.push({
             deviceName: this.deviceName,
             childId: this.deviceChildId,
             id: res.data
-          })
-          this.addDevFlag = false
+          });
+          this.addDevFlag = false;
         })
         .catch(err => {
           Alert({
             mes: `添加失败：${err.msg}`
-          })
-        })
+          });
+        });
     },
     deleteChildDevice() {
       delChildDevice(this.deleteTheDevice)
         .then(res => {
           Toast({
-            mes: '删除成功！',
+            mes: "删除成功！",
             timeout: 1500,
-            icon: 'success'
-          })
+            icon: "success"
+          });
           this.childDeviceArray = this.childDeviceArray.filter(
             item => item.id !== this.deleteTheDevice
-          )
-          this.delDevFlag = false
+          );
+          this.delDevFlag = false;
         })
         .catch(err => {
           Alert({
             mes: `删除失败：${err.msg}`
-          })
-        })
+          });
+        });
     },
     returnMethod() {
-      this.$router.back(-1)
+      this.$router.back(-1);
     },
     getConfigInfo() {
-      Loading.open('很快加载好了')
+      Loading.open("很快加载好了");
       this.$http
-        .post(myUrl.getSpeedConfig + '?deviceId=' + this.deviceId)
+        .post(myUrl.getSpeedConfig + "?deviceId=" + this.deviceId)
         .then(res => {
-          if (res.code === 200) {
-            Loading.close()
-            this.inItems = res.data.inItems
-            this.outItems = res.data.outItems
+          if (res.code == 200) {
+            Loading.close();
+            this.inItems = res.data.inItems;
+            this.outItems = res.data.outItems;
           }
         })
         .catch(error => {
-          Loading.close()
-        })
-    },
-    save() {
-      Loading.open('很快加载好了')
-      let data = {}
-      data.deviceId = this.deviceId
-      data.inSpeed = []
-      this.inItems.forEach(v => {
-        data.inSpeed.push(v.speed)
-      })
-      data.outSpeed = []
-      this.outItems.forEach(v => {
-        data.outSpeed.push(v.speed)
-      })
-      this.$http
-        .post(myUrl.setSpeedConfig, data)
-        .then(res => {
-          if (res.code === 200) {
-            this.isEdit = false
-            Loading.close()
-            this.getConfigInfo()
-            Toast({
-              mes: '设置成功',
-              timeout: 1500,
-              icon: 'success'
-            })
-          }
-        })
-        .catch(error => {
-          Loading.close()
-        })
-    },
-    edit() {
-      this.isEdit = true
+          Loading.close();
+        });
     },
     addDev() {
-      this.addDevFlag = true
+      this.addDevFlag = true;
     },
     delDev() {
-      this.delDevFlag = true
+      this.delDevFlag = true;
     },
     childDeviceList() {
       childDeviceList(this.deviceId).then(res => {
-        this.childDeviceArray = res.data
-      })
+        this.childDeviceArray = res.data;
+      });
     },
     getModelList() {
       modelList(this.customerId).then(res => {
-        this.modelList = res.data
-        this.modelSelected = res.data[0].id
+        this.modelList = res.data;
+        this.modelSelected = res.data[0].id;
+      });
+    },
+    // 修改设备名称
+    editDev() {
+      editManageName({ deviceId: this.deviceId, deviceName: this.manageName })
+        .then(res => {
+          this.editDevFlag = false;
+        })
+        .catch(() => {
+          Toast({
+            mes: "名称修改失败",
+            timeout: 1000,
+            icon: "error"
+          });
+          this.editDevFlag = false;
+        });
+    },
+    //获取转速值
+    paramList() {
+      Loading.open("很快加载好了");
+      paramList({ deviceId: this.deviceId, typeName: "C10" })
+        .then(res => {
+          Loading.close();
+          this.dirValueList1 = res.data;
+          for (var i = 0; i < this.dirValueList.length; i++) {
+            this.dirValueList1[i].abilityName = this.dirValueList[
+              i
+            ].abilityName;
+          }
+        })
+        .catch(() => {
+          Loading.close();
+        });
+    },
+    //设备参数修改
+    sendParamFunc(id) {
+      this.status = true;
+      let paramConfigList = [];
+      if (id == 1) {
+        for (var i = 0; i < this.dirValueList1.length; i++) {
+          var valuesList = {};
+          const list = this.dirValueList1[i].configValuesList;
+          var defaultValue = [];
+          for (var j = 0; j < list.length; j++) {
+            if (list[j].currentValue == "") {
+              defaultValue.push(Number(list[j].defaultValue));
+            } else {
+              var s = list[j].currentValue;
+              if (s < list[j].maxValue && s > list[j].minValue) {
+                defaultValue.push(Number(list[j].currentValue));
+              } else {
+                Toast({
+                  mes:
+                    this.dirValueList1[i].abilityName +
+                    " " +
+                    list[j].definedName +
+                    "最小值为" +
+                    list[j].minValue +
+                    "最大值为" +
+                    list[j].maxValue,
+                  timeout: 2000,
+                  icon: "error"
+                });
+                this.status = false;
+              }
+            }
+          }
+          valuesList.sort = i;
+          valuesList.valuesList = defaultValue;
+          paramConfigList.push(valuesList);
+          // console.log(paramConfigList)
+        }
+      } else {
+        for (var i = 0; i < this.dirValueList1.length; i++) {
+          var valuesList = {};
+          const list = this.dirValueList1[i].configValuesList;
+          var defaultValue = [];
+          for (var j = 0; j < list.length; j++) {
+            defaultValue.push(Number(list[j].defaultValue));
+          }
+          valuesList.sort = i;
+          valuesList.valuesList = defaultValue;
+          paramConfigList.push(valuesList);
+          // console.log(paramConfigList)
+        }
+      }
+      if (this.status) {
+        sendParamFunc({
+          deviceId: this.deviceId,
+          abilityTypeName: "C10",
+          paramConfigList: paramConfigList
+        }).then(res => {
+          // console.log(res)
+          // this.queryDeviceBack()
+          this.paramList();
+          Toast({
+            mes: "指令发送成功！",
+            timeout: 1000,
+            icon: "success"
+          });
+        });
+      }
+    },
+    // 判断设备是否接收参数
+    queryDeviceBack() {
+      Loading.open("很快加载好了");
+      queryDeviceBack({
+        deviceId: this.deviceId,
+        typeName: "C10"
       })
+        .then(res => {
+          Loading.close();
+          // this.paramList()
+          // console.log(res)
+          if (res.data) {
+            Toast({
+              mes: "设备收到配置",
+              timeout: 1000,
+              icon: "success"
+            });
+            this.paramList();
+          } else {
+            Toast({
+              mes: "设备未收到配置",
+              timeout: 1000,
+              icon: "error"
+            });
+          }
+        })
+        .catch(() => {
+          Loading.close();
+        });
+    },
+    // 获取总数据
+    getModelVo() {
+      // 获取H5控制页面功能项数据，带isSelect参数
+      getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
+        if (res.code == 200 && res.data) {
+          this.manageName = res.data.manageName;
+          const data = res.data;
+
+          // 将功能集里的内外风机的数据加到版式集合中。为了后面持续刷新两个风机的数据
+          let windData = [];
+          data.abilitysList.forEach(item => {
+            if (item.dirValue === "280" || item.dirValue === "281") {
+              windData.push({
+                ...item,
+                showStatus: 1
+              });
+            }
+          });
+
+          this.formatItemsList = data.formatItemsList.concat(windData);
+
+          this.abilitysList = data.abilitysList;
+          for (var i = 0; i < this.abilitysList.length; i++) {
+            const dirValue = this.abilitysList[i].dirValue.substring(0, 3);
+            if (dirValue == "C10") {
+              this.dirValueList.push(this.abilitysList[i]);
+            }
+          }
+          this.paramList();
+        }
+      });
+    },
+    initLinkAgeStatus() {
+      // 初始化设备关联状态
+      const status = Store.fetch("linkAgeStatus");
+      this.linkAgeStatus = status == 1 ? 1 : 2;
+    },
+    linkStatusChanged(linkAgeStatus) {
+      setLinkStatus({
+        deviceId: this.deviceId,
+        linkAgeStatus: Number(linkAgeStatus),
+        teamId: Number(Store.fetch("teamId"))
+      }).then(() => {
+        Toast({
+          mes: "设置成功",
+          timeout: 1500,
+          icon: "success"
+        });
+        Store.save("linkAgeStatus", linkAgeStatus);
+      });
     }
   },
   created() {
-    Loading.open('很快加载好了')
+    Loading.open("很快加载好了");
     setTimeout(() => {
-      Loading.close()
-    }, 300)
-    this.deviceId = this.$route.query.deviceId
-    this.childDeviceList()
-    this.getModelList()
+      Loading.close();
+    }, 300);
+    this.childDeviceList();
+    this.getModelList();
+    this.getModelVo();
+    this.initLinkAgeStatus();
   },
   components: {
-    'yd-accordion': Accordion,
-    'yd-accordion-item': AccordionItem,
-    'yd-checkbox-group': CheckBoxGroup,
-    'yd-checkbox': CheckBox,
-    'yd-radio-group': RadioGroup,
-    'yd-radio': Radio,
-    'yd-timeline-item': TimeLineItem,
-    'yd-timeline': TimeLine,
-    'yd-switch': Switch
+    "yd-accordion": Accordion,
+    "yd-accordion-item": AccordionItem,
+    "yd-checkbox-group": CheckBoxGroup,
+    "yd-checkbox": CheckBox,
+    "yd-radio-group": RadioGroup,
+    "yd-radio": Radio,
+    "yd-timeline-item": TimeLineItem,
+    "yd-timeline": TimeLine,
+    "yd-switch": Switch
   },
   watch: {
     pwd: function() {
       if (this.pwd && this.pwd.length > 0) {
         if (this.pwd.length >= 4) {
-          this.pwd = this.pwd.slice(0, 4)
+          this.pwd = this.pwd.slice(0, 4);
         }
-        this.pwdList = this.pwd.split('')
+        this.pwdList = this.pwd.split("");
       } else {
-        this.pwdList = []
+        this.pwdList = [];
       }
     }
   },
   mounted() {
-    this.getConfigInfo()
+    this.getConfigInfo();
   }
-}
+};
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-@import 'src/common/scss/variable.scss';
-@import 'src/common/scss/mixins.scss';
+@import "src/common/scss/variable.scss";
+@import "src/common/scss/mixins.scss";
 .set-wrapper {
+  .set-cell {
+    padding-top: 10px;
+    background: #fff;
+    .cell-item {
+      position: relative;
+      display: flex;
+      overflow: hidden;
+      margin-bottom: 10px;
+      font-size: 14px;
+      &.white {
+        background: #ffffff;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+        .cell-right {
+          &::after {
+            top: 16px;
+          }
+        }
+      }
+      &.border-bottom {
+        padding-bottom: 15px;
+        &::after {
+          content: "";
+          margin-left: 15px;
+          position: absolute;
+          z-index: 0;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          border-bottom: 1px solid #d9d9d9;
+          transform: scaleY(0.5);
+          transform-origin: 0 0;
+        }
+      }
+      .cell-left {
+        padding-left: 15px;
+        display: flex;
+        align-items: center;
+      }
+      .cell-right {
+        flex: 1;
+        justify-content: flex-end;
+        text-align: right;
+        padding-right: 40px;
+        &::after {
+          display: block;
+          color: #c9c9c9;
+          content: "";
+          width: 8px;
+          height: 15px;
+          background: url("../../assets/arr-right.png") no-repeat center center;
+          background-size: 8px 15px;
+          position: absolute;
+          right: 20px;
+          top: 3px;
+        }
+        & span {
+          color: #999999;
+        }
+      }
+    }
+  }
+  input {
+    border: none;
+    text-indent: 4em;
+  }
   position: absolute;
   width: 100%;
   height: 100%;
@@ -539,7 +771,7 @@ export default {
     .return {
       position: absolute;
       left: 0px;
-      background: url('../../assets/arr-left.png') no-repeat center center;
+      background: url("../../assets/arr-left.png") no-repeat center center;
       background-size: 8px 16px;
       width: 40px;
       height: 40px;

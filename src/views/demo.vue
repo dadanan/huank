@@ -1,103 +1,47 @@
 <template>
-  <div class="set-wrapper">
-    
-  <draggable v-model="myArray" :no-transition-on-drag="true" @start="drag=true" @end="drag=false">
-    <transition-group>
-        <div class="box" v-for="element in tags" :key="element.id">
-            {{element.name}}
-        </div>
-    </transition-group>
-  </draggable>
-
-  <draggable v-model="myArray2" :no-transition-on-drag="true" @start="drag=true" @end="drag=false">
-    <transition-group>
-        <div class="box" v-for="element in tags2" :key="element.id">
-            {{element.name}}
-        </div>
-    </transition-group>
-  </draggable>
-        
-
+  <div class="demo-container">
+    <button @click='buy(0.01)'>支付0.01元</button>
+    <button @click='buy(0.02)'>支付0.02元</button>
+    <button @click='buy(0.1)'>支付0.1元</button>
   </div>
 </template>
 
-<script type="text/ecmascript-6">
-import { Loading, Toast} from 'vue-ydui/dist/lib.rem/dialog'
-import Vue from 'vue'
-import draggable from 'vuedraggable'
+<script>
+import { getPayParams } from "./wenkong/api";
+import Store from "./wenkong/store";
+import { wxPay } from "../utils/wx.js";
 
 export default {
-  data () {
-    return {
-      myArray: [],
-      myArray2: [],
-      tags: [
-        {
-          id: 0,
-          name: '测试1'
-        },
-        {
-          id: 1,
-          name: '测试2'
-        }
-      ],
-      tags2: [
-        {
-          id: 3,
-          name: '测试3'
-        },
-        {
-          id: 4,
-          name: '测试4'
-        }
-      ]
-    }
-  },
-  created () {
-
-  },
-  components: {
-    draggable
-  },
-  computed: {
-  },
-  watch: {
-  },
-  mounted () {
-
-  },
   methods: {
-    getdata (evt) {
-      console.log(evt.draggedContext.element.id)
-    },
-    datadragEnd (evt) {
-      console.log('拖动前的索引 :' + evt.oldIndex)
-      console.log('拖动后的索引 :' + evt.newIndex)
-      console.log(this.tags)
+    buy(price) {
+      const attach = JSON.stringify({
+        test: "可以在这里带上任何附加信息"
+      });
+      getPayParams({
+        openId: Store.fetch("Ticket"), // openId
+        price: price, // 钱
+        orderBodyDesc: "订单主体描述test",
+        orderDetail: "订单详细描述test",
+        attach: attach
+      }).then(res => {
+        res = res.data;
+        wxPay(
+          res.appId,
+          res.timeStamp,
+          res.nonceStr,
+          res.package1,
+          res.signType,
+          res.paySign,
+          res.signature
+        );
+      });
     }
-
   }
-}
+};
 </script>
-<style rel="stylesheet/scss" lang="scss" scoped>
-  @import "src/common/scss/variable.scss";
-  @import "src/common/scss/mixins.scss";
-
-  .set-wrapper{
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top:0;
-    & .box{
-      color: #ffffff;
-      line-height: 40px;
-       height: 40px;
-      background: blue;
-      margin-bottom: 10px;
-    }
-   
-    
-  }
-  
+<style  lang="scss" scoped>
+.demo-container {
+  margin: 30% auto;
+}
 </style>
 

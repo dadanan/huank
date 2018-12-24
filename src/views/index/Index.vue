@@ -1,5 +1,5 @@
 <template>
-  <div class="main-wrapper" v-show='pageIsShow' :class="{ active: isOpen === true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')','background-repeat':'no-repeat','background-size':'cover' }">
+  <div class="main-wrapper" v-show='pageIsShow' :class="{ active: isOpen === true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')'}">
     <div class="header">
       <span>{{ deviceName }}</span>
       <span class="edit" @click="intoSet"></span>
@@ -8,10 +8,10 @@
     <div class="info">
       <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;
       <span v-show='formatItemsList[12] && formatItemsList[2].showStatus'>{{location}}&nbsp;</span>
-      <span v-show='formatItemsList[13] && formatItemsList[13].showStatus'>{{weather}} {{outerTem}}&nbsp;</span>
-      <span v-show='formatItemsList[14] && formatItemsList[14].showStatus'>湿度: {{outerHum}}&nbsp;</span>
-      <span v-show='formatItemsList[15] && formatItemsList[15].showStatus'>PM2.5: {{outerPm}}ug/m3&nbsp;</span>
-      <span>质量: 优</span>
+      <span v-show='formatItemsList[13] && formatItemsList[13].showStatus'>{{weather}} {{getOuterTem}}℃&nbsp;</span>
+      <span v-show='formatItemsList[14] && formatItemsList[14].showStatus'>湿度: {{getOuterHum}}%&nbsp;</span>
+      <span v-show='formatItemsList[15] && formatItemsList[15].showStatus'>PM2.5: {{getOuterPM}}ug/m3&nbsp;</span>
+      <span>质量: {{AQI}}</span>
     </div>
     <div class="but-list">
       <!-- 童锁 -->
@@ -34,9 +34,10 @@
         <div class="circle-inner">
           <p>
             PM2.5
-            <span>优</span>
+            <span>{{AQI}}</span>
           </p>
-          <p v-if='formatItemsList[15] && getAbilityData(formatItemsList[15].abilityId)' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[15].abilityId).currValue}}</p>
+          <p v-if='formatItemsList[16] && formatItemsList[16].abilityId' :class="{ active:  isOpen === true}">{{getAbilityData(formatItemsList[16].abilityId).currValue}}</p>
+          <p></p>
           <p>ug/m3</p>
         </div>
       </div>
@@ -59,7 +60,7 @@
         </div>
       </div>
       <div class="tip" v-show='formatItemsList[7] && formatItemsList[7].showStatus'>
-        <p>滤芯剩余寿命 1204 时</p>
+        <p>滤芯剩余寿命 {{batteryList3}} 时</p>
         <p v-if="1===2">设备租赁剩余时间 2 时</p>
       </div>
       <div class="b-data">
@@ -100,8 +101,8 @@
       <div class="content">
         <div class="title">模式设定</div>
         <div class="list">
-          <ul v-if='formatItemsList[1]'>
-            <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[1].abilityId)" :class="{ active: modeCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[1].abilityId),index)" :key='item.optionValue'>
+          <ul v-if='formatItemsList[1] && formatItemsList[1].abilityId'>
+            <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[1].abilityId)" :class="{ active: modeCurrent == index }" @click="nodeClicked(getAbilityData(formatItemsList[1].abilityId),index,1)">
               <span>{{ item.optionDefinedName || item.optionName }}</span>
               <div class="icon"></div>
             </li>
@@ -113,8 +114,28 @@
     <yd-popup v-show='formatItemsList[2] && formatItemsList[2].showStatus' v-model="speedFlag" position="bottom" width="90%">
       <div class="content">
         <div class="title">风速设定</div>
-        <div class="list">
-          <mt-picker ref='picker' :slots="slots" @change="onValuesChange"></mt-picker>
+        <div class="list wind-speed-list" v-if='formatItemsList[2] && formatItemsList[2].abilityId'>
+          <div>
+            <p>
+              <span>{{leftSpeedName}}</span>
+              <span>{{currentSpeedLeftIndexLabel}}</span>
+            </p>
+            <div>
+              <el-slider v-model="currentSpeedLeft" :step="leftStep()" @change='sliderChangedLeft' show-stops :show-tooltip="false">
+              </el-slider>
+            </div>
+          </div>
+          <div v-if='hasRightWind()'>
+            <p>
+              <span>{{rightSpeedName}}</span>
+              <span v-if="!isCycleSwitchOpen()">循环阀未打开，禁止操作此风机！</span>
+              <span v-if="isCycleSwitchOpen()">{{currentSpeedRightIndexLabel}}</span>
+            </p>
+            <div>
+              <el-slider :disabled="!isCycleSwitchOpen()" v-model="currentSpeedRight" :step="rightStep()" @change='sliderChangedRight' show-stops :show-tooltip="false">
+              </el-slider>
+            </div>
+          </div>
         </div>
       </div>
     </yd-popup>
@@ -122,9 +143,9 @@
       <div class="content">
         <div class="title">其它功能设定</div>
         <div class="list">
-          <ul v-if='formatItemsList[3]'>
-            <li v-if='item.status !== 2 &&  getListData(formatItemsList[3].abilityId)' v-for="(item,index) in getListData(formatItemsList[3].abilityId)" :key="item.dirValue" :class="{ active: item.isChecked}" @click="nodeClicked(item,index,3)">
-              <span>{{ item.optionDefinedName || item.optionName }}</span>
+          <ul v-if='formatItemsList[3] && formatItemsList[3].abilityId'>
+            <li v-if='item && item.status !== 2' v-for="item in getListData(formatItemsList[3].abilityId,'func')" :class="{ active: item.isChecked}" @click="nodeClicked(item,'',3)" :key='item.abilityId'>
+              <span>{{ item.definedName || item.abilityName }}</span>
               <div class="icon"></div>
             </li>
           </ul>
@@ -135,26 +156,29 @@
       <img src="../../assets/ts.png" />
       <span @click="childMethod(true)">点此解除锁屏</span>
     </div>
+    <div class='sleep-mask' v-if='isSleep'>
+      <span @click='changeSleepStatus'>点此取消睡眠</span>
+    </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-import { Loading, Toast } from 'vue-ydui/dist/lib.rem/dialog'
-import { Popup } from 'vue-ydui/dist/lib.rem/popup'
-import { setWechatTitle } from 'utils'
-import img1 from '../../assets/bak3.jpg' // 白天阴
-import img2 from '../../assets/bak2.jpg' // 夜晚阴
-import img3 from '../../assets/bak1.jpg' // 夜晚晴
-import img4 from '../../assets/bak4.jpg' // 白天晴
-import { Picker } from 'mint-ui'
-import Store from '../wenkong/store'
+import { Loading, Toast } from "vue-ydui/dist/lib.rem/dialog";
+import { Popup } from "vue-ydui/dist/lib.rem/popup";
+import { setWechatTitle } from "utils";
+import img1 from "../../assets/bak3.jpg"; // 白天阴
+import img2 from "../../assets/bak2.jpg"; // 夜晚阴
+import img3 from "../../assets/bak1.jpg"; // 夜晚晴
+import img4 from "../../assets/bak4.jpg"; // 白天晴
+import Store from "../wenkong/store";
 import {
   getModelVo,
   newQueryDetailByDeviceId,
   getLocation,
   getWeather,
-  sendFunc
-} from '../wenkong/api'
+  sendFunc,
+  getStrainerData
+} from "../wenkong/api";
 
 let prevValues = '' //当一次用户选择的picker组件的第二个值，来判断。只有此值变化，才调用指令接口
 let currValues = '' // 当前用户所在的左侧滑杆的值
@@ -162,330 +186,342 @@ let currValues = '' // 当前用户所在的左侧滑杆的值
 export default {
   data() {
     return {
+      value7: 20,
+      shutdown: "", // 关机
+      cloudyDay: img1, // 阴天
+      sunnyDay: img4, // 晴天
+      cloudyNight: img2, // 夜晚阴
+      sunnyNight: img3, // 夜晚晴
+      specIndex: 0,
       pageIsShow: false,
       img: img4,
-      windData: {},
-      deviceName: '',
-      customerName: '',
+      currentTime: 2,
+      timeSet: null,
+      deviceName: "",
+      customerName: "",
       cHeight: 200,
       isOpen: true, // 开关
       isLock: false, // 童锁
+      isSleep: false, // 睡眠
       modeFlag: false, // 模式设置
       deviceObj: {},
       modeCurrent: undefined,
-      speedLeftCurrent: undefined,
-      speedRightCurrent: undefined,
+      currentSpeedLeftIndexLabel: "", // 送风风速当前档位
+      currentSpeedRightIndexLabel: "", // 回风风速当前档位
+      currentSpeedLeft: 0, // 送风风速当前档位对应的slider数值
+      currentSpeedRight: 0,
       modeData: [],
       speedFlag: false,
       speedData: [],
       functionFlag: false,
       functionCurrent: null,
       functionData: [],
-      weather: null,
-      currentSpeed: [],
       formatItemsList: [],
       abilitysList: [],
-      location: '',
-      weather: '',
-      outerTem: '',
-      outerHum: '', // 湿度
-      outerPm: '', // PM2.5
+      location: "",
+      weather: "", //天气
+      outerTem: "", // 温度
+      outerHum: "", // 湿度
+      outerPm: "", // PM2.5
       deviceId: this.$route.query.deviceId,
       wxDeviceId: this.$route.query.wxDeviceId,
       customerId: this.$route.query.customerId,
       setInter: undefined, // 定时id
-      singleMachine: true, // 是单风机吗？
-      slots: [
-        {
-          flex: 1,
-          values: [],
-          className: 'slot1',
-          textAlign: 'right',
-          defaultIndex: 1
-        },
-        {
-          divider: true,
-          content: '-',
-          className: 'slot2'
-        },
-        {
-          flex: 1,
-          values: [],
-          className: 'slot3',
-          textAlign: 'left',
-          defaultIndex: 2
+      batteryList1: [],
+      dirValueList: [],
+      batteryList3: "",
+      setInter2: undefined,
+      AQI: "优"
+    };
+  },
+  computed: {
+    getOuterPM() {
+      // 对应配置项被用作室内PM2.5，所以室外PM2.5直接返回第三方数据
+      return this.outerPm;
+      // 获取室外PM2.5数据，优先使用室外传感器数据
+      if (!this.formatItemsList[15] || !this.formatItemsList[15].abilityId) {
+        // 如果没有传感器功能项
+        return this.outerPm;
+      }
+      const currData = this.getAbilityData(this.formatItemsList[15].abilityId);
+      if (!currData) {
+        return this.outerPm;
+      }
+
+      const currValue = currData.currValue;
+
+      if (currValue && currValue !== "0") {
+        return currValue;
+      }
+      return this.outerPm;
+    },
+    getOuterHum() {
+      // 室外湿度
+      if (!this.formatItemsList[14] || !this.formatItemsList[14].abilityId) {
+        if (!this.outerHum) {
+          return 0;
         }
-      ],
-      thePicker: null, // picker的引用
-      twoSeconds: false
+        return this.outerHum.replace("%", "");
+      }
+      const currData = this.getAbilityData(this.formatItemsList[14].abilityId);
+      if (!currData) {
+        if (!this.outerHum) {
+          return 0;
+        }
+        return this.outerHum.replace("%", "");
+      }
+      const currValue = currData.currValue;
+
+      if (currValue && currValue !== "0") {
+        return currValue;
+      }
+      if (!this.outerHum) {
+        return 0;
+      }
+      return this.outerHum.replace("%", "");
+    },
+    getOuterTem() {
+      // 室外温度
+      if (!this.formatItemsList[13] || !this.formatItemsList[13].abilityId) {
+        if (!this.outerTem) {
+          return 0;
+        }
+        return this.outerTem.replace("℃", "");
+      }
+      const currData = this.getAbilityData(this.formatItemsList[13].abilityId);
+      if (!currData) {
+        if (!this.outerTem) {
+          return 0;
+        }
+        return this.outerTem.replace("℃", "");
+      }
+      const currValue = currData.currValue;
+
+      if (currValue && currValue !== "0") {
+        return currValue;
+      }
+      if (!this.outerTem) {
+        return 0;
+      }
+      return this.outerTem.replace("℃", "");
+    },
+    leftSpeedName() {
+      const name = "送风风速";
+      if (!this.formatItemsList[2] || !this.formatItemsList[2].abilityId) {
+        return name;
+      }
+      const leftData = this.getAbilityData(
+        this.formatItemsList[2].abilityId,
+        "left"
+      );
+      if (!leftData) {
+        return name;
+      }
+      return leftData.definedName || leftData.abilityName;
+    },
+    rightSpeedName() {
+      const name = "回风风速";
+      if (!this.formatItemsList[2] || !this.formatItemsList[2].abilityId) {
+        return name;
+      }
+      const rightData = this.getAbilityData(
+        this.formatItemsList[2].abilityId,
+        "right"
+      );
+      if (!rightData) {
+        return name;
+      }
+      return rightData.definedName || rightData.abilityName;
     }
   },
   methods: {
-    onValuesChange(picker, values) {
-      if (!this.twoSeconds) {
-        // 2秒后才能执行
-        return
+    /**
+     * 开启回风风机？
+     */
+    hasRightWind() {
+      const ids = this.formatItemsList[2].abilityId.split(",");
+      return ids.length === 2;
+    },
+    /**
+     * 循环阈处于打开状态？
+     */
+    isCycleSwitchOpen() {
+      // 如果当前指令是外风机的，判断是否循环阀是否打开，没有的话。禁止发送指令
+      const modelData = this.getListData(
+        this.formatItemsList[3].abilityId,
+        "func"
+      );
+      if (!modelData) {
+        return false;
       }
 
-      if (this.singleMachine) {
-        // 如果单风机，直接发送指令
-        sendFunc({
-          deviceId: this.deviceId,
-          funcId: this.windData.dirValue,
-          value:
-            this.windData.abilityOptionList.filter(
-              item => item.optionDefinedName === values[1]
-            )[0] &&
-            this.windData.abilityOptionList.filter(
-              item => item.optionDefinedName === values[1]
-            )[0].optionValue
-        }).then(res => {
-          Toast({
-            mes: '指令发送成功！',
-            timeout: 1000,
-            icon: 'success'
-          })
-          console.info(
-            '指令发送成功:',
-            this.windData.dirValue,
-            '-',
-            this.windData.abilityOptionList.filter(
-              item => item.optionDefinedName === values[1]
-            )[0].optionValue
-          )
-        })
-
-        return
+      // item可能为undefined
+      const cycleSwitch = modelData.filter(
+        item => item && item.dirValue === "290"
+      )[0];
+      return cycleSwitch && cycleSwitch.isChecked;
+    },
+    leftStep() {
+      const step =
+        100 /
+        (this.getListData(this.formatItemsList[2].abilityId, "left").length -
+          1);
+      return step;
+    },
+    rightStep() {
+      if (!this.hasRightWind()) {
+        return 0;
       }
-      // 双风机的话，切换对应的档位显示
-      // 找到对应的功能项
-      const tempData = this.windData.filter(
-        item => item.definedName === values[0]
-      )[0]
-
-      this.thePicker.setSlotValues(
-        1,
-        tempData.abilityOptionList.map(
-          item => item.optionDefinedName || item.optionName
-        )
-      )
-
-      // 重新赋值，获取用户当前所在的滑杆（左边那个）
-      currValues = values[0]
-
-      // 如果用户没有滑动左侧的滑杆，不调用接口
-      if (prevValues === values[1]) {
-        return
+      const step =
+        100 /
+        (this.getListData(this.formatItemsList[2].abilityId, "right").length -
+          1);
+      return step;
+    },
+    sliderChangedLeft(val) {
+      const index = val / this.leftStep();
+      const data = this.getAbilityData(
+        this.formatItemsList[2].abilityId,
+        "left"
+      );
+      if (!data) {
+        return;
       }
-      prevValues = values[1]
+      const option = data.abilityOptionList;
+
+      this.currentSpeedLeftIndexLabel =
+        option[index].optionDefinedName || option[index].optionName;
+
       sendFunc({
         deviceId: this.deviceId,
-        funcId: tempData.dirValue,
-        value:
-          tempData.abilityOptionList.filter(
-            item => item.optionDefinedName === values[1]
-          )[0] &&
-          tempData.abilityOptionList.filter(
-            item => item.optionDefinedName === values[1]
-          )[0].optionValue
-      }).then(res => {
+        funcId: data.dirValue,
+        value: option[index].optionValue
+      }).then(() => {
         Toast({
-          mes: '指令发送成功！',
+          mes: "指令发送成功！",
           timeout: 1000,
-          icon: 'success'
-        })
+          icon: "success"
+        });
         console.info(
-          '指令发送成功:',
-          tempData.dirValue,
-          '-',
-          tempData.abilityOptionList.filter(
-            item => item.optionDefinedName === values[1]
-          )[0].optionValue
-        )
-      })
+          "指令发送成功:",
+          data.dirValue,
+          "-",
+          option[index].optionValue
+        );
+      });
     },
-    initWindMachine() {
-      // 单双风机分开处理，初始化Picker数据且初始化
-      const thePicker = this.thePicker
-      if (!this.formatItemsList[2]) {
-        return
+    sliderChangedRight(val) {
+      if (!this.isCycleSwitchOpen()) {
+        Toast({
+          mes: "循环阀未打开，禁止操作此风机！",
+          timeout: 1000
+        });
+        return;
       }
-      const id = this.formatItemsList[2].abilityId
-      const abilityOption = this.getListData(id)
-      if (!abilityOption) {
-        return true
+      const index = val / this.rightStep();
+      const data = this.getAbilityData(
+        this.formatItemsList[2].abilityId,
+        "right"
+      );
+      if (!data) {
+        return;
       }
+      const option = data.abilityOptionList;
 
-      const firstAbilityOption = abilityOption[0]
+      this.currentSpeedRightIndexLabel =
+        option[index].optionDefinedName || option[index].optionName;
 
-      // 找到设备选择的档位值，并且设置默认选择
-      let itemSelected = undefined
-      // 选项指令小于10的话，就是单风机。
-      if (Number(firstAbilityOption.optionValue) < 10) {
-        this.singleMachine = true
-        // 获取单风机功能项数据
-        const windData = this.getAbilityData(id)
-        windData.abilityOptionList.forEach((item, index) => {
-          if (item.isSelect) {
-            itemSelected = index
-          }
-        })
-
-        const temp = windData.abilityOptionList.map(
-          item => item.optionDefinedName || item.optionName
-        )
-        thePicker.setSlotValues(0, [windData.definedName])
-        thePicker.setSlotValues(1, temp)
-        this.windData = windData
-
-        thePicker.setSlotValue(1, temp[itemSelected])
-        return
-      }
-
-      // 如果是双风机
-      // 获取风机数据，且重置picker组件
-      this.singleMachine = false
-      // 拿到数据，组成数组
-      const windArray = abilityOption.map(item =>
-        this.getAbilityByDirValue(item.dirValue)
-      )
-      this.windData = windArray
-
-      // 赋值第一个风机的名称位
-      if (!currValues) {
-        currValues = windArray[0].definedName
-      }
-
-      // 如果用户当前是在内风速：即风速数组的第一个元素
-      let temp = []
-      if (windArray[0].definedName === currValues) {
-        windArray[0].abilityOptionList.forEach((item, index) => {
-          if (item.isSelect) {
-            itemSelected = index
-          }
-        })
-
-        temp = windArray[0].abilityOptionList.map(
-          item => item.optionDefinedName || item.optionName
-        )
-        thePicker.setSlotValues(0, windArray.map(item => item.definedName))
-        thePicker.setSlotValues(
-          1,
-          windArray[0].abilityOptionList.map(
-            item => item.optionDefinedName || item.optionName
-          )
-        )
-
-        // 设置档位的下标
-      } else {
-        windArray[1].abilityOptionList.forEach((item, index) => {
-          if (item.isSelect) {
-            itemSelected = index
-          }
-        })
-
-        temp = windArray[1].abilityOptionList.map(
-          item => item.optionDefinedName || item.optionName
-        )
-        thePicker.setSlotValues(0, windArray.map(item => item.definedName))
-        thePicker.setSlotValues(
-          1,
-          windArray[1].abilityOptionList.map(
-            item => item.optionDefinedName || item.optionName
-          )
-        )
-      }
-
-      thePicker.setSlotValue(1, temp[itemSelected])
-      prevValues = temp[itemSelected]
+      sendFunc({
+        deviceId: this.deviceId,
+        funcId: data.dirValue,
+        value: option[index].optionValue
+      }).then(() => {
+        Toast({
+          mes: "指令发送成功！",
+          timeout: 1000,
+          icon: "success"
+        });
+        console.info(
+          "指令发送成功:",
+          data.dirValue,
+          "-",
+          option[index].optionValue
+        );
+      });
+    },
+    changeSleepStatus() {
+      this.isSleep = false;
+      sendFunc({
+        deviceId: this.deviceId,
+        funcId: "210",
+        value: "3"
+      }).then(() => {
+        Toast({
+          mes: "指令发送成功！",
+          timeout: 1000,
+          icon: "success"
+        });
+        console.info("指令发送成功:", "210", "-", "3");
+      });
     },
     getAbilityByDirValue(dirValue) {
       // 根据指令值找对应的功能项数据，双风机风速用到
-      return this.abilitysList.filter(item => item.dirValue === dirValue)[0]
+      return this.abilitysList.filter(item => item.dirValue === dirValue)[0];
     },
+    /**
+     * 返回功能项的选项数据，
+     * 如果是风速，和功能（多选），则特殊处理
+     * @param which left 回风风速
+     * @param which right 送风风速
+     * @param which func 功能
+     */
     getListData(abilityId, which) {
-      if (which) {
-        // 说明是风速的abilityId，那么特殊情况，特殊处理
-        const windOption = this.getListData(abilityId)
-        let left = {}
-        let right = {}
-        if (windOption[0].optionValue === '280') {
-          // 如果第一个选项是280，即内风机，那么找到风外风机的ability数据
-          left = this.getAbilityByDirValue('280')
-          right = this.getAbilityByDirValue(windOption[1].optionValue)
-        } else {
-          right = this.getAbilityByDirValue('280')
-          left = this.getAbilityByDirValue(windOption[1].optionValue)
-        }
-        if (which === 'left') {
-          return left
-        }
-        return right
-      }
-      // 根据功能id获取功能项的数据
-      let result = this.abilitysList.filter(
-        item => item.abilityId === abilityId
-      )
-      if (result && result[0]) {
-        result = result[0].abilityOptionList
+      // 说明是风速的abilityId，那么特殊情况，特殊处理
+      if (which === "left") {
+        return this.getListData(abilityId.split(",")[0]);
+      } else if (which === "right") {
+        return this.getListData(abilityId.split(",")[1]);
+      } else if (which === "func") {
+        return abilityId.split(",").map(id => {
+          return this.getAbilityData(id);
+        });
       }
 
-      return result
+      // 根据功能id获取功能项的数据
+      const result = this.abilitysList.filter(
+        item => item.abilityId == abilityId
+      )[0];
+      return result && result.abilityOptionList;
     },
     /**
      * 找到对应的功能项数据
      * @param which left/right 表示内风机/外风机
      */
     getAbilityData(abilityId, which) {
-      if (which === 'left') {
-        return this.abilitysList.filter(item => item.dirValue === '280')[0]
+      if (which === "left") {
+        return this.abilitysList.filter(item => item.dirValue === "280")[0];
       }
-      if (which === 'right') {
-        return this.abilitysList.filter(item => item.dirValue === '281')[0]
+      if (which === "right") {
+        return this.abilitysList.filter(item => item.dirValue === "281")[0];
       }
       const result = this.abilitysList.filter(
-        item => item.abilityId === abilityId
-      )[0]
-      return result
-    },
-    changeSpeed(item, index) {
-      this.slots[0].values = item.choice
-      this.slots[0].defaultIndex = parseInt(item.value) - 1
+        item => item.abilityId == abilityId
+      )[0];
+      return result;
     },
     intiTime() {
       if (!this.isOpen) {
-        this.$toast('当前关机状态，不可操作', 'bottom')
-        return false
+        this.$toast("当前关机状态，不可操作", "bottom");
+        return false;
       }
       this.$router.push({
-        path: '/timinglist',
+        path: "/timinglist",
         query: {
           deviceId: this.deviceId,
           wxDeviceId: this.wxDeviceId,
           customerId: this.customerId
         }
-      })
-    },
-    setModelData(type, id) {
-      const data = this.abilitysList.filter(item => item.abilityId === id)[0]
-      if (!data) {
-        return
-      }
-
-      // 根据isSelect的值，对相应选项执行默认选中行为
-      data.abilityOptionList &&
-        data.abilityOptionList.forEach((item, iIndex) => {
-          if (item.isSelect === 0) {
-            return
-          }
-
-          // “模式”
-          if (type === 1) {
-            this.modeCurrent = iIndex
-            return
-          }
-          this.speedCurrent = iIndex
-        })
+      });
     },
     setPopDialogData() {
       // 实时设置下方模式、风速，功能等弹框内的数据
@@ -494,142 +530,172 @@ export default {
       // 更新模式选项
       const updateModel = () => {
         const data = this.abilitysList.filter(
-          item => item.abilityId === this.formatItemsList[1].abilityId
-        )[0]
+          item => item.abilityId == this.formatItemsList[1].abilityId
+        )[0];
         if (!data) {
-          return
+          return;
         }
 
         // 根据isSelect的值，对相应选项执行默认选中行为
-        data.abilityOptionList &&
-          data.abilityOptionList.forEach((item, iIndex) => {
-            if (item.isSelect === 0) {
-              return
-            }
+        data.abilityOptionList.forEach((item, iIndex) => {
+          if (item.isSelect === 0) {
+            return;
+          }
 
-            // “模式选项”
-            this.modeCurrent = iIndex
-          })
-      }
+          // “模式选项”
+          this.modeCurrent = iIndex;
+
+          // 如果当前选中对模式是睡眠，那么开启睡眠弹框
+          if (item.optionValue === "2") {
+            this.isSleep = true;
+          } else {
+            this.isSleep = false;
+          }
+        });
+      };
 
       const updateWindSpeed = () => {
         // 找到内风速的功能数据
         // P.S. 这里内外风速区分直接根据指令来做了。
         const dataLeft = this.abilitysList.filter(
-          item => item.dirValue === '280'
-        )[0]
+          item => item.dirValue === "280"
+        )[0];
         if (!dataLeft) {
-          return
+          return;
         }
 
         // 根据isSelect的值，对相应选项执行默认选中行为
-        dataLeft.abilityOptionList &&
-          dataLeft.abilityOptionList.forEach((item, iIndex) => {
-            if (item.isSelect === 0) {
-              return
-            }
+        dataLeft.abilityOptionList.forEach((item, iIndex) => {
+          if (item.isSelect === 0) {
+            return;
+          }
 
-            // “内风速选项”
-            this.speedLeftCurrent = iIndex
-          })
+          // “内风速选项”
+          this.currentSpeedLeft = this.leftStep() * iIndex;
+          this.currentSpeedLeftIndexLabel =
+            item.optionDefinedName || item.definedName;
+        });
 
         // 外风速的功能数据
         const dataRight = this.abilitysList.filter(
-          item => item.dirValue === '281'
-        )[0]
+          item => item.dirValue === "281"
+        )[0];
         if (!dataRight) {
-          return
+          return;
         }
 
         // 根据isSelect的值，对相应选项执行默认选中行为
-        dataRight.abilityOptionList &&
-          dataRight.abilityOptionList.forEach((item, iIndex) => {
-            if (item.isSelect === 0) {
-              return
-            }
-
-            // “外风速选项”
-            this.speedRightCurrent = iIndex
-          })
-      }
+        dataRight.abilityOptionList.forEach((item, iIndex) => {
+          if (item.isSelect === 0) {
+            return;
+          }
+          // “外风速选项”
+          this.currentSpeedRight = this.rightStep() * iIndex;
+          this.currentSpeedRightIndexLabel =
+            item.optionDefinedName || item.definedName;
+        });
+      };
 
       // 功能多选项的初始化
       const updateAbility = () => {
-        const data = this.getListData(this.formatItemsList[3].abilityId)
-        data.forEach(item => {
-          if (item.isSelect == 1) {
-            item.isChecked = true
-          } else {
-            item.isChecked = false
+        const data = this.getListData(
+          this.formatItemsList[3].abilityId,
+          "func"
+        );
+        data.forEach(ability => {
+          if (!ability) return;
+          const options = ability.abilityOptionList;
+          if (!options) {
+            return;
           }
-        })
-      }
 
-      updateModel()
-      updateWindSpeed()
-      updateAbility()
+          const isChecked = options.some(option => {
+            return option.optionValue == "1" && option.isSelect == 1;
+          });
+
+          this.$set(ability, "isChecked", isChecked);
+        });
+      };
+
+      if (this.formatItemsList[1].abilityId) {
+        updateModel();
+      }
+      if (this.formatItemsList[2].abilityId) {
+        updateWindSpeed();
+      }
+      if (this.formatItemsList[3].abilityId) {
+        updateAbility();
+      }
     },
     switchModel(id) {
       if (!this.isOpen) {
-        this.$toast('当前关机状态，不可操作', 'bottom')
-        return false
+        this.$toast("当前关机状态，不可操作", "bottom");
+        return false;
       }
-      this.modeFlag = true
-      // this.setModelData(1, id)
+      this.modeFlag = true;
     },
     switchSpeed(id) {
       if (!this.isOpen) {
-        this.$toast('当前关机状态，不可操作', 'bottom')
-        return false
+        this.$toast("当前关机状态，不可操作", "bottom");
+        return false;
       }
-      this.speedFlag = true
+      this.speedFlag = true;
     },
     switchFunction() {
       if (!this.isOpen) {
-        this.$toast('当前关机状态，不可操作', 'bottom')
-        return false
+        this.$toast("当前关机状态，不可操作", "bottom");
+        return false;
       }
-      // 做下功能多选项的初始化
-      const data = this.getListData(this.formatItemsList[3].abilityId)
-      data.forEach(item => {
-        if (item.isSelect == 1) {
-          item.isChecked = true
-        } else {
-          item.isChecked = false
-        }
-      })
-      this.functionFlag = true
+
+      this.functionFlag = true;
     },
     intoSet() {
       if (!this.isOpen) {
-        return
+        return;
       }
+      const query = this.$route.query;
       this.$router.push({
-        path: '/set',
+        path: "/set",
         query: {
           deviceId: this.deviceId,
           wxDeviceId: this.wxDeviceId,
-          customerId: this.customerId
+          customerId: this.customerId,
+          masterFormat: 1, // 可能作为主机（目前只有新风版式可以作为主机）
+          hasChildren: query.hasChildren,
+          hasTwoAbility: this.hasTwoAbility()
         }
-      })
+      });
+    },
+    hasTwoAbility() {
+      // 功能项数据中是否存在：主机模式(制冷制热)和主机开关，存在返回true
+      const dirValueArray = ["2D8.0", "2DR.0"];
+      const filter = this.abilitysList.filter(ability =>
+        dirValueArray.includes(ability.dirValue)
+      );
+      if (filter.length === 2) {
+        // 如果两个功能项都存在
+        Store.save("masterInfoAbility", JSON.stringify(filter));
+        return 1;
+      }
+      return 0;
     },
     childMethod(type) {
-      if (!this.isOpen && type) {
-        this.$toast('当前关机状态，不可操作', 'bottom')
-        return false
+      if (!this.isOpen && !type) {
+        this.$toast("当前关机状态，不可操作", "bottom");
+        return false;
       }
 
       // 童锁开关
       const tempArray = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[10].abilityId
-      )[0]
-      const tempList = tempArray && tempArray.abilityOptionList
-      let index = 0
+        item => item.abilityId == this.formatItemsList[10].abilityId
+      )[0];
+      const tempList = tempArray.abilityOptionList;
+      let index = 0;
       if (this.isLock) {
         // 找“关”的项
-        index = tempList.findIndex(item => item.dirValue === '0')
+        index = tempList.findIndex(item => item.dirValue === "0");
       } else {
-        index = tempList.findIndex(item => item.dirValue === '1')
+        index = tempList.findIndex(item => item.dirValue === "1");
       }
 
       sendFunc({
@@ -637,327 +703,411 @@ export default {
         funcId: tempArray.dirValue,
         value: tempList[index].dirValue
       }).then(res => {
-        this.isLock = !this.isLock
+        this.isLock = !this.isLock;
         Toast({
-          mes: '指令发送成功！',
+          mes: "指令发送成功！",
           timeout: 1000,
-          icon: 'success'
-        })
+          icon: "success"
+        });
         console.info(
-          '指令发送成功:',
+          "指令发送成功:",
           tempArray.dirValue,
-          '-',
+          "-",
           tempList[index].dirValue
-        )
-      })
+        );
+      });
     },
     onOffMethod() {
       // 开关机
-
       const tempArray = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[11].abilityId
-      )[0]
-      const tempList = tempArray && tempArray.abilityOptionList
-      let index = 0
+        item => item.abilityId == this.formatItemsList[11].abilityId
+      )[0];
+      const tempList = tempArray.abilityOptionList;
+      let index = 0;
+      let tempd = tempArray.dirValue;
       if (this.isOpen) {
         // 找“关”的项
-        index = tempList.findIndex(item => item.dirValue === '0')
+        index = tempList.findIndex(item => item.dirValue === "0");
+        this.offopen(tempd, tempList[index].dirValue);
       } else {
-        index = tempList.findIndex(item => item.dirValue === '1')
+        index = tempList.findIndex(item => item.dirValue === "1");
       }
-
+      Loading.close();
       sendFunc({
         deviceId: this.deviceId,
         funcId: tempArray.dirValue,
         value: tempList[index].dirValue
       }).then(res => {
-        this.isOpen = !this.isOpen
+        this.isOpen = !this.isOpen;
         console.info(
-          '指令发送成功:',
+          "指令发送成功:",
           tempArray.dirValue,
-          '-',
+          "-",
           tempList[index].dirValue
-        )
-      })
+        );
+      });
     },
-    selectMode(index) {
-      this.modeCurrent = index
-    },
-    selectSpeed(index) {
-      this.speedCurrent = index
+    offopen(DirValue, Dirindex) {
+      sendFunc({
+        deviceId: this.deviceId,
+        funcId: DirValue,
+        value: Dirindex
+      }).then(res => {
+        console.info("指令发送成功:", "-", Dirindex);
+      });
     },
     nodeClicked(item, index, type) {
       // 如果是功能，index表示将要发送的指令value： 0/1 不选中/选中
       if (type === 3) {
-        index = item.isChecked ? 0 : 1
+        index = item.isChecked ? 0 : 1;
       }
-
-      // 如果当前指令是外风机的，判断是否循环阀是否打开，没有的话。禁止发送指令
-      const modelData = this.getListData(this.formatItemsList[3].abilityId)
-      const circleSwitch = modelData.filter(item => item.dirValue === '290')[0]
-
-      if (item.dirValue === '281' && circleSwitch.isSelect === 0) {
-        Toast({
-          mes: '循环阀未打开，禁止操作外风机',
-          timeout: 1000,
-          icon: 'error'
-        })
-        return
-      }
-      this.sendFunc(item, index, type)
+      this.sendFunc(item, index, type);
     },
-    sendFunc(item, index, type) {
+    sendFunc(item, index, type, cb) {
       // 模式、风速、功能的指令发送函数
       // Loading.open('发送中...')
       sendFunc({
         deviceId: this.deviceId,
         funcId: item.dirValue,
-        value:
-          type === 3 ? index : item && item.abilityOptionList[index].dirValue
+        value: type === 3 ? index : item.abilityOptionList[index].optionValue
       })
         .then(res => {
+          if (type === 1) {
+            this.modeCurrent = index;
+          } else if (type === 2) {
+            cb();
+          } else if (type === 3) {
+            item.isChecked = !item.isChecked;
+          }
           if (res.code === 200) {
             // Loading.close()
-
             Toast({
-              mes: '发送成功',
+              mes: "发送成功",
               timeout: 1000,
-              icon: 'success'
-            })
+              icon: "success"
+            });
             console.info(
-              '指令发送成功:',
+              "指令发送成功:",
               item.dirValue,
-              '-',
-              type === 3
-                ? index
-                : item && item.abilityOptionList[index].dirValue
-            )
+              "-",
+              type === 3 ? index : item.abilityOptionList[index].optionValue
+            );
           }
         })
         .catch(error => {
-          Loading.close()
-        })
+          Loading.close();
+        });
     },
     getIndexAbilityData() {
       // 获取H5控制页面功能项数据，带isSelect参数
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
         if (res.code === 200 && res.data) {
-          const data = res.data
-          this.pageName = data.pageName
-          data.abilitysList.forEach(item => {
-            item['currValue'] = ''
-            item &&
-              item.abilityOptionList &&
-              item.abilityOptionList.forEach(iItem => {
-                iItem.isChecked = false
-              })
-          })
-          this.abilitysList = data.abilitysList
+          const data = res.data;
+          this.pageName = data.pageName;
 
           // 将功能集里的内外风机的数据加到版式集合中。为了后面持续刷新两个风机的数据
-          const windBoxId = data.formatItemsList[2].abilityId
-          let wind = data.abilitysList.filter(
-            item => item.abilityId === windBoxId
-          )[0]
-
-          let appendData = []
-          if (wind && wind.abilityOptionList) {
-            let windOption = wind.abilityOptionList
-            // 如果数据判断存在
-            if (Number(windOption[0].optionValue) > 10) {
-              // 如果是双风机
-              appendData = windOption.map(item => {
-                return {
-                  abilityId: this.getAbilityByDirValue(item.optionValue)
-                    .abilityId
-                }
-              })
-            }
+          let windData = [];
+          if (
+            data.formatItemsList[2].abilityId &&
+            data.formatItemsList[2].showStatus
+          ) {
+            let ids = data.formatItemsList[2].abilityId.split(",");
+            data.abilitysList.forEach(item => {
+              if (ids.includes(String(item.abilityId))) {
+                windData.push({
+                  ...item,
+                  showStatus: 1
+                });
+              }
+            });
           }
-          this.formatItemsList = data.formatItemsList.concat(appendData)
 
+          this.formatItemsList = data.formatItemsList.concat(windData);
+
+          data.abilitysList.forEach(item => {
+            item["currValue"] = "";
+            item.abilityOptionList &&
+              item.abilityOptionList.forEach(iItem => {
+                iItem.isChecked = false;
+              });
+          });
+          this.abilitysList = data.abilitysList;
           // 定时请求接口数据，更新页面数据
           this.setInter = setInterval(() => {
-            this.getIndexFormatData()
-          }, 1000)
+            this.getIndexFormatData();
+          }, 1000);
+          //滤网检查
+          const windOption1 = data.abilitysList;
+          for (var i = 0; i < windOption1.length; i++) {
+            if (windOption1[i].dirValue == "-1") {
+              this.batteryList1 = windOption1[i].abilityOptionList;
+              this.getStrainerData();
+            }
+          }
+          this.setInter2 = setInterval(() => {
+            this.getWeather();
+          }, 20000);
+
+          // 显示页面
+          this.pageIsShow = true;
         }
-      })
+      });
     },
-    getIndexFormatData(list) {
+    getStrainerData() {
+      for (var i = 0; i < this.batteryList1.length; i++) {
+        this.dirValueList.push(this.batteryList1[i].optionValue);
+      }
+      getStrainerData({
+        deviceId: this.$route.query.deviceId,
+        dirValueList: this.dirValueList
+      })
+        .then(res => {
+          if (res.code === 200 && res.data) {
+            var s = this.batteryList1[0].optionValue;
+            var d = res.data[s];
+            this.batteryList3 = d;
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    getIndexFormatData() {
       // 获取H5控制页面功能项数据，带isSelect参数
 
       // 根据功能项id筛选功能项
       const findTheAbility = (data, id) => {
-        return data.filter(item => item.id === id)[0]
-      }
+        return data.filter(item => item.id == id)[0];
+      };
+
+      let ids = this.formatItemsList
+        .filter(item => item.showStatus == 1 && item.abilityId)
+        .map(item => item.abilityId);
+      let tempIds = [];
+      ids.forEach(id => {
+        tempIds.push(...String(id).split(","));
+      });
 
       newQueryDetailByDeviceId({
         deviceId: this.deviceId,
-        abilityIds: this.formatItemsList
-          .filter(item => item.abilityId)
-          .map(item => item.abilityId)
+        abilityIds: tempIds
       }).then(res => {
-        const data = res.data
+        const data = res.data;
         // 将res.data中的isSelect和dirValue赋值过去
         this.abilitysList.forEach((item, index) => {
-          // 如果有值，说明是温度这样的功能项，讲数值拿过来
-          // 开机状态才更新数据
-          if (this.isOpen && data[index] && data[index].currValue) {
-            // 找到对应的功能项对象
-            const temp = this.abilitysList.filter(
-              itemA => itemA.abilityId === data[index].id
-            )[0]
-
-            try {
-              temp['currValue'] = data[index].currValue
-            } catch (e) {}
+          const realAbilityData = findTheAbility(data, item.abilityId);
+          if (!realAbilityData) {
+            return;
           }
+
+          // 如果有值，说明是传感器型功能项，讲数值拿过来
+          if (realAbilityData.currValue) {
+            item["currValue"] = realAbilityData.currValue;
+          }
+
           if (
-            !item ||
             !item.abilityOptionList ||
-            item.abilityOptionList.length === 0
+            item.abilityOptionList.length === 0 ||
+            item.abilityType === 1
           ) {
-            return
+            return;
           }
 
-          item.abilityType !== 1 &&
-            item &&
-            item.abilityOptionList.forEach((option, oIndex) => {
-              // 如果此时关机 且 不是开关机的数据，则不更新
-              if (
-                !this.isOpen &&
-                item.abilityId !== this.formatItemsList[11].abilityId
-              ) {
-                return
-              }
-              const result = findTheAbility(data, item.abilityId)
-              if (result) {
-                const temp = Object.assign(
-                  option,
-                  result.abilityOptionList[oIndex]
-                )
-              }
-            })
-        })
+          item.abilityOptionList.forEach((option, oIndex) => {
+            Object.assign(option, realAbilityData.abilityOptionList[oIndex]);
+          });
+        });
 
-        this.switchHandler()
+        this.switchHandler();
         if (this.isOpen) {
-          // 开机状态才刷新数据
-          this.setPopDialogData()
-          this.initWindMachine()
+          this.setPopDialogData();
         }
-      })
+        // 获取列表最后一项：空气质量，的值
+        const lastItem = data[data.length - 1];
+        if (lastItem.abilityName === "空气质量") {
+          this.AQI = lastItem.currValue;
+        }
+      });
+    },
+    setWeather() {
+      // 当前天气模式
+      if (!this.isOpen) {
+        this.img = this.shutdown;
+        return;
+      }
+
+      let currentBak = "";
+      let h = new Date().getHours(); //获取当前小时
+      if (!this.weather) {
+        //未返回值
+        if (
+          (parseInt(h) < 6 && parseInt(h) >= 0) ||
+          (parseInt(h) < 24 && parseInt(h) > 18)
+        ) {
+          //夜晚
+          currentBak = this.sunnyNight;
+        } else {
+          //白天
+          currentBak = this.sunnyDay;
+        }
+      } else {
+        if (
+          this.weather.indexOf("雨") != -1 ||
+          this.weather.indexOf("阴") != -1
+        ) {
+          //阴天
+          if (
+            (parseInt(h) < 6 && parseInt(h) >= 0) ||
+            (parseInt(h) < 24 && parseInt(h) > 18)
+          ) {
+            //夜晚
+            currentBak = this.cloudyNight;
+          } else {
+            //白天
+            currentBak = this.cloudyDay;
+          }
+        } else {
+          if (
+            (parseInt(h) < 6 && parseInt(h) >= 0) ||
+            (parseInt(h) < 24 && parseInt(h) > 18)
+          ) {
+            //夜晚
+            currentBak = this.sunnyNight;
+          } else {
+            //白天
+            currentBak = this.sunnyDay;
+          }
+        }
+      }
+
+      this.img = currentBak;
     },
     getLocation() {
       getLocation(this.deviceId).then(res => {
-        const data = res.data
-        // 直辖市
-        const area = [
-          '北京市',
-          '天津市',
-          '上海市',
-          '重庆市',
-          '北京',
-          '天津',
-          '上海',
-          '重庆'
-        ]
-        if (area.includes(data.city)) {
-          data.location = data.city
+        const data = res.data;
+
+        // 取地址的省市区信息
+        if (data.location) {
+          let location = data.location.split(",");
+          location.pop();
+          location = location.filter(item => item).join(",");
+          this.location = location;
         }
-        this.location = res.data.location
-      })
+        if (data.mapGps) {
+          Store.save("mapGps", data.mapGps);
+        }
+      });
     },
     getWeather() {
       getWeather(this.deviceId).then(res => {
-        const data = res.data
+        const data = res.data;
 
-        this.weather = data.weather
-        this.outerTem = data.outerTem
-        this.outerPm = data.outerPm
-        this.outerHum = data.outerHum
-      })
+        this.weather = data.weather;
+        this.outerTem = data.outerTem;
+        this.outerPm = data.outerPm;
+        this.outerHum = data.outerHum;
+
+        this.setWeather();
+      });
     },
     switchHandler() {
       // 开关机初始化
-      let tempArray = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[11].abilityId
-      )
-
-      if (tempArray && tempArray[0]) {
-        tempArray = tempArray[0].abilityOptionList
-      }
+      const tempArray = this.abilitysList.filter(
+        item => item.abilityId == this.formatItemsList[11].abilityId
+      )[0].abilityOptionList;
 
       // 找到关机的对象
-      const tempObj = tempArray[0].dirValue == 0 ? tempArray[0] : tempArray[1]
+      const tempObj = tempArray[0].dirValue == 0 ? tempArray[0] : tempArray[1];
       if (tempObj.isSelect === 1) {
         // 说明是关机
-        this.isOpen = false
+        this.isOpen = false;
       } else {
-        this.isOpen = true
+        this.isOpen = true;
       }
 
       // 童锁初始化
-      let tempArray2 = this.abilitysList.filter(
-        item => item.abilityId === this.formatItemsList[10].abilityId
-      )
-      if (tempArray2 && tempArray2[0]) {
-        tempArray2 = tempArray2[0].abilityOptionList
-      }
+      const tempArray2 = this.abilitysList.filter(
+        item => item.abilityId == this.formatItemsList[10].abilityId
+      )[0].abilityOptionList;
 
       const tempObj2 =
-        tempArray2[0].dirValue == 0 ? tempArray2[0] : tempArray2[1]
+        tempArray2[0].dirValue == 0 ? tempArray2[0] : tempArray2[1];
       if (tempObj2.isSelect === 1) {
-        this.isLock = false
+        this.isLock = false;
       } else {
-        this.isLock = true
+        this.isLock = true;
+      }
+    },
+    /**
+     * 初始化背景图片
+     * 如果客户设置的话，就用客户的；否则使用默认的
+     */
+    initBackground() {
+      const bgImgs = JSON.parse(Store.fetch("bgImgs"));
+      // 依次排列：关机，白天-晴天，白天-阴天，夜晚-晴天，夜晚-阴天
+      if (bgImgs[0]) {
+        this.shutdown = bgImgs[0];
+      }
+      if (bgImgs[1]) {
+        this.sunnyDay = bgImgs[1];
+      }
+      if (bgImgs[2]) {
+        this.cloudyDay = bgImgs[2];
+      }
+      if (bgImgs[3]) {
+        this.sunnyNight = bgImgs[3];
+      }
+      if (bgImgs[4]) {
+        this.cloudyNight = bgImgs[4];
       }
     }
   },
   created() {
-    setTimeout(() => {
-      this.pageIsShow = true
-    }, 1000)
-    setTimeout(() => {
-      this.twoSeconds = true
-    }, 2000)
-    this.cHeight = window.innerWidth * 0.45
+    this.cHeight = window.innerWidth * 0.45;
     if (window.innerWidth <= 340) {
-      this.cHeight = window.innerWidth * 0.45
+      this.cHeight = window.innerWidth * 0.45;
     }
-    this.deviceName = Store.fetch('deviceName')
-    this.customerName = Store.fetch('customerName')
-    setWechatTitle(this.customerName, '')
+    this.deviceName = Store.fetch("deviceName");
+    this.customerName = Store.fetch("customerName");
+    setWechatTitle(this.customerName, "");
 
-    this.getIndexAbilityData()
-    this.getLocation()
-    this.getWeather()
+    this.getIndexAbilityData();
+    this.getLocation();
+    this.getWeather();
+    this.initBackground();
   },
   mounted() {
     this.thePicker = this.$refs.picker
   },
   watch: {
-    isOpen: function(val) {
+    isOpen(val) {
       if (val) {
-        this.img = img4
+        this.setWeather();
       } else {
-        this.img = ''
+        // 关机时，如果客户设置了关机图片就用，否则用默认背景
+        this.img = this.shutdown || "";
+      }
+    },
+    isSleep(val) {
+      // 如果睡眠模式打开，隐藏掉模式弹框
+      if (val) {
+        this.modeFlag = false;
       }
     }
   },
   components: {
-    'yd-popup': Popup,
-    'mt-picker': Picker
+    "yd-popup": Popup
   },
   destroyed() {
-    clearInterval(this.setInter)
+    clearInterval(this.setInter);
+    clearInterval(this.setInter2);
   }
-}
+};
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-@import 'src/common/scss/variable.scss';
-@import 'src/common/scss/mixins.scss';
+@import "src/common/scss/variable.scss";
+@import "src/common/scss/mixins.scss";
 .main-wrapper {
   width: 100%;
   height: 100%;
@@ -970,7 +1120,10 @@ export default {
   transition-property: background-color;
   transition-duration: 0.3s;
   transition-timing-function: linear;
+  background-repeat: no-repeat;
+  background-size: cover;
   .child-suo {
+    z-index: 10;
     position: absolute;
     top: 0;
     left: 0;
@@ -985,8 +1138,7 @@ export default {
     & span {
       position: absolute;
       bottom: 100px;
-      left: 50%;
-      margin-left: -42px;
+      left: calc(50% - 55px);
       font-size: 14px;
       border: 1px solid #fff;
       border-radius: 20px;
@@ -994,9 +1146,27 @@ export default {
       width: 110px;
     }
   }
-  &.active {
-    //background-color:-webkit-gradient(linear, 0 0, 0 top, from(#2689ed), to(rgba(30, 79, 251, 0.8)));
-    //background-color: #21a6f7;
+  .sleep-mask {
+    position: absolute;
+    z-index: 11;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    & span {
+      font-size: 14px;
+      border: 1px solid #fff;
+      border-radius: 20px;
+      line-height: 32px;
+      height: 32px;
+      width: 110px;
+      margin-bottom: 100px;
+    }
   }
   .info {
     margin: 0 auto tvw(34) auto;
@@ -1028,13 +1198,14 @@ export default {
       width: 20px;
       height: 20px;
       top: 10px;
-      background: url('../../assets/set.png') no-repeat center center;
+      background: url("../../assets/set.png") no-repeat center center;
       background-size: 20px 20px;
     }
   }
   .content {
     padding: 20px 15px 20px 15px;
     color: #4d4d4d;
+    background: #f0f0f0;
     .title {
       font-size: 16px;
       padding-bottom: 10px;
@@ -1054,7 +1225,7 @@ export default {
         }
         &.active {
           .icon {
-            background: url('../../assets/select.png') no-repeat center center;
+            background: url("../../assets/select.png") no-repeat center center;
             background-size: 20px 20px;
             border: none;
           }
@@ -1067,7 +1238,7 @@ export default {
       & ul li {
         &.active {
           color: #000;
-          background: url('../../assets/left.png') no-repeat center right 60%;
+          background: url("../../assets/left.png") no-repeat center right 60%;
           background-size: 20px 15px;
         }
       }
@@ -1075,11 +1246,25 @@ export default {
     .wind-speed-list {
       display: flex;
       justify-content: space-between;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
       > div {
+        display: flex;
+        align-items: center;
+        width: 90%;
+        flex-direction: column;
+        > div,
         > p {
-          margin-top: 10px;
+          width: 90%;
         }
-        width: 45%;
+        > p {
+          display: flex;
+          justify-content: space-between;
+        }
+      }
+      > div:nth-child(1) {
+        margin-bottom: 20px;
       }
     }
   }
@@ -1113,7 +1298,7 @@ export default {
       position: relative;
       overflow: hidden;
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         width: 1px;
         height: 30px;
@@ -1203,15 +1388,15 @@ export default {
         margin: 0 auto;
         margin-bottom: 5px;
         &.suo {
-          background: url('../../assets/suo.png') no-repeat center center;
+          background: url("../../assets/suo.png") no-repeat center center;
           background-size: 15px 20px;
         }
         &.shop {
-          background: url('../../assets/cart.png') no-repeat center left 7px;
+          background: url("../../assets/cart.png") no-repeat center left 7px;
           background-size: 23px 18px;
         }
         &.close {
-          background: url('../../assets/close.png') no-repeat center center;
+          background: url("../../assets/close.png") no-repeat center center;
           background-size: 18px 21px;
           //background-color:#20a8f8;
           border: 1px solid #ffffff;
@@ -1220,19 +1405,19 @@ export default {
           }
         }
         &.time {
-          background: url('../../assets/zhong.png') no-repeat center center;
+          background: url("../../assets/zhong.png") no-repeat center center;
           background-size: 21px 20px;
         }
         &.model {
-          background: url('../../assets/modle.png') no-repeat center center;
+          background: url("../../assets/modle.png") no-repeat center center;
           background-size: 17px 15px;
         }
         &.shan {
-          background: url('../../assets/shan.png') no-repeat center top 6px;
+          background: url("../../assets/shan.png") no-repeat center top 6px;
           background-size: 22px 20px;
         }
         &.menu {
-          background: url('../../assets/menu.png') no-repeat center center;
+          background: url("../../assets/menu.png") no-repeat center center;
           background-size: 18px 16px;
         }
       }

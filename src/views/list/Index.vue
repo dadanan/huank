@@ -6,6 +6,10 @@
           <img class='team-icon' :src="item.icon" />
           <span>{{item.teamName}}</span>
         </div>
+        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 150px;" v-show="groupFlag" @click="openTeam(item.teamId)">组开
+        </div>
+        <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 120px;" v-show="groupFlag" @click="closeTeam(item.teamId)">组关
+        </div>
         <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 90px;" v-show="groupFlag" @click="OpenGroup(item)">编辑
         </div>
         <div slot="txt" style="color:#20aaf8;margin-left:5px; position: absolute; right: 60px;" v-show="groupFlag" @click="deleteTeam(item.teamId)">删除
@@ -15,7 +19,6 @@
         <div style="padding:15px">
           <div class="list-item" v-swipeleft.stop="swipeleft" v-swiperight="swiperight" @click="intoIndex(child,item)" v-for="(child,cindex) in item.deviceItemPos" :key="cindex">
             <div class="item-left">
-              <div class="icon" :class="{ active : containIds(child.deviceId) }" v-if="loopValue === true" @click.stop="selectDev(child.deviceId)"></div>
               <div class="img">
                 <div class="p-img">
                   <img :src="child.icon">
@@ -28,22 +31,24 @@
                 </div>
                 <div class="img-text">
                   <p>
-                    <span>{{ child.deviceName }}</span>
-                    <i class="addr"></i>
-                    <span>{{child.location && child.location.split(',')[1]}}</span>
+                    <span class="img-text1">{{ child.deviceName }}</span>
+                    <i class="addr" v-if="loopValue === false && child.location"></i>
+                    <span v-if="loopValue === false">{{child.location && child.location.split(' ').map(str => str.split(',')).reduce((a, b) => a.concat(b),[]) .filter(s => s !== '')[0]}}</span>
+                    <img v-if='child.onlineStatus && child.powerStatus' class='power-status' src='../../assets/power-open.png'>
+                    <img v-if='child.onlineStatus && !child.powerStatus' class='power-status' src='../../assets/power-close.png'>
                   </p>
                   <template v-if='child.hasOwnProperty("childId")'>
-                    <p>childId:{{ child.childId }}</p>
-                    <p>从设备</p>
+                    <p><span>从设备ID:{{ child.childId }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span>主设备ID:{{child.masterDeviceId}}</span></p>
+                    <p>主机状态:{{child.hostPowerStatus ? '开' : '关'}}</p>
                   </template>
                   <template v-else>
                     <p>ID:{{ child.deviceId }}</p>
-                    <p>型号：{{ child.deviceTypeName }}</p>
+                    <p>型号：{{ child.deviceModelName }}</p>
                   </template>
                 </div>
               </div>
             </div>
-            <div class="item-right" v-if='!child.hasOwnProperty("childId")'>
+            <div class='item-right' v-if='!child.hasOwnProperty("childId")'>
               <span class="group" v-if="loopValue === true" @click.stop="OpenDev(child,item.teamId,1)">分组</span>
               <span class="edit" v-if="loopValue === true" @click.stop="OpenDev(child,2)">编辑</span>
               <span class="delete" v-if="loopValue === true" @click.stop="deleteDev(child)" style="color: #a0a0a0;">删除</span>
@@ -152,11 +157,11 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { Loading, Toast, Confirm } from 'vue-ydui/dist/lib.rem/dialog'
-import { Accordion, AccordionItem } from 'vue-ydui/dist/lib.rem/accordion'
-import { getQueryString } from 'utils'
-import { scanQRCode } from 'utils/wx'
-import { Radio, RadioGroup } from 'vue-ydui/dist/lib.rem/radio'
+import { Loading, Toast, Confirm } from "vue-ydui/dist/lib.rem/dialog";
+import { Accordion, AccordionItem } from "vue-ydui/dist/lib.rem/accordion";
+import { getQueryString } from "utils";
+import { scanQRCode } from "utils/wx";
+import { Radio, RadioGroup } from "vue-ydui/dist/lib.rem/radio";
 import {
   obtainMyDevice,
   createTeam,
@@ -165,121 +170,140 @@ import {
   editDevice,
   updateDeviceTeam,
   share,
-  childDeviceList
-} from '../wenkong/api'
-import Store from '../wenkong/store'
+  childDeviceList,
+  deleteDevice,
+  getBgImgs,
+  teamControl
+} from "../wenkong/api";
+import Store from "../wenkong/store";
 
 export default {
   data() {
     return {
-      currentTeamId: '',
-      selectId: '', // 选择需要的分组id
+      currentTeamId: "",
+      selectId: "", // 选择需要的分组id
       groupDialog: false,
       teamNameFlag: false,
       groupFlag: false,
-      value: '',
+      value: "",
       loop: null, // 长按
       loopValue: false,
       select: 0,
       wxValue: false,
       createValue: false,
       editDevFlag: false,
-      teamName: '',
+      teamName: "",
       devInfo: {},
       groupInfo: {},
-      devName: '',
+      devName: "",
       devGroupList: [],
       devIds: [], // 选中设备id列表
       delDevFlag: false,
-      deviceId: '',
+      deviceId: "",
       customerId: this.$route.query.customerId,
-      deleteTheDeviceId: '', //将要删除的设备id
-      deleteTheDeviceName: '',
-      selname: '',
+      deleteTheDeviceId: "", //将要删除的设备id
+      deleteTheDeviceName: "",
+      selname: "",
       teamList: [],
       editingDeviceData: []
-    }
+    };
   },
   methods: {
     obtainMyDevice() {
       obtainMyDevice().then(res => {
-        const data = res.data
-        this.teamList = data.teamDataList
+        const data = res.data;
+        this.teamList = data.teamDataList;
         data.teamDataList.forEach(team => {
-          const deviceList = team.deviceItemPos
+          const deviceList = team.deviceItemPos;
           if (!deviceList || deviceList.length === 0) {
-            return
+            return;
           }
           // 如果设备存在从设备，调接口
           deviceList.forEach(device => {
             if (device.childDeviceCount === 0) {
-              return
+              return;
             }
-            this.childDeviceList(device.deviceId, deviceList)
-          })
-        })
-      })
+            this.childDeviceList(device.deviceId, deviceList);
+          });
+        });
+      });
     },
+    /**
+     * 获取主设备id下的从设备
+     */
     childDeviceList(id, data) {
       childDeviceList(id).then(res => {
         res.data.forEach(item => {
-          item['deviceId'] = item.id
-        })
-        data.push(...res.data)
-      })
+          item["deviceId"] = item.id;
+          item["masterDeviceId"] = id;
+        });
+
+        // 找到主设备的index
+        let parentIndex = 0;
+        let ok = false;
+        data.forEach((item, index) => {
+          if (ok) {
+            return;
+          }
+          if (item.deviceId === id) {
+            parentIndex = index;
+            ok = true;
+          }
+        });
+        // 将从设备插入到主设备的后面
+        data.splice(parentIndex + 1, 0, ...res.data);
+      });
     },
     cancelGroup() {
-      this.groupDialog = false
-      this.selectId = ''
+      this.groupDialog = false;
+      this.selectId = "";
     },
     qRcode() {
-      scanQRCode()
+      scanQRCode();
     },
     swipeleft(s, e) {
       // 左滑动
-      this.loopValue = true
-      console.log(2)
-      this.groupFlag = false
+      this.loopValue = true;
+      this.groupFlag = false;
     },
     swiperight(s, e) {
       // 右滑动
-      this.loopValue = false
+      this.loopValue = false;
     },
     swipeTeamLeft(s, e) {
-      this.groupFlag = true
-      console.log(1)
+      this.groupFlag = true;
     },
     returnMethod() {
-      this.$router.back(-1)
+      this.$router.back(-1);
     },
     updateTeamName() {
-      Loading.open('很快加载好了')
-      const teamId = this.groupInfo.teamId
-      const teamName = this.groupInfo.teamName
+      Loading.open("很快加载好了");
+      const teamId = this.groupInfo.teamId;
+      const teamName = this.groupInfo.teamName;
       updateTeamName({
         teamId,
         teamName
       })
         .then(res => {
           if (res.code === 200) {
-            Loading.close()
-            this.teamNameFlag = false
+            Loading.close();
+            this.teamNameFlag = false;
             this.teamList.forEach(item => {
               if (item.teamId === teamId) {
-                item.teamName = teamName
+                item.teamName = teamName;
               }
-            })
+            });
           }
         })
         .catch(error => {
-          Loading.close()
-          this.$toast(error.msg, 'bottom')
-        })
+          Loading.close();
+          this.$toast(error.msg, "bottom");
+        });
     },
     deleteTeam(id) {
       Confirm({
-        title: '删除组',
-        mes: '删除后无法恢复，确认删除？',
+        title: "删除组",
+        mes: "删除后无法恢复，确认删除？",
         opts: () => {
           deleteTeam({
             value: id
@@ -287,25 +311,27 @@ export default {
             .then(res => {
               if (res.code === 200) {
                 Toast({
-                  mes: '删除成功',
+                  mes: "删除成功",
                   timeout: 1500,
-                  icon: 'success'
-                })
-                this.teamList = this.teamList.filter(item => item.teamId !== id)
-                Loading.close()
+                  icon: "success"
+                });
+                this.teamList = this.teamList.filter(
+                  item => item.teamId !== id
+                );
+                Loading.close();
               }
             })
             .catch(error => {
-              Loading.close()
-            })
+              Loading.close();
+            });
         }
-      })
+      });
     },
     editGroup() {
-      if (this.selectId === '') {
-        this.$toast('请选择组', 'bottom')
+      if (this.selectId === "") {
+        this.$toast("请选择组", "bottom");
       } else {
-        const deviceId = this.devInfo.deviceId
+        const deviceId = this.devInfo.wxDeviceId;
         updateDeviceTeam({
           teamId: this.selectId,
           deviceIds: [deviceId]
@@ -313,198 +339,244 @@ export default {
           .then(res => {
             if (res.code === 200) {
               Toast({
-                mes: '分组成功',
+                mes: "分组成功",
                 timeout: 1500,
-                icon: 'success'
-              })
+                icon: "success"
+              });
 
               // 首先从当前组中移除，然后添加到目标组中
               this.teamList.forEach(team => {
                 if (team.teamId === this.currentTeamId) {
                   team.deviceItemPos = team.deviceItemPos.filter(
-                    item => item.deviceId !== deviceId
-                  )
-                  return
+                    item => item.wxDeviceId !== deviceId
+                  );
+                  return;
                 }
 
                 if (team.teamId === this.selectId) {
-                  team.deviceItemPos.push(this.editingDeviceData)
+                  team.deviceItemPos.push(this.editingDeviceData);
                 }
-              })
+              });
 
-              this.groupDialog = false
-              this.selectId = ''
-              Loading.close()
+              this.groupDialog = false;
+              this.selectId = "";
+              Loading.close();
             }
           })
           .catch(error => {
-            Loading.close()
-          })
+            Loading.close();
+          });
       }
     },
     deleteDev(obj) {
-      this.delDevFlag = true
-      this.deleteTheDeviceId = obj.deviceId
-      this.deleteTheDeviceName = obj.deviceName
+      this.delDevFlag = true;
+      this.deleteTheDeviceId = obj.deviceId;
+      this.deleteTheDeviceName = obj.deviceName;
     },
     confirmdeleteDev() {
-      Loading.open('很快加载好了')
+      Loading.open("很快加载好了");
       deleteDevice({
-        deviceId: this.deleteTheDeviceId,
-        deviceName: this.deleteTheDeviceName
+        value: this.deleteTheDeviceId
       })
         .then(res => {
           if (res.code === 200) {
             Toast({
-              mes: '删除成功',
+              mes: "删除成功",
               timeout: 1500,
-              icon: 'success'
-            })
-            Loading.close()
-            this.obtainMyDevice()
+              icon: "success"
+            });
+            Loading.close();
+            this.obtainMyDevice();
+            this.delDevFlag = false;
           }
         })
         .catch(error => {
-          Loading.close()
-        })
+          Loading.close();
+        });
     },
     gtouchstart() {
-      let that = this
+      let that = this;
       that.loop = setTimeout(function() {
-        that.loopValue = true
-      }, 3000)
-      return false
+        that.loopValue = true;
+      }, 3000);
+      return false;
     },
     gtouchmove() {
-      clearTimeout(this.loop) // 清除定时器
-      this.loopValue = false
+      clearTimeout(this.loop); // 清除定时器
+      this.loopValue = false;
     },
     gtouchend() {
-      clearTimeout(this.loop) // 清除定时器
+      clearTimeout(this.loop); // 清除定时器
       if (this.loopValue) {
       }
-      return false
+      return false;
     },
     selctButtonMethod(nums, type) {
-      this.select = nums
-      if (type === 'cancel') {
-        this.loopValue = false
-        this.groupFlag = false
-        this.select = 0
-      } else if (type === 'wx') {
-        this.wxValue = true
-      } else if (type === 'create') {
-        this.createValue = true
+      this.select = nums;
+      if (type === "cancel") {
+        this.loopValue = false;
+        this.groupFlag = false;
+        this.select = 0;
+      } else if (type === "wx") {
+        this.wxValue = true;
+      } else if (type === "create") {
+        this.createValue = true;
       }
     },
     addGroup() {
-      if (this.teamName === null || this.teamName === '') {
-        this.$toast('请输入设备组名称', 'bottom')
-        return
+      if (this.teamName === null || this.teamName === "") {
+        this.$toast("请输入设备组名称", "bottom");
+        return;
       }
 
-      Loading.open('很快加载好了')
+      Loading.open("很快加载好了");
       createTeam({
         teamName: this.teamName
       })
         .then(res => {
           if (res.code === 200) {
-            Loading.close()
+            Loading.close();
             this.teamList.push({
               teamName: this.teamName,
               teamId: res.data,
               deviceItemPos: []
-            })
-            this.createValue = false
+            });
+            this.createValue = false;
           }
         })
         .catch(error => {
-          Loading.close()
-        })
+          Loading.close();
+        });
     },
     OpenGroup(obj) {
-      this.teamNameFlag = true
-      this.groupInfo = Object.assign({}, obj)
+      this.teamNameFlag = true;
+      this.groupInfo = Object.assign({}, obj);
+    },
+    openTeam(teamId) {
+      // 小组设备全部开启
+      teamControl({
+        funcId: "210",
+        value: "1",
+        teamId
+      }).then(() => {
+        Toast({
+          mes: "组设备开启成功！",
+          timeout: 1500,
+          icon: "success"
+        });
+        this.obtainMyDevice();
+      });
+    },
+    closeTeam(teamId) {
+      // 小组设备全部关闭
+      teamControl({
+        funcId: "210",
+        value: "0",
+        teamId
+      }).then(() => {
+        Toast({
+          mes: "组设备关闭成功！",
+          timeout: 1500,
+          icon: "success"
+        });
+        this.obtainMyDevice();
+      });
     },
     OpenDev(obj, id, type) {
-      if (id + '') {
-        this.currentTeamId = id
+      if (id + "") {
+        this.currentTeamId = id;
       }
-      this.selname = obj.deviceName
+      this.selname = obj.deviceName;
       if (type === 1) {
-        this.groupDialog = true
+        this.groupDialog = true;
       } else {
-        this.editDevFlag = true
+        this.editDevFlag = true;
       }
-      this.devInfo = Object.assign({}, obj)
-      this.editingDeviceData = obj
+      this.devInfo = Object.assign({}, obj);
+      this.editingDeviceData = obj;
     },
     editDev() {
-      Loading.open('很快加载好了')
-      const deviceName = this.devInfo.deviceName
+      Loading.open("很快加载好了");
+      const deviceName = this.devInfo.deviceName;
       editDevice({
         deviceId: this.devInfo.deviceId,
         deviceName
       })
         .then(res => {
           if (res.code === 200) {
-            Loading.close()
-            this.editDevFlag = false
-            this.editingDeviceData.deviceName = deviceName
+            Loading.close();
+            this.editDevFlag = false;
+            this.editingDeviceData.deviceName = deviceName;
           }
         })
         .catch(error => {
-          Loading.close()
-          this.$toast(error.msg, 'bottom')
-        })
+          Loading.close();
+          this.$toast(error.msg, "bottom");
+        });
     },
     intoIndex(child, team) {
-      Store.save('customerName', child.customerName)
-      Store.save('customerId', this.customerId)
-      Store.save('deviceName', child.deviceName)
-      Store.save('formatName', child.formatName)
-      Store.save('teamId', team.teamId)
-      Store.save('icon', child.icon)
+      Store.save("customerName", child.customerName);
+      Store.save("customerId", this.customerId);
+      Store.save("deviceName", child.deviceName);
+      Store.save("formatName", child.formatName);
+      Store.save("teamId", team.teamId);
+      Store.save("icon", child.icon);
 
-      Store.save('deviceId', child.deviceId)
-      Store.save('MAC', child.mac)
-      Store.save('wxDeviceId', child.wxDeviceId)
+      Store.save("deviceId", child.deviceId || child.id);
+      Store.save("MAC", child.mac);
+      Store.save("wxDeviceId", child.wxDeviceId);
+      Store.save("linkAgeStatus", child.linkAgeStatus);
 
       const query = {
         wxDeviceId: child.wxDeviceId,
-        deviceId: child.deviceId,
-        customerId: this.customerId
-      }
+        deviceId: child.deviceId || child.id,
+        customerId: this.customerId,
+        masterDeviceId: child.masterDeviceId,
+        hostPowerStatus: child.hostPowerStatus,
+        hasChildren: Boolean(child.childDeviceCount) ? 1 : 0
+      };
 
-      if (child.formatName === '电子净化器') {
+      if (child.formatName === "电子净化器") {
         this.$router.push({
-          path: '/air-purifier',
+          path: "/air-purifier",
           query
-        })
-      } else if (child.formatName === '温控器') {
+        });
+      } else if (child.formatName === "温控器") {
         this.$router.push({
-          path: '/wenkongindex',
+          path: "/wenkongindex",
           query
-        })
-      } else {
+        });
+      } else if (child.formatName === "智慧新风-单风机") {
         // 智慧新风
         this.$router.push({
-          path: '/index',
+          path: "/indexsingle",
           query
-        })
+        });
+      } else if (child.formatName === "智慧新风") {
+        // 智慧新风
+        this.$router.push({
+          path: "/index",
+          query
+        });
+      } else if (child.formatName === "检测器") {
+        // 纯检测器
+        this.$router.push({
+          path: "/detection",
+          query
+        });
       }
     },
     selectDev(id) {
-      let index = this.devIds.indexOf(id)
+      let index = this.devIds.indexOf(id);
       if (index > -1) {
         // 找到了
-        this.devIds.splice(index, 1)
+        this.devIds.splice(index, 1);
       } else {
-        this.devIds.push(id)
+        this.devIds.push(id);
       }
     },
     containIds(id) {
-      return this.devIds.includes(id)
+      return this.devIds.includes(id);
     },
     shareBind(obj) {
       // 分享绑定
@@ -518,49 +590,57 @@ export default {
             if (res.data) {
               // 成功
               Toast({
-                mes: '绑定成功！',
+                mes: "绑定成功！",
                 timeout: 1500,
-                icon: 'success'
-              })
-              // 绑定成功后，删除“绑定相关”数据
+                icon: "success"
+              });
             } else {
-              Toast({
-                mes: '绑定失败！',
-                timeout: 1500
-              })
-              console.log('绑定失败：', res)
+              console.log("绑定失败：", res);
             }
-            this.obtainMyDevice()
-            Store.remove('obj')
+            this.obtainMyDevice();
+            // 绑定成功后，删除“绑定相关”数据
+            Store.remove("obj");
           }
         })
         .catch(error => {
-          Store.remove('obj')
-          this.$toast(error.msg, 'bottom')
-        })
+          Store.remove("obj");
+          this.$toast(error.msg, "bottom");
+        });
+    },
+    getBgImgs() {
+      getBgImgs().then(res => {
+        if (res.code === 200 && Array.isArray(res.data)) {
+          const data = res.data.slice(0, 5);
+          Store.save("bgImgs", JSON.stringify(data));
+        } else {
+          Store.save("bgImgs", "[]");
+        }
+      });
     }
   },
   created() {
-    if (JSON.parse(Store.fetch('obj'))) {
+    if (JSON.parse(Store.fetch("obj"))) {
       // 分享人进来
-      this.shareBind(JSON.parse(Store.fetch('obj')))
+      console.log("从分享进来");
+      this.shareBind(JSON.parse(Store.fetch("obj")));
     } else {
-      this.obtainMyDevice()
-      // 这里调用次方法，是为了解决如果用户之前有obj数据，后面没有删除的话，会导致每次进入页面都执行绑定操作
-      Store.remove('obj')
+      console.log("未从分享进来");
+      this.obtainMyDevice();
+      Store.remove("obj");
     }
+    this.getBgImgs();
   },
   components: {
-    'yd-accordion': Accordion,
-    'yd-accordion-item': AccordionItem,
-    'yd-radio-group': RadioGroup,
-    'yd-radio': Radio
+    "yd-accordion": Accordion,
+    "yd-accordion-item": AccordionItem,
+    "yd-radio-group": RadioGroup,
+    "yd-radio": Radio
   }
-}
+};
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-@import 'src/common/scss/variable.scss';
-@import 'src/common/scss/mixins.scss';
+@import "src/common/scss/variable.scss";
+@import "src/common/scss/mixins.scss";
 
 .list-wrapper {
   position: absolute;
@@ -710,11 +790,11 @@ export default {
       .icon {
         width: 15px;
         height: 15px;
-        background: url('../../assets/ju.png') no-repeat center center;
+        background: url("../../assets/ju.png") no-repeat center center;
         background-size: 15px 15px;
         margin-right: 5px;
         &.active {
-          background: url('../../assets/ju_select.png') no-repeat center center;
+          background: url("../../assets/ju_select.png") no-repeat center center;
           background-size: 15px 15px;
         }
       }
@@ -738,12 +818,12 @@ export default {
             bottom: 0px;
             text-align: center;
             color: #ffffff;
-            background: url('../../assets/bak.png') no-repeat center center;
+            background: url("../../assets/bak.png") no-repeat center center;
             background-size: 60px 60px;
             line-height: 30px;
             font-size: 10px;
             &.active {
-              background: url('../../assets/bak2.png') no-repeat center center;
+              background: url("../../assets/bak2.png") no-repeat center center;
               background-size: 60px 19px;
               bottom: 0px;
               height: 19px;
@@ -783,6 +863,9 @@ export default {
               text-overflow: ellipsis;
             }
           }
+          .img-text1 {
+            width: 120px;
+          }
           & p:nth-child(2) {
             overflow: hidden;
             text-overflow: ellipsis;
@@ -794,9 +877,14 @@ export default {
             height: 13px;
             width: 13px;
             display: inline-block;
-            background: url('../../assets/map1.png') no-repeat center center;
+            background: url("../../assets/map1.png") no-repeat center center;
             background-size: contain;
             margin: 0 8px;
+          }
+          .power-status {
+            width: 15px;
+            height: 15px;
+            margin-left: 10px;
           }
         }
       }

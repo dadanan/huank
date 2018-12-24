@@ -12,10 +12,18 @@
             <img :src="item.headImg" />
             <span>{{ item.nickname }}</span>
           </a>
-          <span class="delete" @click="deleteMethod(item.openId)">删除</span>
+          <span class="delete" @click="clearRelation(item.openId)">删除</span>
+          <span class="span_left">
+            <label>{{item.status === true ? '启用' : '禁用'}}</label>
+            <el-switch v-model="item.status" @change="switchplay(item.status,item.openId)"></el-switch>
+          </span>
         </li>
       </ul>
       <div v-else style="text-align:center;width:100%">暂无数据</div>
+    </div>
+    <div class="set-bottom">
+      <button class="but" @click="permits">全部许可</button>
+      <button class="but" @click="allDelete">全部禁用</button>
     </div>
   </div>
 </template>
@@ -23,7 +31,12 @@
 <script type="text/ecmascript-6">
 import { Loading } from 'vue-ydui/dist/lib.rem/dialog'
 import myUrl from 'common/js/api'
-import { shareList, clearRelation } from '../wenkong/api'
+import {
+  shareList,
+  clearRelation,
+  updateRelation,
+  updateAllRelation
+} from '../wenkong/api'
 
 export default {
   data() {
@@ -32,14 +45,64 @@ export default {
       outItems: [],
       isEdit: false,
       shareList: [],
-      deviceId: this.$route.query.deviceId
+      deviceId: this.$route.query.deviceId,
+      status: 1
     }
   },
   methods: {
     returnMethod() {
       this.$router.back(-1)
     },
-    deleteMethod(openId) {
+    // 全部许可
+    permits() {
+      this.status = 1
+      this.updateAllRelation()
+    },
+    // 全部禁止
+    allDelete() {
+      this.status = 2
+      this.updateAllRelation()
+    },
+    // 判断点击开启/关闭
+    switchplay(val, id) {
+      this.updateRelation(val, id)
+    },
+    //全部操作设备
+    updateAllRelation() {
+      Loading.open('很快加载好了')
+      updateAllRelation({
+        deviceId: this.deviceId,
+        status: this.status
+      })
+        .then(res => {
+          Loading.close()
+          this.getShareList()
+        })
+        .catch(error => {
+          Loading.close()
+        })
+    },
+    updateRelation(id, val) {
+      Loading.open('很快加载好了')
+      if (id == true) {
+        id = 1
+      } else {
+        id = 2
+      }
+      updateRelation({
+        deviceId: this.deviceId,
+        openId: val,
+        status: id
+      })
+        .then(res => {
+          Loading.close()
+        })
+        .catch(error => {
+          Loading.close()
+        })
+    },
+    // 删除
+    clearRelation(openId) {
       Loading.open('很快加载好了')
       clearRelation({
         openId,
@@ -61,6 +124,7 @@ export default {
       })
         .then(res => {
           this.shareList = res.data
+          // console.log(this.shareList)
           Loading.close()
         })
         .catch(error => {
@@ -114,6 +178,10 @@ export default {
     .title {
       padding: 15px;
     }
+    .span_left {
+      float: right;
+      margin-right: 20px;
+    }
     & ul li {
       width: 100%;
       height: 40px;
@@ -139,6 +207,29 @@ export default {
         float: right;
         font-size: 16px;
         color: #999999;
+      }
+    }
+  }
+  .set-bottom {
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    & .but {
+      width: 50% !important;
+      float: left;
+      height: 50px;
+      line-height: 50px;
+      font-size: 14px;
+      background: #428ae7;
+      color: #fff;
+      border: 1px solid #428ae7;
+      &:nth-child(2) {
+        margin-left: 0px;
+        float: right;
+        background: none;
+        background: #e57470;
+        border: 1px solid #e57470;
       }
     }
   }

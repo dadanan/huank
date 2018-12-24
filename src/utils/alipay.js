@@ -3,7 +3,7 @@
  * author by kairry 2017年12月29日
  */
 
-function ready (callback) {
+function ready(callback) {
   // 如果jsbridge已经注入则直接调用
   if (window.AlipayJSBridge) {
     callback && callback()
@@ -17,7 +17,7 @@ function ready (callback) {
  * 支付宝支付
  * @param {*} orderNo
  */
-export function aliPay (orderNo) {
+export function aliPay(orderNo) {
   ready(function () {
     AlipayJSBridge.call('tradePay', {
       tradeNO: '' + orderNo + ''
