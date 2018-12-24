@@ -65,7 +65,7 @@
       <yd-accordion-item title="关联属性设置">
         <div style="padding: .24rem;background: #f2f2f2;">
           <img src="../../assets/gl.png" style="width: 100%;" />
-          <yd-radio-group v-model="radio1" style="text-align: center; margin-top: 15px;" size='16'>
+          <yd-radio-group v-model="linkAgeStatus" :callback='linkStatusChanged' style="text-align: center; margin-top: 15px;" size='16'>
             <yd-radio val="1">
               <span style="font-size: 12px; ">设置关联</span>
             </yd-radio>
@@ -223,7 +223,8 @@ import {
   queryDeviceBack,
   editManageName,
   queryDeviceIconList,
-  setDeviceIcon
+  setDeviceIcon,
+  setLinkStatus
 } from "../wenkong/api";
 import Store from "../wenkong/store";
 export default {
@@ -237,7 +238,7 @@ export default {
       isEdit: false,
       open: 0,
       checkbox2: [],
-      radio1: 1,
+      linkAgeStatus: 1,
       switch1: true,
       delDevFlag: false,
       addDevFlag: false,
@@ -248,7 +249,7 @@ export default {
       modelList: [],
       modelSelected: "1",
       deviceChildId: "",
-      deviceId: "",
+      deviceId: this.$route.query.deviceId,
       customerId: this.$route.query.customerId || Store.fetch("customerId"),
       deviceName: "",
       deleteTheDevice: "",
@@ -516,19 +517,37 @@ export default {
           this.paramList();
         }
       });
+    },
+    initLinkAgeStatus() {
+      // 初始化设备关联状态
+      const status = Store.fetch("linkAgeStatus");
+      this.linkAgeStatus = status == 1 ? 1 : 2;
+    },
+    linkStatusChanged(linkAgeStatus) {
+      setLinkStatus({
+        deviceId: this.deviceId,
+        linkAgeStatus: Number(linkAgeStatus),
+        teamId: Number(Store.fetch("teamId"))
+      }).then(() => {
+        Toast({
+          mes: "设置成功",
+          timeout: 1500,
+          icon: "success"
+        });
+        Store.save("linkAgeStatus", linkAgeStatus);
+      });
     }
   },
-
   created() {
     Loading.open("很快加载好了");
     setTimeout(() => {
       Loading.close();
     }, 300);
-    this.deviceId = this.$route.query.deviceId;
     this.childDeviceList();
     this.getModelList();
     this.getModelVo();
     this.queryDeviceIconList()
+    this.initLinkAgeStatus();
   },
   components: {
     "yd-accordion": Accordion,

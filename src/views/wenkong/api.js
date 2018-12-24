@@ -515,3 +515,12 @@ export function setDeviceIcon(data) {
     Authorization: Store.fetch('Token') }
   })
 }
+// 设置设备关联状态
+export function setLinkStatus(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/team/setLinkStatus`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}

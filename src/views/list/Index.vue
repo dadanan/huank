@@ -34,6 +34,8 @@
                     <span class="img-text1">{{ child.deviceName }}</span>
                     <i class="addr" v-if="loopValue === false && child.location"></i>
                     <span v-if="loopValue === false">{{child.location && child.location.split(' ').map(str => str.split(',')).reduce((a, b) => a.concat(b),[]) .filter(s => s !== '')[0]}}</span>
+                    <img v-if='child.powerStatus' class='power-status' src='../../assets/power-open.png'>
+                    <img v-else class='power-status' src='../../assets/power-close.png'>
                   </p>
                   <template v-if='child.hasOwnProperty("childId")'>
                     <p><span>从设备ID:{{ child.childId }}</span>&nbsp;&nbsp;&nbsp;&nbsp;<span>主设备ID:{{child.masterDeviceId}}</span></p>
@@ -526,6 +528,8 @@ export default {
       Store.save("deviceId", child.deviceId || child.id);
       Store.save("MAC", child.mac);
       Store.save("wxDeviceId", child.wxDeviceId);
+      Store.save("linkAgeStatus", child.linkAgeStatus);
+
       const query = {
         wxDeviceId: child.wxDeviceId,
         deviceId: child.deviceId || child.id,
@@ -879,6 +883,11 @@ export default {
             background: url("../../assets/map1.png") no-repeat center center;
             background-size: contain;
             margin: 0 8px;
+          }
+          .power-status {
+            width: 15px;
+            height: 15px;
+            margin-left: 10px;
           }
         }
       }
