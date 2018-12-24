@@ -3,7 +3,7 @@
     <div class="header">
       <span>{{ deviceName }}</span>
       <span class="edit" @click="intoSet"></span>
-      <span class="time" v-if="1===2">{{ currentTime }}s</span>
+      <span class="time" v-if="1===2"></span>
     </div>
     <div class="info">
       <img src="../../assets/map.png" style="width:12px;height:auto" />&nbsp;
@@ -68,7 +68,7 @@
         <span v-if='formatItemsList[4] && formatItemsList[4].showStatus'>{{formatItemsList[4].showName}}
           <em>{{getAbilityData(formatItemsList[4].abilityId).currValue}}</em> PPM</span>
         <!-- TVOC -->
-        <span v-if='formatItemsList[5] && formatItemsList[5].showStatus'>{{formatItemsList[5].showName}}
+        <span v-if='formatItemsList[5] && formatItemsList[5].showStatus && getAbilityData(formatItemsList[5].abilityId)'>{{formatItemsList[5].showName}}
           <em>{{Number(getAbilityData(formatItemsList[5].abilityId).currValue) / 100}}</em> mg/m³</span>
         <span v-if='formatItemsList[6] && formatItemsList[6].showStatus'>{{formatItemsList[6].showName}}
           <!-- 甲醛 -->
@@ -110,7 +110,8 @@
         </div>
       </div>
     </yd-popup>
-    <yd-popup v-model="speedFlag" position="bottom" width="90%">
+    <!-- 单/双风机 -->
+    <yd-popup v-show='formatItemsList[2] && formatItemsList[2].showStatus' v-model="speedFlag" position="bottom" width="90%">
       <div class="content">
         <div class="title">风速设定</div>
         <div class="list wind-speed-list" v-if='formatItemsList[2] && formatItemsList[2].abilityId'>
@@ -178,6 +179,9 @@ import {
   sendFunc,
   getStrainerData
 } from "../wenkong/api";
+
+let prevValues = '' //当一次用户选择的picker组件的第二个值，来判断。只有此值变化，才调用指令接口
+let currValues = '' // 当前用户所在的左侧滑杆的值
 
 export default {
   data() {
@@ -490,6 +494,7 @@ export default {
       return result && result.abilityOptionList;
     },
     /**
+     * 找到对应的功能项数据
      * @param which left/right 表示内风机/外风机
      */
     getAbilityData(abilityId, which) {
@@ -1071,6 +1076,9 @@ export default {
     this.getWeather();
     this.initBackground();
   },
+  mounted() {
+    this.thePicker = this.$refs.picker
+  },
   watch: {
     isOpen(val) {
       if (val) {
@@ -1417,4 +1425,3 @@ export default {
   }
 }
 </style>
-
