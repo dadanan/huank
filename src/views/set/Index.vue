@@ -92,7 +92,7 @@
       <div class="cell-item white" @click="UserFeedBack = true">
         <a>
           <div class="cell-left">
-            <span>用户反馈</span>
+            <span>用户建议</span>
           </div>
           <div class="cell-right"></div>
         </a>
@@ -121,7 +121,7 @@
           <p>保修反馈</p>
         </div>
         <div class="confim-content">
-          <template>
+          <!-- <template>
             <el-select v-model="value" placeholder="请选择" style="width:125px" @change="changes">
               <el-option v-for="item in options" :key="item.id" :label="item.value" :value="item.id">
               </el-option>
@@ -132,8 +132,8 @@
               <el-option v-for="item in options1" :key="item.value" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
-          </template>
-          <textarea v-model="feedBacks" placeholder="请输入您的宝贵意见..." style="margin-top:20px"></textarea>
+          </template> -->
+          <textarea v-model="feedBacks" placeholder="请输入您的保修信息..." style="margin-top:20px"></textarea>
         </div>
         <div class="confim-bottom">
           <div class="but1" @click="sub">确定</div>
@@ -145,7 +145,7 @@
     <div class="create-dialog dialog" v-if="UserFeedBack">
       <div class="confirm">
         <div class="confim-top">
-          <p>用户反馈</p>
+          <p>用户建议</p>
         </div>
         <div class="confim-content">
           <textarea v-model="feedBack" placeholder="请输入您的宝贵意见..."></textarea>
@@ -186,6 +186,7 @@
       <div class="confirm">
         <div class="confim-top">
           <p>请输入设备密码</p>
+          <p style="margin-bottom:10px;">调试人员专用</p>
           <input type="number" name="" id="" value="" v-model="pwd" style="position: absolute; top:50px; left: 20px; right: 0; height: 40px; opacity: 0;" />
           <div class="flex flex-pack-justify" style="margin: 0 20px;">
             <span class="box">{{pwdList[0]}}</span>

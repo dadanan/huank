@@ -29,7 +29,7 @@ export default {
           //如果参数中有pay参数，说明是引导用户进入付款页面的
           if (getQueryString("pay")) {
             this.$router.push({
-              path: "/demo"
+              path: "/pay1"
             });
             return;
           }

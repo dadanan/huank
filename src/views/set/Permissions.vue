@@ -14,12 +14,12 @@
           </a>
           <span class="delete" @click="clearRelation(item.openId)">删除</span>
           <span class="span_left">
-            <label>{{item.status === true ? '启用' : '禁用'}}</label>
-            <el-switch v-model="item.status" @change="switchplay(item.status,item.openId)"></el-switch>
+            <!-- <label>{{item.status === true ? '启用' : '禁用'}}</label> -->
+            <el-switch v-model="item.status" active-text="启用" inactive-text="禁用" @change="switchplay(item.status,item.openId)"></el-switch>
           </span>
         </li>
       </ul>
-      <div v-else style="text-align:center;width:100%">暂无数据</div>
+      <div v-else style="text-align:center;width:100%">非主绑定人,无此权限</div>
     </div>
     <div class="set-bottom">
       <button class="but" @click="permits">全部许可</button>

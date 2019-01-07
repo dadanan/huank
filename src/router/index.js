@@ -8,6 +8,10 @@ const Detection = resolve => require(['@/views/detection/Index'], resolve)
 
 const Auth = resolve => require(['@/views/auth/Auth'], resolve)
 const Init = resolve => require(['@/views/init/Init'], resolve)
+const Pay1 = resolve => require(['@/views/pay/Pay1'], resolve)
+const Pay2 = resolve => require(['@/views/pay/Pay2'], resolve)
+
+
 const TimingList = resolve => require(['@/views/timing/List'], resolve)
 const TimingEdet = resolve => require(['@/views/timing/Edit'], resolve)
 const Set = resolve => require(['@/views/set/Index'], resolve)
@@ -50,6 +54,20 @@ let routes = [
   {
     path: '/init',
     component: Init,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/pay1',
+    component: Pay1,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/pay2',
+    component: Pay2,
     meta: {
       title: ''
     }

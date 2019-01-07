@@ -487,7 +487,7 @@ export function trusteeTeam(data) {
 // 微信支付获取支付参数
 export function getPayParams(data) {
   return http({
-    url: `${BASE_URL}/api/pay/pay`,
+    url: `${BASE_URL}/api/h5/pay/pay`,
     method: 'post',
     data,
     headers: { Ticket: Store.fetch('Ticket') }
