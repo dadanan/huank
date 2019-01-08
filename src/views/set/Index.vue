@@ -336,32 +336,32 @@ export default {
         });
       }
     },
-    changes(val) {
-      this.value1 = "";
-      for (var i = 0; i < this.list.length; i++) {
-        if (val == this.list[i].dictId) {
-          this.options1 = Object.assign([], this.list[i].rules, []);
-        }
-      }
-    },
-    getRuleInfo() {
-      // 保修反馈
-      getRuleInfo().then(res => {
-        if (res.code == 200) {
-          if (!res.data) {
-            return;
-          }
-          this.list = res.data;
-          for (var i = 0; i < this.list.length; i++) {
-            this.options.push({
-              value: this.list[i].dictName,
-              id: this.list[i].dictId
-            });
-          }
-          this.options1 = Object.assign([], this.list[0].rules, []);
-        }
-      });
-    },
+    // changes(val) {
+    //   this.value1 = "";
+    //   for (var i = 0; i < this.list.length; i++) {
+    //     if (val == this.list[i].dictId) {
+    //       this.options1 = Object.assign([], this.list[i].rules, []);
+    //     }
+    //   }
+    // },
+    // getRuleInfo() {
+    //   // 保修反馈
+    //   getRuleInfo().then(res => {
+    //     if (res.code == 200) {
+    //       if (!res.data) {
+    //         return;
+    //       }
+    //       this.list = res.data;
+    //       for (var i = 0; i < this.list.length; i++) {
+    //         this.options.push({
+    //           value: this.list[i].dictName,
+    //           id: this.list[i].dictId
+    //         });
+    //       }
+    //       this.options1 = Object.assign([], this.list[0].rules, []);
+    //     }
+    //   });
+    // },
     customMessage() {
       // 反馈意见
       if (this.feedBack.length > 0 && this.feedBack.length < 100) {
@@ -479,7 +479,7 @@ export default {
   },
   created() {
     this.getIndexAbilityData();
-    this.getRuleInfo();
+    // this.getRuleInfo();
     this.getServerUser();
     Loading.open("很快加载好了");
     if (Store.fetch("screens")) {

@@ -5,12 +5,13 @@
       <span>授权管理</span>
     </div>
     <el-amap-search-box class="search-box" :search-option="searchOption" :on-search-result="onSearchResult"></el-amap-search-box>
-    <el-amap vid="amapDemo" :zoom="zoom" :center="center" :events="events" class="amap-demo" :plugin="plugin">
-      <el-amap-marker :position="marker.position" :events="events" :visible="marker.visible" :draggable="marker.draggable"></el-amap-marker>
-    </el-amap>
     <div class="toolbar">
       经纬度: [{{ center[0] }}, {{ center[1] }}] 地址: {{ address }}
     </div>
+    <el-amap vid="amapDemo" :zoom="zoom" :center="center" :events="events" class="amap-demo" :plugin="plugin">
+      <el-amap-marker :position="marker.position" :events="events" :visible="marker.visible" :draggable="marker.draggable"></el-amap-marker>
+    </el-amap>
+    
   </div>
 </template>
 
