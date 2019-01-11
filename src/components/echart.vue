@@ -55,8 +55,8 @@ export default {
             
         },
         grid: {
-          x: 5,
-          y: 10,
+          x: 30,
+          y: 5,
           y2: 20
         },
         series: [

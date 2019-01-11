@@ -175,7 +175,7 @@ export default {
     }
     .chart {
       width: 100%;
-      height: 250px;
+      height: 220px;
     }
     &:last-child {
       margin-bottom: 0px;
