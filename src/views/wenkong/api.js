@@ -524,3 +524,13 @@ export function setLinkStatus(data) {
     headers: { Ticket: Store.fetch('Ticket') }
   })
 }
+
+
+//查询指定页面匹配的数据点数据
+export function getPageDatas(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/energy/getPageDatas/${data}`,
+    method: 'post',
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}

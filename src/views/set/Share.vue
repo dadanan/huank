@@ -134,6 +134,7 @@ export default {
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.H
       })
+      console.log(qrcode)
     }
   }
 }

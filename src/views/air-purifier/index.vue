@@ -16,7 +16,7 @@
         <span v-if='formatItemsList[13] && formatItemsList[13].showStatus'>{{ weather }}&nbsp;&nbsp;{{ getOuterTem }}℃</span>
       </div>
       <div class="control-btn-group">
-        <div class="btn" @click="show1 = true" v-if='formatItemsList[10] && formatItemsList[10].showStatus'>
+        <div class="btn" @click="shows" v-if='formatItemsList[10] && formatItemsList[10].showStatus'>
           <i class="iconfont icon-sheding"></i>
           <span>{{formatItemsList[10].showName || '设定'}}</span>
         </div>
@@ -80,9 +80,21 @@
           </div>
         </div>
       </div>
-      <div class="data-alert" v-if="puriEffic < preJhSpinner">
+      <!-- <div class="data-alert" v-if="tem < 16 ">
         <i class="iconfont icon-baojing"></i>
-        净化效率低，请更换滤网
+        温度较低，请开启加热
+      </div>
+      <div class="data-alert" v-if="hum < 40 ">
+        <i class="iconfont icon-baojing"></i>
+        温度较低，请开启加湿
+      </div> -->
+      <div class="data-alert" v-if="pur < pur1 ">
+        <i class="iconfont icon-baojing"></i>
+        净化效率低，请注意更换滤网或者清洗
+      </div>
+      <div class="data-alert" v-if="pm > pm1 ">
+        <i class="iconfont icon-baojing"></i>
+        PM2.5高，请注意更换滤网或者清洗
       </div>
     </div>
     <div class="we-footer">
@@ -110,14 +122,14 @@
       <div class="we-popup">
         <div class="we-popup-body">
           <div class="we-form">
-            <div class="we-input-group">
+            <div class="we-input-group" v-for="item in masge" :key="item.abilityName">
               <span class="we-label">
-                <span>PM2.5 预值设定</span>
-                <span>μg/m³</span>
+                <span>{{item.abilityName}}</span>
+                <!-- <span>μg/m³</span> -->
               </span>
-              <yd-spinner v-model="prePmSpinner" :min="0"></yd-spinner>
+              <yd-spinner v-model="item.currValue" :min="0" :max="item.max" ></yd-spinner>
             </div>
-            <div class="we-input-group">
+            <!-- <div class="we-input-group">
               <span class="we-label">
                 <span>净化效率预值设定</span>
                 <span>%</span>
@@ -137,10 +149,11 @@
                 <span>℃</span>
               </span>
               <yd-spinner v-model="preTemSpinner" :min="0"></yd-spinner>
-            </div>
+            </div> -->
           </div>
         </div>
         <div class="we-popup-footer">
+          <div class="we-btn" @click="defaults" >默认值</div>
           <div class="we-btn-solid" @click="show1 = false">取消</div>
           <div class="we-btn" @click="handleSetFuncs">确认</div>
         </div>
@@ -199,6 +212,7 @@ export default {
       pageName: "",
       formatItemsList: [],
       abilitysList: [],
+      i:0,
       location: "",
       weather: "", // 天气
       outerTem: "", // 温度
@@ -208,16 +222,23 @@ export default {
       wxDeviceId: this.$route.query.wxDeviceId,
       customerId: this.$route.query.customerId,
       setInter: undefined, // 定时器的id
+      setInter1: undefined, // 定时器的id
       isOpen: false, // 开机状态？
       status: false, // 主机状态
-      theModeType: "0" // 当前模式 0：关机 1:自动模式 3: 手动模式
+      theModeType: "1", // 当前模式 0：关机 1:自动模式 3: 手动模式
+      masge:[],
+      datas:[],
+      pm1:0,  //shipm25
+      pur:0,  //算净化效率
+      pur1:0,  //设净化效率
+      pm :0   //pm25
     };
   },
   computed: {
     puriEffic() {
       /**
        * 计算净化效率
-       * (室内PM2.5 - 室外PM2.5)/室外PM2.5
+       * (室外PM2.5 - 室内PM2.5)/室外PM2.5
        */
       if (!this.formatItemsList[8] || !this.formatItemsList[8].abilityId) {
         return this.outerPm || 0;
@@ -235,12 +256,14 @@ export default {
 
       const interPM = Number(interData.currValue);
       const outerPM = Number(this.getOuterPM);
-      const result = Math.floor(((interPM - outerPM) / outerPM) * 100);
+      const result = Math.floor(((outerPM - interPM ) / outerPM) * 100);
       if (Number.isNaN(result)) {
         // 如果净化效率不是数字，说明上面某个数据里有字符串
         // 或者是负数的话，也0
+        this.pur = 0
         return 0;
       }
+      this.pur = Math.abs(result)      
       return Math.abs(result);
     },
     getOuterPM() {
@@ -307,6 +330,22 @@ export default {
     }
   },
   methods: {
+    defaults(){
+      const arr = {
+        '2DD0':16,
+        '2DE0':40,
+        '2DG0':88,
+        '2DF0':10
+      }
+      for(var i = 0;i<this.masge.length;i++){
+        this.masge[i].currValue = arr[this.masge[i].dirValue]
+      }
+    },
+    shows(){
+      this.show1 = true
+      clearInterval(this.setInter)
+
+    },
     /**
      * 型号功能项数据中存在模式数据？
      */
@@ -405,12 +444,7 @@ export default {
         });
     },
     asyncSendFunc(code, value) {
-      return new Promise((resolve, reject) => {
-        let data = {
-          deviceId: this.$route.query.deviceId,
-          funcId: code,
-          value: value
-        };
+        this.i++
         sendFunc({
           deviceId: this.$route.query.deviceId,
           funcId: code,
@@ -418,43 +452,72 @@ export default {
         })
           .then(res => {
             if (res.code == 200) {
-              resolve();
+              if(this.i < this.masge.length){
+                this.sleep(300)
+                this.as(this.i)
+              }else{
+                
+                 Toast({
+                  mes: "发送成功",
+                  timeout: 1000,
+                  icon: "success"
+                });
+              }
             }
           })
           .catch(e => {
-            reject(e);
+            // reject(e);
           });
-      });
+    },
+    as(i){
+      this.asyncSendFunc(this.masge[i].dirValue,this.masge[i].currValue)
+    },
+    // asyncSendFunc(code, value) {
+    //   return new Promise((resolve, reject) => {
+    //     let data = {
+    //       deviceId: this.$route.query.deviceId,
+    //       funcId: code,
+    //       value: value
+    //     };
+    //     sendFunc({
+    //       deviceId: this.$route.query.deviceId,
+    //       funcId: code,
+    //       value: value
+    //     })
+    //       .then(res => {
+    //         if (res.code == 200) {
+    //           resolve();
+    //         }
+    //       })
+    //       .catch(e => {
+    //         reject(e);
+    //       });
+    //   });
+    // },
+    sleep(delay){
+       var start = (new Date()).getTime();
+        while ((new Date()).getTime() - start < delay) {
+          continue;
+        }
     },
     handleSetFuncs() {
-      Promise.all([
-        this.asyncSendFunc("2DD.0", this.preTemSpinner),
-        this.asyncSendFunc("2DE.0", this.preHumSpinner),
-        this.asyncSendFunc("2DF.0", this.prePmSpinner),
-        this.asyncSendFunc("2DG.0", this.preJhSpinner)
-      ])
-        .then(() => {
-          Toast({
-            mes: "设置成功",
-            timeout: 1500,
-            icon: "success"
-          });
-          this.show1 = false;
-        })
-        .catch(() => {
-          Toast({
-            mes: "设置失败",
-            timeout: 1500,
-            icon: "fail"
-          });
-        });
+      this.i = 0
+      this.show1 = false
+      const that = this   
+      that.asyncSendFunc(that.masge[0].dirValue,that.masge[0].currValue)
+        this.setInter = setInterval(() => {
+            this.getIndexFormatData();
+            this.getWeather();
+        }, 2000);
     },
     getIndexAbilityData() {
       // 获取H5控制页面功能项数据，带isSelect参数
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
         if (res.code == 200 && res.data) {
           const data = res.data;
-          this.pageName = data.pageName;
+          Store.save("modelId",data.modelId)
+          // console.log(res.data)
+          this.pageName = data.manageName;
 
           /**
            * 因为目前电子净化器版式中没有模式的配置项
@@ -470,7 +533,6 @@ export default {
           });
 
           this.formatItemsList = data.formatItemsList;
-
           data.abilitysList.forEach(item => {
             item["currValue"] = "";
           });
@@ -493,20 +555,74 @@ export default {
       const findTheAbility = (data, id) => {
         return data.filter(item => item.id == id)[0];
       };
+      // console.log(this.formatItemsList)
+      // const ids = this.formatItemsList
+      //   .filter(item => item.showStatus == 1 && item.abilityId)
+      //   .map(item => item.abilityId);
+        
+        const iss = []
+        this.masge = []
+        for(var i = 0 ;i<this.formatItemsList.length; i++){
+          if(i == '10'){
+            var ss = this.formatItemsList[i].abilityId.split(',')
+            for(var j = 0;j< ss.length; j++){
+              for(var s= 0;s<this.abilitysList.length;s++){
 
-      const ids = this.formatItemsList
-        .filter(item => item.showStatus == 1 && item.abilityId)
-        .map(item => item.abilityId);
-
+                // console.log(ss[j])
+                if(ss[j] == this.abilitysList[s].abilityId){
+                  this.masge.push(this.abilitysList[s])
+                }
+              }
+              iss.push(ss[j])
+            }
+          }else if(i=='14'){ 
+          }else{
+            if(this.formatItemsList[i].abilityId){
+              iss.push(this.formatItemsList[i].abilityId)
+            }
+          }
+        }
+        const arr = {
+          '2DD0':35,
+          '2DE0':100,
+          '2DG0':100,
+          '2DF0':150
+        }
+        for(var i = 0;i<this.masge.length;i++){
+          this.masge[i].max = arr[this.masge[i].dirValue]
+          this.masge[i].currValue = Number(this.masge[i].currValue)
+        }
+        // console.log(iss)
+      // console.log(ids)
       /**
        * 在后台型号未完善版式数据更新的逻辑前，先在代码层面处理添加新功能项的情况。
        */
 
       newQueryDetailByDeviceId({
         deviceId: this.deviceId,
-        abilityIds: ids
+        abilityIds: iss
       }).then(res => {
         const data = res.data;
+        for(var i = 0;i<data.length;i++){
+          if(data[i].dirValue){
+            if(data[i].dirValue == '110'){
+              this.pm1 = Number(data[i].currValue)
+            } 
+            // if(data[i].dirValue == '2DE0'){
+            //   this.hum = Number(data[i].currValue)
+            // }
+            if(data[i].dirValue == '2DG0'){
+              this.pur1 = Number(data[i].currValue)
+              console.log(this.pur1)
+            }
+            if(data[i].dirValue == '2DF0'){
+              this.pm = Number(data[i].currValue)
+            }
+          }
+          
+        }
+        this.datas = data
+        // this.masge = res.data
         // 将res.data中的isSelect和dirValue赋值过去
         this.abilitysList.forEach((item, index) => {
           // 如果有值，说明是温度功能项，讲数值拿过来
@@ -538,7 +654,6 @@ export default {
               }
             });
         });
-
         this.initHandler();
         this.initSwitch();
         this.initMode();
@@ -579,7 +694,8 @@ export default {
       return result;
     },
     getAbilityDataByDirValue(dirValue, abilityName) {
-      const result = this.abilitysList.filter(
+      // console.log(this.abilitysList)
+      const result = this.datas.filter(
         item => item.dirValue == dirValue && item.abilityName == abilityName
       );
       return result && result[0];
@@ -701,7 +817,9 @@ export default {
         debug("型号未添加「模式功能项」数据！");
         return;
       }
-      const option = modeData.abilityOptionList;
+      // const option = modeData.abilityOptionList;
+      const option = this.datas
+      console.log(option)
       if (!option) {
         debug("模式功能项数据中没有选项数据！");
         return;
@@ -715,7 +833,7 @@ export default {
           modeType = "1";
         }
       });
-
+      console.log(modeType)
       this.theModeType = modeType;
     },
     /**
@@ -798,15 +916,15 @@ export default {
 
 .we-btn,
 .we-btn-solid {
-  padding: 0.15rem 0.3rem;
-  font-size: 0.36rem;
+  padding: 0.15rem 0.2rem;
+  font-size: 0.2rem;
   border: 1px solid #2689ee;
   border-radius: 5px;
   color: #2689ee;
   font-weight: bold;
   text-align: center;
   display: inline-block;
-  width: 2.2rem;
+  width: 1.5rem;
 }
 
 .we-btn {
@@ -1095,6 +1213,7 @@ export default {
 .data-alert {
   text-align: center;
   color: #fff;
+  padding: 0.1rem 0rem;
   font-size: 0.29rem;
   i {
     color: #ff0000;

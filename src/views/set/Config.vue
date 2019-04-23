@@ -250,7 +250,7 @@ export default {
       modelSelected: "1",
       deviceChildId: "",
       deviceId: this.$route.query.deviceId,
-      customerId: this.$route.query.customerId || Store.fetch("customerId"),
+      customerId:Store.fetch("modelId"),
       deviceName: "",
       deleteTheDevice: "",
       dirValueList: [],

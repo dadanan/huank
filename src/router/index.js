@@ -4,6 +4,12 @@
  */
 const Index = resolve => require(['@/views/index/Index'], resolve)
 const IndexSingle = resolve => require(['@/views/IndexSingle/Index'], resolve)
+const IndexTem = resolve => require(['@/views/indexTem/Index'], resolve)
+const IndexWenk= resolve => require(['@/views/indexWenk/Index'], resolve)
+
+const IndexMas = resolve => require(['@/views/indexMas/Index'], resolve)
+
+
 const Detection = resolve => require(['@/views/detection/Index'], resolve)
 
 const Auth = resolve => require(['@/views/auth/Auth'], resolve)
@@ -96,6 +102,27 @@ let routes = [
   {
     path: '/indexsingle',
     component: IndexSingle,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/indextem',
+    component: IndexTem,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/indexwenk',
+    component: IndexWenk,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/indexmas',
+    component: IndexMas,
     meta: {
       title: ''
     }

@@ -205,10 +205,17 @@ export default {
       deleteTheDeviceName: "",
       selname: "",
       teamList: [],
-      editingDeviceData: []
+      editingDeviceData: [],
+      // forbidBack:''
     };
   },
+
   methods: {
+    // forbidBack () {
+    //         window.history.pushState('forward', null, '#');
+    //         // alert(1)
+    //         window.history.forward(1);
+    // },
     obtainMyDevice() {
       obtainMyDevice().then(res => {
         const data = res.data;
@@ -223,7 +230,11 @@ export default {
             if (device.childDeviceCount === 0) {
               return;
             }
-            this.childDeviceList(device.deviceId, deviceList);
+            if(device.deviceId == 1 || device.deviceId == 11 || device.deviceId == 12 || device.deviceId == 13 || device.deviceId == 14){
+
+            }else{
+              this.childDeviceList(device.deviceId, deviceList);  
+            }
           });
         });
       });
@@ -530,6 +541,7 @@ export default {
       Store.save("wxDeviceId", child.wxDeviceId);
       Store.save("linkAgeStatus", child.linkAgeStatus);
 
+      Store.save("masterDeviceId", child.masterDeviceId);
       const query = {
         wxDeviceId: child.wxDeviceId,
         deviceId: child.deviceId || child.id,
@@ -565,6 +577,36 @@ export default {
         // 纯检测器
         this.$router.push({
           path: "/detection",
+          query
+        });
+      } else if (child.formatName === "露点温控器14") {
+        // 纯检测器
+        this.$router.push({
+          path: "/indexwenk",
+          query
+        });
+      } else if (child.formatName === "露点温控器13") {
+        // 纯检测器
+        this.$router.push({
+          path: "/indexwenk",
+          query
+        });
+      } else if (child.formatName === "露点温控器12") {
+        // 纯检测器
+        this.$router.push({
+          path: "/indexwenk",
+          query
+        });
+      } else if (child.formatName === "露点温控器11") {
+        // 纯检测器
+        this.$router.push({
+          path: "/indexwenk",
+          query
+        });
+      } else if (child.formatName === "能源热泵") {
+        // 纯检测器
+        this.$router.push({
+          path: "/indextem",
           query
         });
       }
@@ -622,6 +664,7 @@ export default {
     }
   },
   created() {
+    console.log(JSON.parse(Store.fetch("obj")))
     if (JSON.parse(Store.fetch("obj"))) {
       // 分享人进来
       console.log("从分享进来");
@@ -633,6 +676,18 @@ export default {
     }
     this.getBgImgs();
   },
+    // mounted () {
+    //     // 监听手机物理返回键时禁止返回之前的路由
+    //     if (window.history && window.history.pushState) {
+    //         window.addEventListener('popstate', this.forbidBack);
+    //         // this.forbidBack() 
+    //     }
+    // },
+    // destoryed () {
+    //     // 离开页面时销毁监听
+    //     window.removeEventListener('popstate', this.forbidBack);
+    //     // alert(2)
+    // },
   components: {
     "yd-accordion": Accordion,
     "yd-accordion-item": AccordionItem,

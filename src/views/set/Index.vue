@@ -84,7 +84,7 @@
       <div class="cell-item white" @click="customer = true">
         <a>
           <div class="cell-left">
-            <span>联系客服</span>
+            <span>客服电话</span>
           </div>
           <div class="cell-right"></div>
         </a>
@@ -160,10 +160,11 @@
     <div class="create-dialog dialog" v-if="customer">
       <div class="confirm">
         <div class="confim-top">
-          <p>联系客服</p>
+          <p>客服电话</p>
         </div>
         <div class="confim-content">
-          <p>{{ customer1 }}</p>
+          
+          <a href="tel:4001181789#mp.weixin.qq.com">{{ customer1 }}</a>
         </div>
         <div class="confim-bottom">
           <div class="but1" @click="customer = false">确定</div>
@@ -186,7 +187,7 @@
       <div class="confirm">
         <div class="confim-top">
           <p>请输入设备密码</p>
-          <p style="margin-bottom:10px;">调试人员专用</p>
+          <!-- <p style="margin-bottom:10px;">调试人员专用</p> -->
           <input type="number" name="" id="" value="" v-model="pwd" style="position: absolute; top:50px; left: 20px; right: 0; height: 40px; opacity: 0;" />
           <div class="flex flex-pack-justify" style="margin: 0 20px;">
             <span class="box">{{pwdList[0]}}</span>

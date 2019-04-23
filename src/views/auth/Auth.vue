@@ -12,9 +12,28 @@ export default {
     this.authMethod();
   },
   methods: {
+
     authMethod() {
       // 因为如果用户来自扫描托管二维码，那么customerId就在路径参数里而不是Init.vue页面存储的
-      auth(
+      if(Store.fetch("Ticket")){
+        if (getQueryString("teamId")) {
+            this.trusteeTeam(getQueryString("teamId"), res.data);
+          }
+          //如果参数中有pay参数，说明是引导用户进入付款页面的
+          if (getQueryString("pay")) {
+            this.$router.push({
+              path: "/pay1"
+            });
+            return;
+          }
+          this.$router.push({
+            path: "/list",
+            query: {
+              customerId: Store.fetch("customerId")
+            },
+          });
+      }else{
+        auth(
         Store.fetch("customerId") || getQueryString("customerId"),
         getQueryString("code")
       )
@@ -37,12 +56,14 @@ export default {
             path: "/list",
             query: {
               customerId: Store.fetch("customerId")
-            }
+            },
           });
         })
         .catch(err => {
           console.error("auth-error-->", err);
         });
+      }
+      
     },
     /**
      * teamId: 设备组id
@@ -56,7 +77,8 @@ export default {
         console.log("设备组托管成功！");
       });
     }
-  }
+  },
+  
 };
 </script>
 

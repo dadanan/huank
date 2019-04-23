@@ -1,111 +1,140 @@
 <template>
-  <div class='index-container' :class="{ active: isOpen === true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')'}" v-show='pageIsShow'>
+  <div class='index-container' :class="{ active: isOpen === true }" @touchmove.prevent :style="{ 'background-image': 'url(' + img + ')'}">
     <div class='header'>
       <img src='@/assets/arrow_left.png' @click='goBack()'>
       <span>{{deviceName}}</span>
-      <img class='setting' @click='intoSet' src='@/assets/set.png'>
+      <!-- <img class='setting' src='@/assets/set.png'> -->
     </div>
     <div class='info'>
       <img src="../../assets/map.png" />&nbsp;
-      <span v-show='formatItemsList[9] && formatItemsList[9].showStatus'>{{location}}&nbsp;</span>
-      <span v-show='formatItemsList[10] && formatItemsList[10].showStatus'>{{weather}} {{outerTem}}&nbsp;</span>
-      <span v-if='formatItemsList[11] && formatItemsList[11].showStatus'>湿度: {{outerHum}}%&nbsp;</span>
-      <span v-show='formatItemsList[12] && formatItemsList[12].showStatus'>PM2.5: {{outerPm}}ug/m3</span>
+      <span>{{location}}&nbsp;</span>
+      <span>{{weather}} {{outerTem}}&nbsp;</span>
+      <span>湿度: {{outerHum}}&nbsp;</span>
+      <span>PM2.5: {{outerPm}}ug/m3</span>
     </div>
     <div class='switch'>
-      <div v-show='formatItemsList[7] && formatItemsList[7].showStatus && formatItemsList[7].abilityId'>
-        <div class='left'>
-          <img src='@/assets/wenkong/host-status-open.png' v-if='hostIsOpen()'>
-          <img src='@/assets/wenkong/host-status-close.png' v-else>
-        </div>
-        <p>{{formatItemsList[7] && formatItemsList[7].showName}}</p>
+      <div>
+        <!-- <div class='left'> -->
+          <!-- <img src='@/assets/wenkong/host-status-open.png'>
+          <img src='@/assets/wenkong/host-status-close.png' v-else> -->
+        <!-- </div> -->
+        <!-- <p>123</p> -->
       </div>
-      <div v-show='formatItemsList[8] && formatItemsList[8].showStatus' @click='onOffMethod'>
+      <div>
         <div>
-          <img src='@/assets/wenkong_close.png' v-if='isOpen'>
-          <img src='@/assets/wenkong_close.png' v-else>
+          <img src='@/assets/wenkong_close.png'>
+          <!-- <img src='@/assets/wenkong_close.png' v-else> -->
         </div>
-        <p>{{formatItemsList[8] && formatItemsList[8].showName}}</p>
+        <p v-if="energy.data6 == 1">开</p>
+        <p v-else>关</p>
+
       </div>
     </div>
     <div class='main'>
       <div>
         <h3>设定值</h3>
-        <h1>{{temNumber}}</h1>
+        <h1>0</h1>
         <h3 class='last'>℃</h3>
       </div>
     </div>
     <div class='current-info'>
-      <p v-if='formatItemsList[4] && formatItemsList[4].showStatus'>
-        {{formatItemsList[4] && formatItemsList[4].showName}}
-        <span class='strong'>{{(getAbilityData(formatItemsList[4].abilityId).currValue)/10}}</span>
+      <p>
+        <!-- {{formatItemsList[4] && formatItemsList[4].showName}} -->
+        当前温度
+        <span>{{energy.data3}}</span>
         ℃
       </p>
-      <p v-if='formatItemsList[5] && formatItemsList[5].showStatus'>
-        {{formatItemsList[5] && formatItemsList[5].showName}}
-        <span class='strong'>{{(getAbilityData(formatItemsList[5].abilityId).currValue)/10}}</span>
+      <p>
+        室内湿度
+        <span>{{energy.data4}}</span>
         %
       </p>
     </div>
-    <div class='function' v-show='isOptionalFunctionOpen && hasOptionalFunction()'>
-      <div v-for='(item,index) in getFunctionList' @click='functionClicked(item)' :class="{'able': currFunction === index}" :key='item.id'>
-        <span>{{item.optionDefinedName || item.optionName}}</span>
+    <!-- <div class='function'>
+      <div>
+        <span>123</span>
       </div>
-    </div>
+      <div>
+        <span>123</span>
+      </div>
+      <div>
+        <span>123</span>
+      </div>
+      <div>
+        <span>123</span>
+      </div>
+    </div> -->
     <div class='menu'>
-      <div @click='modelClickedHandler(formatItemsList[0] && formatItemsList[0].abilityId,0)'>
+      <!-- <div @click='modelClickedHandler(1,0)'>
         <div>
           <img class='first' src='@/assets/temperature.png'>
         </div>
-        <span>{{formatItemsList[0] && formatItemsList[0].showName}}</span>
-      </div>
-      <div @click='modelClickedHandler(formatItemsList[1].abilityId,1)' v-show='formatItemsList[1] && formatItemsList[1].showStatus'>
+        <span>温度</span>
+      </div> -->
+      <div @click='modelClickedHandler(1,0)'>
         <div>
+          <!-- <img src='@/assets/model.png'> -->
+          <img class='first' src='@/assets/temperature.png'>
+          
+        </div>
+        <span>温度</span>
+      </div>
+      <div @click='modelClickedHandler(1,1)'>
+        <div>
+          <!-- <img class='third' src='@/assets/wind.png'> -->
           <img src='@/assets/model.png'>
         </div>
-        <span>{{formatItemsList[1] && formatItemsList[1].showName}}</span>
+        <span>模式</span>
       </div>
-      <div @click='modelClickedHandler(formatItemsList[2] && formatItemsList[2].abilityId,2)' v-show='formatItemsList[2] && formatItemsList[2].showStatus'>
-        <div>
-          <img class='third' src='@/assets/wind.png'>
-        </div>
-        <span>{{formatItemsList[2] && formatItemsList[2].showName}}</span>
-      </div>
-      <div @click="intiTime">
+      <!-- <div @click="intiTime">
         <div>
           <img class='third' src='@/assets/zhong.png'>
         </div>
         <span>定时</span>
-      </div>
+      </div> -->
     </div>
-    <div class='left-side' v-show='formatItemsList[6] && formatItemsList[6].showStatus' :style='{
-      background: leftSideColor
-    }'>
-      <div>
+    <div class='left-side' :style='{background: leftSideColor}'>
+      <!-- <div>
         <img class='first' src='@/assets/wind.png'>
-        <span>{{currentSpeedIndexLabel}}</span>
-      </div>
+        <span>lable</span>
+      </div> -->
       <div>
         <img class='second' src='@/assets/model.png'>
-        <span>{{modeCurrentLabel}}</span>
+        <span v-if="energy.data5== 8 ">制热</span>
+        <span v-else>制冷</span>
+
       </div>
     </div>
     <div class='right-side'>
-      <img v-if='functionIcon.isFloorHot' src='@/assets/wenkong/floor-hot.png'>
-      <img v-if='functionIcon.isAirConditioning' src='@/assets/wenkong/air-conditioning.png'>
-      <img v-if='functionIcon.isAuxiliaryHot' src='@/assets/wenkong/auxiliary-hot.png'>
-      <img v-if='functionIcon.isTopCold' src='@/assets/wenkong/top-cold.png'>
-      <img v-if='functionIcon.isTopHot' src='@/assets/wenkong/top-hot.png'>
-      <img v-if='functionIcon.isVentilation' src='@/assets/wenkong/ventilation.png'>
+        <!-- <p>告警</p> -->
+      <!-- <img src='@/assets/wenkong/floor-hot.png'>
+      <img src='@/assets/wenkong/air-conditioning.png'>
+      <img src='@/assets/wenkong/auxiliary-hot.png'>
+      <img src='@/assets/wenkong/top-cold.png'>
+      <img src='@/assets/wenkong/top-hot.png'>
+      <img src='@/assets/wenkong/ventilation.png'> -->
     </div>
     <!-- 模式 -->
     <yd-popup v-model="modelVisible" position="bottom" width="90%">
       <div class="content">
         <div class="title">模式设定</div>
         <div class="list">
-          <ul v-if='formatItemsList[1] && formatItemsList[1].abilityId'>
-            <li v-if='item.status !== 2' v-for="(item,index) in getListData(formatItemsList[1].abilityId)" :class="{ active: modeCurrent == index }" @click="modeClicked(index)" :key='item.optionValue'>
-              <span>{{ item.optionDefinedName || item.optionName }}</span>
+          <ul>
+            <li :class="{ active: modeCurrent == 3 }">
+              <span>制冷</span>
+              <div class="icon"></div>
+            </li>
+          </ul>
+          <ul>
+            <li :class="{ active: modeCurrent == 8 }">
+              <span>制热</span>
+              <div class="icon"></div>
+            </li>
+          </ul>
+          <ul>
+            <!-- <li :class="{ active: modeCurrent == 1 }" @click="modeClicked(1)"> -->
+            <li :class="{ active: modeCurrent == 1 }">
+              <span>通风</span>
               <div class="icon"></div>
             </li>
           </ul>
@@ -118,8 +147,8 @@
         <div class="title">风速设定</div>
         <div class="list wind-speed">
           <p>
-            <span>{{speedName}}</span>
-            <span>{{currentSpeedIndexLabel}}</span>
+            <span>123</span>
+            <span>444</span>
           </p>
           <div>
             <el-slider v-model="currentSpeed" :step="leftStep()" @change='sliderChanged' show-stops :show-tooltip="false">
@@ -172,14 +201,14 @@ import {
   newQueryDetailByDeviceId,
   getLocation,
   getWeather,
-  sendFunc
-} from "./api";
-import Store from "./store";
+  sendFunc,
+  getPageDatas
+} from "../wenkong/api";
+import Store from "../wenkong/store";
 import img1 from "../../assets/bak3.jpg"; // 白天阴
 import img2 from "../../assets/bak2.jpg"; // 夜晚阴
 import img3 from "../../assets/bak1.jpg"; // 夜晚晴
 import img4 from "../../assets/bak4.jpg"; // 白天晴
-import store from './store';
 
 export default {
   data() {
@@ -202,8 +231,8 @@ export default {
       modelVisible: false,
       windVisible: false,
       pageIsShow: false,
-      temNumber: 26, // 客户设定温度
-      humNumber: 45, // 客户设定湿度
+      temNumber: 0, // 客户设定温度
+      humNumber: 0, // 客户设定湿度
       temperatureVisible: false, // 显示温度设定弹框
       currentOptionForWind: 0, // 风速的当前选择项
       currentSpeedIndexLabel: "", // 当前选项风速档位的名称
@@ -226,69 +255,18 @@ export default {
       outerHum: "", // 湿度
       outerPm: "", // PM2.5
       deviceId: this.$route.query.deviceId,
-      deviceId: this.$route.query.deviceId,
-      masterDeviceId: Store.fetch("masterDeviceId"),
+      // deviceId: this.$route.query.deviceId,
+      masterDeviceId: 12,
       customerId: this.$route.query.customerId,
       hostPowerStatus: this.$route.query.hostPowerStatus,
       setInter: undefined, // 定时器的id
-      isOpen: null, // 开机状态？
+      isOpen: true, // 开机状态？
       status: true, // 主机状态
-      functionIcon: {
-        isFloorHot: false,
-        isAirConditioning: false,
-        isAuxiliaryHot: false,
-        isTopCold: false,
-        isTopHot: false,
-        isVentilation: false
-      },
-      hasSet: false // 保证一些数据每次进入页面只刷新一次。
+      hasSet: false, // 保证一些数据每次进入页面只刷新一次。
+      energy :{}
     };
   },
-  computed: {
-    speedName() {
-      const name = "送风风速";
-      if (!this.formatItemsList[2] || !this.formatItemsList[2].abilityId) {
-        return name;
-      }
-      const data = this.getAbilityData(this.formatItemsList[2].abilityId);
-      if (!data) {
-        return name;
-      }
-      return data.definedName || data.abilityName;
-    },
-    /**
-     * 设置功能项指令
-     * 返回功能项选项数据
-     */
-    getFunctionList() {
-      if (!this.formatItemsList[3] || !this.formatItemsList[3].abilityId) {
-        return [];
-      }
-      const data = this.getAbilityData(this.formatItemsList[3].abilityId);
-      if (!data) {
-        return [];
-      }
-      const option = data && data.abilityOptionList;
-
-      return option || [];
-    }
-  },
   methods: {
-    /**
-     * 温控器的主机，目前正在开机状态
-     * 如果用户选择了‘主机状态功能项’，获取它的主机的‘主机状态功能项’的值
-     */
-    hostIsOpen() {
-      if (
-        !this.formatItemsList[7] ||
-        !this.formatItemsList[7].showStatus ||
-        !this.formatItemsList[7].abilityId
-      ) {
-        return false;
-      }
-      // 从路径参数中获取传过来的主机状态值
-      return this.hostPowerStatus == 1;
-    },
     /**
      * 用户配置了打开了次级模式并且配置了数据?
      */
@@ -409,9 +387,9 @@ export default {
 
       if (tempObj.isSelect == 1) {
         // 说明是关机
-        this.isOpen = false;
-      } else {
         this.isOpen = true;
+      } else {
+        this.isOpen =  false;
       }
 
       // 主机状态初始化
@@ -506,83 +484,46 @@ export default {
       this.humNumber -= 1;
     },
     confirmSetting() {
-      this.sendFunc("2DD.0", this.temNumber);
-      this.sendFunc("2DE.0", this.humNumber);
+    //   this.sendFunc("2DD.0", this.temNumber);
+    //   this.sendFunc("2DE.0", this.humNumber);
       this.temperatureVisible = false;
     },
-    intoSet() {
-      if (!this.isOpen) {
-        return;
-      }
-      this.$router.push({
-        path: "/set",
-        query: {
-          deviceId: this.deviceId,
-          wxDeviceId: this.wxDeviceId,
-          customerId: this.customerId,
-          masterFormat: 0, // 此版式不能作为主机版式
-          hasTwoAbility: this.hasTwoAbility()
-        }
-      });
-    },
-    hasTwoAbility() {
-      // 功能项数据中是否存在：主机模式(制冷制热)和主机开关，存在返回true
-      const dirValueArray = ["2D8.0", "2DR.0"];
-      const filter = this.abilitysList.filter(ability =>
-        dirValueArray.includes(ability.dirValue)
-      );
-      if (filter.length === 2) {
-        // 如果两个功能项都存在
-        Store.save("masterInfoAbility", JSON.stringify(filter));
-        return 1;
-      }
-      return 0;
-    },
-    modelClicked(index, data, which) {
-      if (which == 3) {
-        this.currentOptionForWind = index;
-      } else {
-        this.currentOption = index;
-      }
-      this.sendFunc(data.dirValue, data.abilityOptionList[index].dirValue);
-    },
-    sendFunc(funcId, value, cb) {
-      // 发送指令
-      sendFunc({
-        deviceId: this.deviceId,
-        funcId: funcId,
-        value: value
-      }).then(() => {
-        if (cb) {
-          cb();
-        }
-        Toast({
-          mes: "指令发送成功",
-          timeout: 1000,
-          icon: "success"
-        });
-        console.info("指令发送成功:", funcId, "-", value);
-      });
-    },
+    // sendFunc(funcId, value, cb) {
+    //   // 发送指令
+    //   sendFunc({
+    //     deviceId: this.deviceId,
+    //     funcId: funcId,
+    //     value: value
+    //   }).then(() => {
+    //     if (cb) {
+    //       cb();
+    //     }
+    //     Toast({
+    //       mes: "指令发送成功",
+    //       timeout: 1000,
+    //       icon: "success"
+    //     });
+    //     console.info("指令发送成功:", funcId, "-", value);
+    //   });
+    // },
     functionClicked(item) {
       if (!this.isOpen) {
         this.$toast("当前关机状态，不可操作", "bottom");
         return;
       }
-      this.sendFunc("210", item.optionValue, () => {
-        Toast({
-          mes: "指令发送成功",
-          timeout: 1000,
-          icon: "success"
-        });
-      });
+    //   this.sendFunc("210", item.optionValue, () => {
+    //     Toast({
+    //       mes: "指令发送成功",
+    //       timeout: 1000,
+    //       icon: "success"
+    //     });
+    //   });
     },
     getIndexAbilityData() {
       // 获取H5控制页面功能项数据，带isSelect参数
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
         if (res.code == 200 && res.data) {
           const data = res.data;
-          Store.save("modelId",data.modelId)
           this.formatItemsList = data.formatItemsList;
 
           data.abilitysList.forEach(item => {
@@ -590,197 +531,14 @@ export default {
           });
           this.abilitysList = data.abilitysList;
           // 定时请求接口数据，更新页面数据
-          this.setInter = setInterval(() => {
-            this.getIndexFormatData(res.data);
-            this.getWeather();
-          }, 2000);
+        //   this.setInter = setInterval(() => {
+        //     this.getIndexFormatData(res.data);
+        //     this.getWeather();
+        //   }, 2000);
 
           // 显示页面内容
           this.pageIsShow = true;
         }
-      });
-    },
-    getIndexFormatData(list) {
-      // 获取H5控制页面功能项数据，带isSelect参数
-
-      // 根据功能项id筛选功能项
-      const findTheAbility = (data, id) => {
-        return data.filter(item => item.id == id)[0];
-      };
-
-      let ids = this.formatItemsList
-        .filter(item => item.showStatus == 1 && item.abilityId)
-        .map(item => item.abilityId);
-      let tempIds = [];
-      ids.forEach(id => {
-        tempIds.push(...String(id).split(","));
-      });
-
-      newQueryDetailByDeviceId({
-        deviceId: this.deviceId,
-        abilityIds: tempIds
-      }).then(res => {
-        const data = res.data;
-        // 将res.data中的isSelect和dirValue赋值过去
-        this.abilitysList.forEach((item, index) => {
-          // 如果有值，说明是温度功能项，讲数值拿过来
-          if (data[index] && data[index].currValue) {
-            // 找到对应的温度功能项对象
-            const temp = this.abilitysList.filter(
-              itemA => itemA.abilityId == data[index].id
-            )[0];
-            if (!data[index]) {
-              return;
-            }
-            try {
-              temp.currValue = data[index].currValue;
-            } catch (e) {
-              // 怪异的错误，就算判断data[index]不为空，也会出现currValue of undefined错误～
-            }
-          }
-          if (!item.abilityOptionList || item.abilityOptionList.length == 0) {
-            return;
-          }
-          item.abilityType !== 1 &&
-            item.abilityOptionList.forEach((option, oIndex) => {
-              const result = findTheAbility(data, item.abilityId);
-              if (result) {
-                const temp = Object.assign(
-                  option,
-                  result.abilityOptionList[oIndex]
-                );
-              }
-            });
-        });
-
-        this.switchHandler();
-        this.setTemperature();
-        this.setPopDialogData();
-      });
-    },
-    setPopDialogData() {
-      // 实时设置下方模式、风速，功能等弹框内的数据
-      // 为了解决：弹框打开的情况下，设备状态变化时，弹框内选项数据却没有变更的问题。
-
-      // 更新模式选项
-      let modeData = {};
-      const updateModel = () => {
-        modeData = this.abilitysList.filter(
-          item => item.abilityId == this.formatItemsList[1].abilityId
-        )[0];
-        if (!modeData) {
-          return;
-        }
-
-        // 根据isSelect的值，对相应选项执行默认选中行为
-        modeData.abilityOptionList.forEach((item, iIndex) => {
-          if (item.isSelect == 0) {
-            return;
-          }
-
-          // “模式选项”
-          this.modeCurrent = iIndex;
-          this.modeCurrentLabel = item.optionDefinedName || item.optionName;
-
-          // 如果当前选中对模式是致热，打开次级功能模式
-          if ([41, 42, 43, 44].includes(Number(item.optionValue))) {
-            this.isOptionalFunctionOpen = true;
-          } else {
-            this.isOptionalFunctionOpen = false;
-            // 如果可以的话，显示通风或者致冷图标
-            if (item.dirValue == 2) {
-              this.setIconVisible(["isVentilation"]);
-            } else if (item.dirValue == 3) {
-              this.setIconVisible(["isTopCold"]);
-            } else {
-              this.setIconVisible([""]);
-            }
-          }
-        });
-      };
-
-      const updateWindSpeed = () => {
-        const data = this.abilitysList.filter(
-          item => item.abilityId == this.formatItemsList[2].abilityId
-        )[0];
-        if (!data) {
-          return;
-        }
-        // 根据isSelect的值，对相应选项执行默认选中行为
-        data.abilityOptionList.forEach((item, iIndex) => {
-          if (item.isSelect == 0) {
-            return;
-          }
-          // “内风速选项”
-          this.currentSpeed = this.leftStep() * iIndex;
-          this.currentSpeedIndexLabel =
-            item.optionDefinedName || item.definedName;
-        });
-      };
-
-      // 次级模式的初始化
-      const updateAbility = () => {
-        const data = this.getListData(this.formatItemsList[3].abilityId);
-        data.forEach((item, index) => {
-          if (item.isSelect == 1) {
-            this.currFunction = index;
-
-            // 将模式的下标设置成致热
-            modeData.abilityOptionList.forEach((item, index) => {
-              if (item.optionValue === "4") {
-                this.modeCurrent = index;
-                this.modeCurrentLabel =
-                  item.optionDefinedName || item.optionName;
-              }
-            });
-            // 启用对应图标
-            if (item.optionName === "空调") {
-              this.setIconVisible(["isAirConditioning"]);
-            } else if (item.optionName === "地暖") {
-              this.setIconVisible(["isFloorHot"]);
-            } else if (item.optionName === "快暖") {
-              this.setIconVisible(["isTopHot", "isFloorHot"]);
-            } else if (item.optionName === "辅热") {
-              this.setIconVisible(["isAuxiliaryHot"]);
-            }
-          }
-        });
-      };
-
-      if (this.formatItemsList[1].abilityId) {
-        updateModel();
-      }
-      if (this.formatItemsList[2].abilityId) {
-        updateWindSpeed();
-      }
-      if (this.formatItemsList[3].abilityId) {
-        updateAbility();
-      }
-    },
-    setIconVisible(keys) {
-      this.functionIcon = {
-        isFloorHot: false,
-        isAirConditioning: false,
-        isAuxiliaryHot: false,
-        isTopCold: false,
-        isTopHot: false,
-        isVentilation: false
-      };
-      keys.forEach(key => {
-        this.functionIcon[key] = true;
-      });
-    },
-    getListData(abilityId) {
-      // 根据功能id获取功能项的数据
-      const result = this.abilitysList.filter(
-        item => item.abilityId == abilityId
-      )[0];
-
-      return result && result.abilityOptionList;
-    },
-    getLocation() {
-      getLocation(this.deviceId).then(res => {
-        this.location = res.data.location;
       });
     },
     getWeather() {
@@ -881,19 +639,25 @@ export default {
         this.cloudyNight = bgImgs[4];
       }
     },
-    intiTime() {
-      if (!this.isOpen) {
-        this.$toast("当前关机状态，不可操作", "bottom");
-        return;
-      }
-      this.$router.push({
-        path: "/timinglist",
-        query: {
-          deviceId: this.deviceId,
-          wxDeviceId: this.wxDeviceId,
-          customerId: this.customerId
-        }
-      });
+    getPageDatas(){
+        getPageDatas(this.deviceId).then(res=>{
+            console.log(res.data)
+            const data = res.data
+            for(var i =0; i<data.length;i++){
+                this.energy={
+                    data1:data[0].data,
+                    data2:data[1].data,
+                    data3:data[2].data,
+                    data4:data[3].data,
+                    data5:data[4].data,
+                    data6:data[5].data,
+                    data7:data[6].data,
+                    data8:data[7].data,
+                }
+            }
+            this.modeCurrent = this.energy.data5
+            console.log(this.energy)
+        })
     }
   },
   watch: {
@@ -911,9 +675,7 @@ export default {
     this.deviceName = Store.fetch("deviceName");
     this.customerName = Store.fetch("customerName");
     setWechatTitle(this.customerName, "");
-
-    this.getIndexAbilityData();
-    this.getLocation();
+    this.getPageDatas()
     this.getWeather();
     this.initBackground();
     this.hasSet = false;
@@ -988,7 +750,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: tvw(2685);
+    width: tvw(2485);
     margin: tvw(200) auto;
     > div {
       display: flex;
@@ -1067,11 +829,11 @@ export default {
     }
   }
   .current-info {
-    width: tvw(2685);
+    width: tvw(2485);
     margin: auto;
     margin-top: tvw(100);
     margin-bottom: tvw(100);
-    font-size: tvw(120);
+    font-size: tvw(130);
     color: #fff;
     display: flex;
     align-items: center;
@@ -1079,7 +841,7 @@ export default {
     p {
       width: fit-content;
       .strong {
-        font-size: tvw(290);
+        font-size: tvw(350);
       }
     }
   }

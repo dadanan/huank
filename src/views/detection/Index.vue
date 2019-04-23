@@ -37,7 +37,7 @@
           </p>
           <p v-if='formatItemsList[6] && formatItemsList[6].abilityId' :class="{ active:  isOpen === true}" v-html='anion'></p>
           <p></p>
-          <p>个/m³</p>
+          <p>个/cm³</p>
         </div>
       </div>
     </div>
@@ -397,6 +397,7 @@ export default {
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
         if (res.code === 200 && res.data) {
           const data = res.data;
+          Store.save("modelId",data.modelId)      
           this.pageName = data.pageName;
 
           this.formatItemsList = data.formatItemsList;
