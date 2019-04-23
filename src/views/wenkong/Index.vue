@@ -96,6 +96,7 @@
       <img v-if='functionIcon.isAuxiliaryHot' src='@/assets/wenkong/auxiliary-hot.png'>
       <img v-if='functionIcon.isTopCold' src='@/assets/wenkong/top-cold.png'>
       <img v-if='functionIcon.isTopHot' src='@/assets/wenkong/top-hot.png'>
+      <img v-if='functionIcon.isVentilation' src='@/assets/wenkong/ventilation.png'>
     </div>
     <!-- 模式 -->
     <yd-popup v-model="modelVisible" position="bottom" width="90%">
@@ -236,7 +237,8 @@ export default {
         isAirConditioning: false,
         isAuxiliaryHot: false,
         isTopCold: false,
-        isTopHot: false
+        isTopHot: false,
+        isVentilation: false
       },
       hasSet: false // 保证一些数据每次进入页面只刷新一次。
     };
@@ -679,12 +681,18 @@ export default {
           this.modeCurrentLabel = item.optionDefinedName || item.optionName;
 
           // 如果当前选中对模式是致热，打开次级功能模式
-          // 6789是次级模式的选项值
           if ([41, 42, 43, 44].includes(Number(item.optionValue))) {
             this.isOptionalFunctionOpen = true;
           } else {
             this.isOptionalFunctionOpen = false;
-            this.setIconVisible([""]);
+            // 如果可以的话，显示通风或者致冷图标
+            if (item.dirValue == 2) {
+              this.setIconVisible(["isVentilation"]);
+            } else if (item.dirValue == 3) {
+              this.setIconVisible(["isTopCold"]);
+            } else {
+              this.setIconVisible([""]);
+            }
           }
         });
       };
@@ -753,7 +761,8 @@ export default {
         isAirConditioning: false,
         isAuxiliaryHot: false,
         isTopCold: false,
-        isTopHot: false
+        isTopHot: false,
+        isVentilation: false
       };
       keys.forEach(key => {
         this.functionIcon[key] = true;
