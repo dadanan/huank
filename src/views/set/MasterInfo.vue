@@ -8,8 +8,9 @@
       <div class="cell-item" v-for='item in abilityArray' :key='item.id'>
         <div class="cell-left"><span>{{item.definedName || item.abilityName}}</span></div>
         <div>
-          <span v-if='item.dirValue=="2DR.0"'>{{item.status ? '制热' : '制冷'}}</span>
-          <el-switch v-model="item.status" @change="switchStatusHandler(item)" :disabled="isMasterForamt()"></el-switch>
+          <!-- <span v-if='item.dirValue=="2DR.0"'>{{item.status ? '制热' : '制冷'}}</span> -->
+          <el-switch v-if='item.dirValue=="2D8.0"' active-text="开 " inactive-text="关 " v-model="item.status" @change="switchStatusHandler(item)" :disabled="isMasterForamt()"></el-switch>
+          <el-switch v-if='item.dirValue=="2DR.0"' active-text="制热" inactive-text="制冷" v-model="item.status" @change="switchStatusHandler(item)" :disabled="isMasterForamt()"></el-switch>
         </div>
       </div>
     </div>

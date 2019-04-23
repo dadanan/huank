@@ -4,10 +4,20 @@
  */
 const Index = resolve => require(['@/views/index/Index'], resolve)
 const IndexSingle = resolve => require(['@/views/IndexSingle/Index'], resolve)
+const IndexTem = resolve => require(['@/views/indexTem/Index'], resolve)
+const IndexWenk= resolve => require(['@/views/indexWenk/Index'], resolve)
+
+const IndexMas = resolve => require(['@/views/indexMas/Index'], resolve)
+
+
 const Detection = resolve => require(['@/views/detection/Index'], resolve)
 
 const Auth = resolve => require(['@/views/auth/Auth'], resolve)
 const Init = resolve => require(['@/views/init/Init'], resolve)
+const Pay1 = resolve => require(['@/views/pay/Pay1'], resolve)
+const Pay2 = resolve => require(['@/views/pay/Pay2'], resolve)
+
+
 const TimingList = resolve => require(['@/views/timing/List'], resolve)
 const TimingEdet = resolve => require(['@/views/timing/Edit'], resolve)
 const Set = resolve => require(['@/views/set/Index'], resolve)
@@ -55,6 +65,20 @@ let routes = [
     }
   },
   {
+    path: '/pay1',
+    component: Pay1,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/pay2',
+    component: Pay2,
+    meta: {
+      title: ''
+    }
+  },
+  {
     path: '/permissions',
     component: Permissions,
     meta: {
@@ -78,6 +102,27 @@ let routes = [
   {
     path: '/indexsingle',
     component: IndexSingle,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/indextem',
+    component: IndexTem,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/indexwenk',
+    component: IndexWenk,
+    meta: {
+      title: ''
+    }
+  },
+  {
+    path: '/indexmas',
+    component: IndexMas,
     meta: {
       title: ''
     }

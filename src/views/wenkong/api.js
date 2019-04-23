@@ -494,12 +494,43 @@ export function getPayParams(data) {
   })
 }
 
+// 个性设置
+export function queryDeviceIconList(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/high/queryDeviceIconList/${data}`,
+    method: 'get',
+    headers: { Ticket: Store.fetch('Ticket'),
+    Authorization: Store.fetch('Token')
+  }
+  })
+}
+
+// 个性设置传参
+export function setDeviceIcon(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/high/setDeviceIcon`,
+    method: 'post',
+    data,
+    headers: { Ticket: Store.fetch('Ticket'),
+    Authorization: Store.fetch('Token') }
+  })
+}
 // 设置设备关联状态
 export function setLinkStatus(data) {
   return http({
     url: `${BASE_URL}/api/h5/api/team/setLinkStatus`,
     method: 'post',
     data,
+    headers: { Ticket: Store.fetch('Ticket') }
+  })
+}
+
+
+//查询指定页面匹配的数据点数据
+export function getPageDatas(data) {
+  return http({
+    url: `${BASE_URL}/api/h5/api/energy/getPageDatas/${data}`,
+    method: 'post',
     headers: { Ticket: Store.fetch('Ticket') }
   })
 }

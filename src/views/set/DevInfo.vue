@@ -62,8 +62,8 @@ export default {
     this.MAC = Store.fetch('MAC')
     this.hardVersion = Store.fetch('hardVersion')
     this.softVersion = Store.fetch('softVersion')
-    this.deviceSupport = Store.fetch('deviceSupport')
-    this.softSupport = Store.fetch('softSupport')
+    this.deviceSupport = Store.fetch('customerName')
+    this.softSupport = Store.fetch('customerName')
 
     Loading.open('很快加载好了')
     setTimeout(() => {

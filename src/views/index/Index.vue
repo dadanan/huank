@@ -247,7 +247,7 @@ export default {
       if (!currData) {
         return this.outerPm;
       }
-
+      
       const currValue = currData.currValue;
 
       if (currValue && currValue !== "0") {
@@ -803,8 +803,8 @@ export default {
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
         if (res.code === 200 && res.data) {
           const data = res.data;
+          Store.save("modelId",data.modelId)
           this.pageName = data.pageName;
-
           // 将功能集里的内外风机的数据加到版式集合中。为了后面持续刷新两个风机的数据
           let windData = [];
           if (

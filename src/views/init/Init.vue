@@ -22,6 +22,7 @@ export default {
       }).then(res => {
         // 用拿到appid，换微信code
         this.redireact(res.data);
+        Store.save("Ticket", '');
       });
     },
     redireact(id) {

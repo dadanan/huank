@@ -22,7 +22,6 @@
         </div>
         <!--<div class="recove" @click="recove(item.type,index)">滤网复位</div>-->
         <div class="recove" @click="showRecove(item.optionValue,item.maxVal)">滤网复位</div>
-
       </div>
     </div>
     <div class="switch-box  flex flex-pack-justify flex-align-center">

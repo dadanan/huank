@@ -152,6 +152,8 @@
 
 <script type="text/ecmascript-6">
 import { Loading, Toast } from "vue-ydui/dist/lib.rem/dialog";
+import { debug ,log } from "@/utils/log";
+
 import { Popup } from "vue-ydui/dist/lib.rem/popup";
 import { setWechatTitle } from "utils";
 import img1 from "../../assets/bak3.jpg"; // 白天阴
@@ -727,9 +729,10 @@ export default {
       getModelVo({ deviceId: this.deviceId, pageNo: 1 }).then(res => {
         if (res.code == 200 && res.data) {
           const data = res.data;
+          Store.save("modelId",data.modelId)
           this.pageName = data.pageName;
           this.formatItemsList = data.formatItemsList;
-
+         
           data.abilitysList.forEach(item => {
             item["currValue"] = "";
             item.abilityOptionList &&
@@ -800,6 +803,7 @@ export default {
         abilityIds: tempIds
       }).then(res => {
         const data = res.data;
+        // console.log(data)
         // 将res.data中的isSelect和dirValue赋值过去
         this.abilitysList.forEach((item, index) => {
           const realAbilityData = findTheAbility(data, item.abilityId);
